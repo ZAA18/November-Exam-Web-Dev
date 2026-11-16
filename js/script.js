@@ -1,323 +1,323 @@
-/* ==========================================
-   UNICOMPANION - HOMEPAGE JAVASCRIPT
-========================================== */
+// /* ==========================================
+//    UNICOMPANION - HOMEPAGE JAVASCRIPT
+// ========================================== */
 
 
-/* ==========================================
-   1. PAGE LOADING STATE
-========================================== */
+// /* ==========================================
+//    1. PAGE LOADING STATE
+// ========================================== */
 
-const loader = document.getElementById("loader");
+// const loader = document.getElementById("loader");
 
-window.addEventListener("load", () => {
+// window.addEventListener("load", () => {
 
-    setTimeout(() => {
-        loader.classList.add("hidden");
-    }, 500);
+//     setTimeout(() => {
+//         loader.classList.add("hidden");
+//     }, 500);
 
-});
+// });
 
-// Fallback in case an external image takes too long
-setTimeout(() => {
-    loader.classList.add("hidden");
-}, 3000);
+// // Fallback in case an external image takes too long
+// setTimeout(() => {
+//     loader.classList.add("hidden");
+// }, 3000);
 
 
-/* ==========================================
-   2. MOBILE NAVIGATION
-========================================== */
+// /* ==========================================
+//    2. MOBILE NAVIGATION
+// ========================================== */
 
-const menuToggle = document.getElementById("menu-toggle");
-const navigation = document.getElementById("navigation");
+// const menuToggle = document.getElementById("menu-toggle");
+// const navigation = document.getElementById("navigation");
 
-menuToggle.addEventListener("click", () => {
+// menuToggle.addEventListener("click", () => {
 
-    const isOpen = navigation.classList.toggle("open");
+//     const isOpen = navigation.classList.toggle("open");
 
-    menuToggle.setAttribute("aria-expanded", isOpen);
+//     menuToggle.setAttribute("aria-expanded", isOpen);
 
-    menuToggle.setAttribute(
-        "aria-label",
-        isOpen ? "Close navigation" : "Open navigation"
-    );
+//     menuToggle.setAttribute(
+//         "aria-label",
+//         isOpen ? "Close navigation" : "Open navigation"
+//     );
 
-});
+// });
 
 
-// Close navigation after clicking a link
+// // Close navigation after clicking a link
 
-const navigationLinks = document.querySelectorAll(".nav-link");
+// const navigationLinks = document.querySelectorAll(".nav-link");
 
-navigationLinks.forEach(link => {
+// navigationLinks.forEach(link => {
 
-    link.addEventListener("click", () => {
+//     link.addEventListener("click", () => {
 
-        navigation.classList.remove("open");
+//         navigation.classList.remove("open");
 
-        menuToggle.setAttribute("aria-expanded", "false");
+//         menuToggle.setAttribute("aria-expanded", "false");
 
-        navigationLinks.forEach(navLink => {
-            navLink.classList.remove("active");
-        });
+//         navigationLinks.forEach(navLink => {
+//             navLink.classList.remove("active");
+//         });
 
-        link.classList.add("active");
+//         link.classList.add("active");
 
-    });
+//     });
 
-});
+// });
 
 
-/* ==========================================
-   3. UNIVERSITY CAROUSEL
-========================================== */
+// /* ==========================================
+//    3. UNIVERSITY CAROUSEL
+// ========================================== */
 
-const universityTrack = document.getElementById("university-track");
+// const universityTrack = document.getElementById("university-track");
 
-const previousButton = document.getElementById("previous-university");
-const nextButton = document.getElementById("next-university");
+// const previousButton = document.getElementById("previous-university");
+// const nextButton = document.getElementById("next-university");
 
 
-nextButton.addEventListener("click", () => {
+// nextButton.addEventListener("click", () => {
 
-    const firstCard = universityTrack.firstElementChild;
+//     const firstCard = universityTrack.firstElementChild;
 
-    if (firstCard) {
+//     if (firstCard) {
 
-        universityTrack.appendChild(firstCard);
+//         universityTrack.appendChild(firstCard);
 
-    }
+//     }
 
-});
+// });
 
 
-previousButton.addEventListener("click", () => {
+// previousButton.addEventListener("click", () => {
 
-    const lastCard = universityTrack.lastElementChild;
+//     const lastCard = universityTrack.lastElementChild;
 
-    if (lastCard) {
+//     if (lastCard) {
 
-        universityTrack.prepend(lastCard);
+//         universityTrack.prepend(lastCard);
 
-    }
+//     }
 
-});
+// });
 
 
-/* ==========================================
-   4. WEBSITE SEARCH
-========================================== */
+// /* ==========================================
+//    4. WEBSITE SEARCH
+// ========================================== */
 
-const searchForm = document.getElementById("search-form");
-const searchInput = document.getElementById("site-search");
+// const searchForm = document.getElementById("search-form");
+// const searchInput = document.getElementById("site-search");
 
-searchForm.addEventListener("submit", (event) => {
+// searchForm.addEventListener("submit", (event) => {
 
-    event.preventDefault();
+//     event.preventDefault();
 
-    const searchValue = searchInput.value.trim().toLowerCase();
+//     const searchValue = searchInput.value.trim().toLowerCase();
 
-    if (!searchValue) {
-        return;
-    }
+//     if (!searchValue) {
+//         return;
+//     }
 
-    const universityCards = document.querySelectorAll(".university-card");
+//     const universityCards = document.querySelectorAll(".university-card");
 
-    let resultsFound = 0;
+//     let resultsFound = 0;
 
-    universityCards.forEach(card => {
+//     universityCards.forEach(card => {
 
-        const universityName = card.textContent.toLowerCase();
+//         const universityName = card.textContent.toLowerCase();
 
-        const matches = universityName.includes(searchValue);
+//         const matches = universityName.includes(searchValue);
 
-        card.hidden = !matches;
+//         card.hidden = !matches;
 
-        if (matches) {
-            resultsFound++;
-        }
+//         if (matches) {
+//             resultsFound++;
+//         }
 
-    });
+//     });
 
-    document.getElementById("universities").scrollIntoView({
-        behavior: "smooth"
-    });
+//     document.getElementById("universities").scrollIntoView({
+//         behavior: "smooth"
+//     });
 
-    if (resultsFound === 0) {
+//     if (resultsFound === 0) {
 
-        alert("No matching universities found.");
+//         alert("No matching universities found.");
 
-    }
+//     }
 
-});
+// });
 
 
-// Restore university cards when the search is cleared
+// // Restore university cards when the search is cleared
 
-searchInput.addEventListener("input", () => {
+// searchInput.addEventListener("input", () => {
 
-    if (searchInput.value.trim() === "") {
+//     if (searchInput.value.trim() === "") {
 
-        document.querySelectorAll(".university-card").forEach(card => {
-            card.hidden = false;
-        });
+//         document.querySelectorAll(".university-card").forEach(card => {
+//             card.hidden = false;
+//         });
 
-    }
+//     }
 
-});
+// });
 
 
-/* ==========================================
-   5. CHATBOT OPEN AND CLOSE
-========================================== */
+// /* ==========================================
+//    5. CHATBOT OPEN AND CLOSE
+// ========================================== */
 
-const chatLauncher = document.getElementById("chat-launcher");
+// const chatLauncher = document.getElementById("chat-launcher");
 
-const chatPanel = document.getElementById("chat-panel");
+// const chatPanel = document.getElementById("chat-panel");
 
-const closeChatButton = document.getElementById("close-chat");
+// const closeChatButton = document.getElementById("close-chat");
 
-const openChatButton = document.getElementById("open-chat");
+// const openChatButton = document.getElementById("open-chat");
 
 
-function openChat() {
+// function openChat() {
 
-    chatPanel.classList.add("open");
+//     chatPanel.classList.add("open");
 
-    chatPanel.setAttribute("aria-hidden", "false");
+//     chatPanel.setAttribute("aria-hidden", "false");
 
-    chatLauncher.setAttribute("aria-expanded", "true");
+//     chatLauncher.setAttribute("aria-expanded", "true");
 
-    document.getElementById("chat-message").focus();
+//     document.getElementById("chat-message").focus();
 
-}
+// }
 
 
-function closeChat() {
+// function closeChat() {
 
-    chatPanel.classList.remove("open");
+//     chatPanel.classList.remove("open");
 
-    chatPanel.setAttribute("aria-hidden", "true");
+//     chatPanel.setAttribute("aria-hidden", "true");
 
-    chatLauncher.setAttribute("aria-expanded", "false");
+//     chatLauncher.setAttribute("aria-expanded", "false");
 
-}
+// }
 
 
-// Floating chatbot button
+// // Floating chatbot button
 
-chatLauncher.addEventListener("click", () => {
+// chatLauncher.addEventListener("click", () => {
 
-    if (chatPanel.classList.contains("open")) {
+//     if (chatPanel.classList.contains("open")) {
 
-        closeChat();
+//         closeChat();
 
-    } else {
+//     } else {
 
-        openChat();
+//         openChat();
 
-    }
+//     }
 
-});
+// });
 
 
-// Close button
+// // Close button
 
-closeChatButton.addEventListener("click", closeChat);
+// closeChatButton.addEventListener("click", closeChat);
 
 
-// Open chatbot from the feature card
+// // Open chatbot from the feature card
 
-openChatButton.addEventListener("click", openChat);
+// openChatButton.addEventListener("click", openChat);
 
 
-// Close chatbot with Escape
+// // Close chatbot with Escape
 
-document.addEventListener("keydown", (event) => {
+// document.addEventListener("keydown", (event) => {
 
-    if (event.key === "Escape" && chatPanel.classList.contains("open")) {
+//     if (event.key === "Escape" && chatPanel.classList.contains("open")) {
 
-        closeChat();
+//         closeChat();
 
-        chatLauncher.focus();
+//         chatLauncher.focus();
 
-    }
+//     }
 
-});
+// });
 
 
-/* ==========================================
-   6. CHAT MESSAGE INTERACTION
-========================================== */
+// /* ==========================================
+//    6. CHAT MESSAGE INTERACTION
+// ========================================== */
 
-const chatForm = document.getElementById("chat-form");
+// const chatForm = document.getElementById("chat-form");
 
-const chatInput = document.getElementById("chat-message");
+// const chatInput = document.getElementById("chat-message");
 
-const chatMessages = document.getElementById("chat-messages");
+// const chatMessages = document.getElementById("chat-messages");
 
 
-chatForm.addEventListener("submit", (event) => {
+// chatForm.addEventListener("submit", (event) => {
 
-    event.preventDefault();
+//     event.preventDefault();
 
-    const message = chatInput.value.trim();
+//     const message = chatInput.value.trim();
 
-    if (!message) {
-        return;
-    }
+//     if (!message) {
+//         return;
+//     }
 
 
-    // Create the user's message
+//     // Create the user's message
 
-    const userMessage = document.createElement("div");
+//     const userMessage = document.createElement("div");
 
-    userMessage.classList.add("user-message");
+//     userMessage.classList.add("user-message");
 
-    userMessage.textContent = message;
+//     userMessage.textContent = message;
 
-    userMessage.style.cssText = `
-        align-self: flex-end;
-        background: #d9f3f3;
-        padding: 10px;
-        border-radius: 9px;
-        max-width: 90%;
-        font-size: 10px;
-        line-height: 1.5;
-    `;
+//     userMessage.style.cssText = `
+//         align-self: flex-end;
+//         background: #d9f3f3;
+//         padding: 10px;
+//         border-radius: 9px;
+//         max-width: 90%;
+//         font-size: 10px;
+//         line-height: 1.5;
+//     `;
 
-    chatMessages.appendChild(userMessage);
+//     chatMessages.appendChild(userMessage);
 
 
-    // Show connection information
+//     // Show connection information
 
-    const response = document.createElement("div");
+//     const response = document.createElement("div");
 
-    response.classList.add("bot-message");
+//     response.classList.add("bot-message");
 
-    response.textContent =
-        "Thanks for your question! The Gemini AI connection still needs to be configured.";
+//     response.textContent =
+//         "Thanks for your question! The Gemini AI connection still needs to be configured.";
 
-    chatMessages.appendChild(response);
+//     chatMessages.appendChild(response);
 
 
-    // Clear input
+//     // Clear input
 
-    chatInput.value = "";
+//     chatInput.value = "";
 
 
-    // Scroll to latest message
+//     // Scroll to latest message
 
-    chatMessages.scrollTop = chatMessages.scrollHeight;
+//     chatMessages.scrollTop = chatMessages.scrollHeight;
 
-});
+// });
 
 
-/* ==========================================
-   7. INITIAL PAGE STATE
-========================================== */
+// /* ==========================================
+//    7. INITIAL PAGE STATE
+// ========================================== */
 
-document.addEventListener("DOMContentLoaded", () => {
+// document.addEventListener("DOMContentLoaded", () => {
 
-    console.log("UniCompanion homepage loaded successfully.");
+//     console.log("UniCompanion homepage loaded successfully.");
 
-});
+// });

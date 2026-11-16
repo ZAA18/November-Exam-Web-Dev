@@ -1,11 +1,792 @@
+
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+
+    <title>UniCompanion | APS & Average Calculator</title>
+
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/navigation.css">
+    <link rel="stylesheet" href="../css/aps.css">
+    <link rel="stylesheet" href="../css/assistant.css">
+
+   <script
+    src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"
+    defer>
+</script>
+
+<script src="../js/navigation.js" defer></script>
+<script src="../js/assistant.js" defer></script>
+
+<!-- Load the prospectus reader before the calculator -->
+<script src="../js/prospectus-reader.js" defer></script>
+
+<script src="../js/wits-requirements.js" defer></script>
+<script src="../js/aps.js" defer></script>
 </head>
+
 <body>
-    
+
+    <!-- NAVIGATION -->
+
+    <header class="header">
+
+        <div class="logo">
+            <a href="index.html">
+                <span>🎓</span>
+                <span>
+                    <strong>UniCompanion</strong>
+                    <small>Your AI-Powered University Guide</small>
+                </span>
+            </a>
+        </div>
+
+        <button id="menu-toggle"
+                class="menu-toggle"
+                aria-label="Open navigation"
+                aria-expanded="false">
+            ☰
+        </button>
+
+        <nav id="navigation">
+
+            <a href="index.html" class="nav-link">Home</a>
+
+            <a href="aps-calculator.html"
+               class="nav-link active">
+                APS & Average Calculator
+            </a>
+
+            <a href="view-courses.html" class="nav-link">
+                View Courses
+            </a>
+
+            <a href="find-my-course.html" class="nav-link">
+                Find My Course
+            </a>
+
+        </nav>
+
+        <form id="search-form" class="search-form">
+            <input type="search"
+                   id="site-search"
+                   placeholder="Search universities or courses">
+            <button type="submit">⌕</button>
+        </form>
+
+    </header>
+
+
+    <!-- MAIN APS PAGE -->
+
+    <main class="aps-page">
+
+        <h1 class="aps-page-title">
+            APS & AVERAGE CALCULATOR
+        </h1>
+
+
+        <div class="aps-main-layout">
+
+
+            <!-- LEFT SIDE: SUBJECT MARKS -->
+
+            <section class="marks-section">
+
+                <h2>ENTER YOUR MARKS</h2>
+
+                <p class="marks-description">
+                    Choose the subjects you take, add them below, then enter your marks.
+                </p>
+
+                <div class="subject-picker">
+                    <label for="subject-select">Choose a subject</label>
+                    <div class="subject-picker-controls">
+                        <select id="subject-select">
+                            <option value="">Select a subject</option>
+                        </select>
+                        <button type="button" id="add-subject">Add subject</button>
+                    </div>
+                </div>
+
+                <div class="marks-list" id="marks-list" aria-live="polite"></div>
+
+                <template id="subject-options">
+
+                    <div class="mark-row">
+                        <label for="english-home">
+                            English Home Language
+                        </label>
+
+                        <input type="number"
+                               id="english-home"
+                               data-subject="englishHome"
+                               min="0"
+                               max="100"
+                               step="1"
+                               placeholder="Enter mark">
+                    </div>
+
+
+                    <div class="mark-row">
+                        <label for="english-fal">
+                            English First Additional Language
+                        </label>
+
+                        <input type="number"
+                               id="english-fal"
+                               data-subject="englishFAL"
+                               min="0"
+                               max="100"
+                               step="1"
+                               placeholder="Enter mark">
+                    </div>
+
+
+                    <div class="mark-row">
+                        <label for="afrikaans-home">
+                            Afrikaans Home Language
+                        </label>
+
+                        <input type="number"
+                               id="afrikaans-home"
+                               data-subject="afrikaansHome"
+                               min="0"
+                               max="100"
+                               step="1"
+                               placeholder="Enter mark">
+                    </div>
+
+
+                    <div class="mark-row">
+                        <label for="afrikaans-fal">
+                            Afrikaans First Additional Language
+                        </label>
+
+                        <input type="number"
+                               id="afrikaans-fal"
+                               data-subject="afrikaansFAL"
+                               min="0"
+                               max="100"
+                               step="1"
+                               placeholder="Enter mark">
+                    </div>
+
+
+                    <div class="mark-row">
+                        <label for="mathematics">
+                            Mathematics
+                        </label>
+
+                        <input type="number"
+                               id="mathematics"
+                               data-subject="mathematics"
+                               min="0"
+                               max="100"
+                               step="1"
+                               placeholder="Enter mark">
+                    </div>
+
+
+                    <div class="mark-row">
+                        <label for="math-literacy">
+                            Mathematical Literacy
+                        </label>
+
+                        <input type="number"
+                               id="math-literacy"
+                               data-subject="mathLiteracy"
+                               min="0"
+                               max="100"
+                               step="1"
+                               placeholder="Enter mark">
+                    </div>
+
+
+                    <div class="mark-row">
+                        <label for="physical-sciences">
+                            Physical Sciences
+                        </label>
+
+                        <input type="number"
+                               id="physical-sciences"
+                               data-subject="physicalSciences"
+                               min="0"
+                               max="100"
+                               step="1"
+                               placeholder="Enter mark">
+                    </div>
+
+
+                    <div class="mark-row">
+                        <label for="life-sciences">
+                            Life Sciences
+                        </label>
+
+                        <input type="number"
+                               id="life-sciences"
+                               data-subject="lifeSciences"
+                               min="0"
+                               max="100"
+                               step="1"
+                               placeholder="Enter mark">
+                    </div>
+
+
+                    <div class="mark-row">
+                        <label for="accounting">
+                            Accounting
+                        </label>
+
+                        <input type="number"
+                               id="accounting"
+                               data-subject="accounting"
+                               min="0"
+                               max="100"
+                               step="1"
+                               placeholder="Enter mark">
+                    </div>
+
+
+                    <div class="mark-row">
+                        <label for="business-studies">
+                            Business Studies
+                        </label>
+
+                        <input type="number"
+                               id="business-studies"
+                               data-subject="businessStudies"
+                               min="0"
+                               max="100"
+                               step="1"
+                               placeholder="Enter mark">
+                    </div>
+
+
+                    <div class="mark-row">
+                        <label for="economics">
+                            Economics
+                        </label>
+
+                        <input type="number"
+                               id="economics"
+                               data-subject="economics"
+                               min="0"
+                               max="100"
+                               step="1"
+                               placeholder="Enter mark">
+                    </div>
+
+
+                    <div class="mark-row">
+                        <label for="geography">
+                            Geography
+                        </label>
+
+                        <input type="number"
+                               id="geography"
+                               data-subject="geography"
+                               min="0"
+                               max="100"
+                               step="1"
+                               placeholder="Enter mark">
+                    </div>
+
+
+                    <div class="mark-row">
+                        <label for="history">
+                            History
+                        </label>
+
+                        <input type="number"
+                               id="history"
+                               data-subject="history"
+                               min="0"
+                               max="100"
+                               step="1"
+                               placeholder="Enter mark">
+                    </div>
+
+
+                    <div class="mark-row">
+                        <label for="information-technology">
+                            Information Technology
+                        </label>
+
+                        <input type="number"
+                               id="information-technology"
+                               data-subject="informationTechnology"
+                               min="0"
+                               max="100"
+                               step="1"
+                               placeholder="Enter mark">
+                    </div>
+
+
+                    <div class="mark-row">
+                        <label for="cat">
+                            Computer Applications Technology
+                        </label>
+
+                        <input type="number"
+                               id="cat"
+                               data-subject="computerApplicationsTechnology"
+                               min="0"
+                               max="100"
+                               step="1"
+                               placeholder="Enter mark">
+                    </div>
+
+
+                    <div class="mark-row">
+                        <label for="visual-arts">
+                            Visual Arts
+                        </label>
+
+                        <input type="number"
+                               id="visual-arts"
+                               data-subject="visualArts"
+                               min="0"
+                               max="100"
+                               step="1"
+                               placeholder="Enter mark">
+                    </div>
+
+
+                    <div class="mark-row">
+                        <label for="life-orientation">
+                            Life Orientation
+                        </label>
+
+                        <input type="number"
+                               id="life-orientation"
+                               data-subject="lifeOrientation"
+                               min="0"
+                               max="100"
+                               step="1"
+                               placeholder="Enter mark">
+                    </div>
+
+
+                </template>
+
+                <p id="aps-message"
+                   class="aps-message"
+                   role="status"
+                   aria-live="polite">
+                </p>
+
+
+                <div class="aps-buttons">
+
+                    <button type="button" id="calculate-aps">
+                        Calculate APS
+                    </button>
+
+                    <button type="button" id="calculate-average">
+                        Calculate Average
+                    </button>
+
+                </div>
+
+            </section>
+
+
+
+            <!-- RIGHT SIDE: UNIVERSITIES -->
+
+            <section class="aps-universities"
+                     aria-label="University APS results">
+
+
+                <!-- WITS -->
+
+                <article class="aps-university-card"
+                         data-university="wits">
+
+                    <div class="card-inner">
+
+                        <div class="card-front">
+                            <span class="university-logo">W</span>
+                            <span>Wits University</span>
+                        </div>
+
+                        <div class="card-back">
+
+                            <h3>Wits University</h3>
+
+                            <div class="result-item">
+                                <span>Your Wits APS</span>
+                                <strong class="university-aps">--</strong>
+                            </div>
+
+                            <div class="result-item">
+                                <span>Meets minimums</span>
+                                <strong class="eligible-count">Pending</strong>
+                            </div>
+
+                            <button class="view-university-courses"
+                                    type="button"
+                                    disabled
+                                    aria-controls="wits-programme-results">
+                                View Courses
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </article>
+
+
+                <!-- UCT -->
+
+                <article class="aps-university-card"
+                         data-university="uct">
+
+                    <div class="card-inner">
+
+                        <div class="card-front">
+                            <span class="university-logo">UCT</span>
+                            <span>University Of Cape Town</span>
+                        </div>
+
+                        <div class="card-back">
+
+                            <h3>University Of Cape Town</h3>
+
+                            <div class="result-item">
+                                <span>Your UCT APS</span>
+                                <strong class="university-aps">--</strong>
+                            </div>
+
+                            <div class="result-item">
+                                <span>Eligible programmes</span>
+                                <strong class="eligible-count">Pending</strong>
+                            </div>
+
+                            <button class="view-university-courses"
+                                    type="button" disabled>
+                                View Courses
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </article>
+
+
+                <!-- UP -->
+
+                <article class="aps-university-card"
+                         data-university="up">
+
+                    <div class="card-inner">
+
+                        <div class="card-front">
+                            <span class="university-logo">UP</span>
+                            <span>University Of Pretoria</span>
+                        </div>
+
+                        <div class="card-back">
+
+                            <h3>University Of Pretoria</h3>
+
+                            <div class="result-item">
+                                <span>Your UP APS</span>
+                                <strong class="university-aps">--</strong>
+                            </div>
+
+                            <div class="result-item">
+                                <span>Eligible programmes</span>
+                                <strong class="eligible-count">Pending</strong>
+                            </div>
+
+                            <button class="view-university-courses"
+                                    type="button" disabled>
+                                View Courses
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </article>
+
+
+                <!-- UJ -->
+
+                <article class="aps-university-card"
+                         data-university="uj">
+
+                    <div class="card-inner">
+
+                        <div class="card-front">
+                            <span class="university-logo">UJ</span>
+                            <span>University Of Johannesburg</span>
+                        </div>
+
+                        <div class="card-back">
+
+                            <h3>University Of Johannesburg</h3>
+
+                            <div class="result-item">
+                                <span>Your UJ APS</span>
+                                <strong class="university-aps">--</strong>
+                            </div>
+
+                            <div class="result-item">
+                                <span>Eligible programmes</span>
+                                <strong class="eligible-count">Pending</strong>
+                            </div>
+
+                            <button class="view-university-courses"
+                                    type="button" disabled>
+                                View Courses
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </article>
+
+
+                <!-- UFH -->
+
+                <article class="aps-university-card"
+                         data-university="ufh">
+
+                    <div class="card-inner">
+
+                        <div class="card-front">
+                            <span class="university-logo">UFH</span>
+                            <span>University Of Fort Hare</span>
+                        </div>
+
+                        <div class="card-back">
+
+                            <h3>University Of Fort Hare</h3>
+
+                            <div class="result-item">
+                                <span>Your UFH APS</span>
+                                <strong class="university-aps">--</strong>
+                            </div>
+
+                            <div class="result-item">
+                                <span>Eligible programmes</span>
+                                <strong class="eligible-count">Pending</strong>
+                            </div>
+
+                            <button class="view-university-courses"
+                                    type="button" disabled>
+                                View Courses
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </article>
+
+
+                <!-- RHODES -->
+
+                <article class="aps-university-card"
+                         data-university="rhodes">
+
+                    <div class="card-inner">
+
+                        <div class="card-front">
+                            <span class="university-logo">RU</span>
+                            <span>Rhodes University</span>
+                        </div>
+
+                        <div class="card-back">
+
+                            <h3>Rhodes University</h3>
+
+                            <div class="result-item">
+                                <span>Your Rhodes APS</span>
+                                <strong class="university-aps">--</strong>
+                            </div>
+
+                            <div class="result-item">
+                                <span>Eligible programmes</span>
+                                <strong class="eligible-count">Pending</strong>
+                            </div>
+
+                            <button class="view-university-courses"
+                                    type="button" disabled>
+                                View Courses
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </article>
+
+
+                <!-- WSU -->
+
+                <article class="aps-university-card"
+                         data-university="wsu">
+
+                    <div class="card-inner">
+
+                        <div class="card-front">
+                            <span class="university-logo">WSU</span>
+                            <span>Walter Sisulu University</span>
+                        </div>
+
+                        <div class="card-back">
+
+                            <h3>Walter Sisulu University</h3>
+
+                            <div class="result-item">
+                                <span>Your WSU APS</span>
+                                <strong class="university-aps">--</strong>
+                            </div>
+
+                            <div class="result-item">
+                                <span>Eligible programmes</span>
+                                <strong class="eligible-count">Pending</strong>
+                            </div>
+
+                            <button class="view-university-courses"
+                                    type="button" disabled>
+                                View Courses
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </article>
+
+
+                <!-- STELLENBOSCH -->
+
+                <article class="aps-university-card"
+                         data-university="stellenbosch">
+
+                    <div class="card-inner">
+
+                        <div class="card-front">
+                            <span class="university-logo">SU</span>
+                            <span>Stellenbosch University</span>
+                        </div>
+
+                        <div class="card-back">
+
+                            <h3>Stellenbosch University</h3>
+
+                            <div class="result-item">
+                                <span>Your SU APS</span>
+                                <strong class="university-aps">--</strong>
+                            </div>
+
+                            <div class="result-item">
+                                <span>Eligible programmes</span>
+                                <strong class="eligible-count">Pending</strong>
+                            </div>
+
+                            <button class="view-university-courses"
+                                    type="button" disabled>
+                                View Courses
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </article>
+
+
+                <!-- UFS -->
+
+                <article class="aps-university-card"
+                         data-university="ufs">
+
+                    <div class="card-inner">
+
+                        <div class="card-front">
+                            <span class="university-logo">UFS</span>
+                            <span>University Of The Free State</span>
+                        </div>
+
+                        <div class="card-back">
+
+                            <h3>University Of The Free State</h3>
+
+                            <div class="result-item">
+                                <span>Your UFS APS</span>
+                                <strong class="university-aps">--</strong>
+                            </div>
+
+                            <div class="result-item">
+                                <span>Eligible programmes</span>
+                                <strong class="eligible-count">Pending</strong>
+                            </div>
+
+                            <button class="view-university-courses"
+                                    type="button" disabled>
+                                View Courses
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </article>
+
+
+            </section>
+
+        </div>
+
+        <section class="wits-programme-results"
+                 id="wits-programme-results"
+                 aria-labelledby="wits-programme-heading"
+                 hidden>
+            <h2 id="wits-programme-heading">Wits programme matches</h2>
+            <p class="wits-results-note">
+                These are estimates against Wits' published minimum NSC requirements, not admission offers.
+                Selection criteria and available places may affect admission. Health Sciences programmes
+                use a Composite Index and have no APS minimum listed here.
+            </p>
+            <p id="wits-results-summary" role="status" aria-live="polite"></p>
+            <ul id="wits-eligible-programmes"></ul>
+            <p class="wits-source">
+                School-leaver NSC thresholds are from the current official Wits programme pages
+                (which do not consistently state an admission year).                 the full 2027 guide could not
+                be independently cross-checked, and this list may not include every Wits programme.
+                Requirements can change. Wits' guide:
+                <a href="https://www.wits.ac.za/undergraduate/entry-requirements/admission-requirements-nsc/"
+                   target="_blank"
+                   rel="noopener noreferrer"><span id="wits-requirements-year"></span> admission requirements</a>.
+            </p>
+        </section>
+
+    </main>
+
+
+    <!-- FOOTER -->
+
+    <footer class="footer">
+        <p>© 2026 UniCompanion. All rights reserved.</p>
+    </footer>
+
+
+    <!-- ASSISTANT CONTAINER -->
+
+    <div id="assistant-container"></div>
+
 </body>
+
 </html>

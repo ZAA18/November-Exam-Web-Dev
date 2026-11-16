@@ -1,0 +1,514 @@
+
+/* =========================================
+   UNICOMPANION — APS & AVERAGE CALCULATOR
+========================================= */
+
+.aps-page {
+    width: min(94%, 78rem);
+    margin: 0 auto;
+    padding: clamp(1.2rem, 2.5vw, 2rem) 0 2.5rem;
+    min-height: calc(100svh - 9rem);
+}
+
+.aps-page-title {
+    margin: 0 0 clamp(1.5rem, 3vw, 2.2rem);
+    text-align: center;
+    font-size: clamp(1.1rem, 1.8vw, 1.45rem);
+    font-weight: 800;
+    color: #27383b;
+}
+
+
+/* MAIN LAYOUT */
+
+.aps-main-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.5fr);
+    gap: clamp(1.5rem, 3vw, 3rem);
+    align-items: start;
+}
+
+
+/* MARKS SECTION */
+
+.marks-section {
+    min-width: 0;
+}
+
+.marks-section h2 {
+    margin: 0 0 .5rem;
+    font-size: clamp(.85rem, 1.2vw, 1rem);
+    font-weight: 800;
+    color: #27383b;
+}
+
+.marks-description {
+    margin: 0 0 1.2rem;
+    color: #71807c;
+    font-size: .7rem;
+    line-height: 1.5;
+}
+
+.subject-picker {
+    margin-bottom: 1rem;
+}
+
+.subject-picker > label {
+    display: block;
+    margin-bottom: .4rem;
+    color: #43504d;
+    font-size: .72rem;
+    font-weight: 600;
+}
+
+.subject-picker-controls {
+    display: flex;
+    gap: .5rem;
+}
+
+.subject-picker select {
+    flex: 1;
+    min-width: 0;
+    padding: .5rem;
+    border: 1px solid #7e9c9c;
+    border-radius: .35rem;
+    background: #fff;
+    color: #34494d;
+    font: inherit;
+    font-size: .72rem;
+}
+
+.subject-picker-controls button,
+.remove-subject {
+    padding: .45rem .65rem;
+    border: 0;
+    border-radius: .35rem;
+    background: #f49b28;
+    color: #283638;
+    font: inherit;
+    font-size: .68rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.subject-picker-controls button:focus-visible,
+.remove-subject:focus-visible {
+    outline: 2px solid #087e8b;
+    outline-offset: 2px;
+}
+
+.marks-list {
+    display: flex;
+    flex-direction: column;
+    gap: .65rem;
+}
+
+.mark-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(5rem, 7rem) auto;
+    gap: .65rem;
+    align-items: center;
+    min-width: 0;
+}
+
+.mark-row label {
+    color: #43504d;
+    font-size: clamp(.65rem, .85vw, .75rem);
+    font-weight: 600;
+    line-height: 1.35;
+}
+
+.mark-row input {
+    width: 100%;
+    min-width: 0;
+    height: 2.2rem;
+    padding: 0 .6rem;
+    border: 1px solid #7e9c9c;
+    border-radius: .35rem;
+    background: #b7dce3;
+    color: #34494d;
+    font-family: inherit;
+    font-size: .72rem;
+    outline-color: #00aebe;
+    transition: border-color .2s ease;
+}
+
+.mark-row input::placeholder {
+    color: #647f83;
+    font-size: .62rem;
+}
+
+.mark-row input:focus {
+    border-color: #00aebe;
+    background: #d5edf0;
+}
+
+
+/* VALIDATION */
+
+.aps-message {
+    min-height: 1.2rem;
+    margin: 1rem 0 0;
+    color: #b14c38;
+    font-size: .7rem;
+    line-height: 1.5;
+}
+
+
+/* BUTTONS */
+
+.aps-buttons {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .65rem;
+    margin-top: 1.3rem;
+}
+
+.aps-buttons button {
+    width: min(65%, 12rem);
+    min-width: 8rem;
+    min-height: 2.3rem;
+    padding: .5rem .8rem;
+    border: none;
+    border-radius: .4rem;
+    background: #f49b28;
+    color: #283638;
+    font-family: inherit;
+    font-size: .7rem;
+    font-weight: 800;
+    cursor: pointer;
+    transition: background .2s ease, transform .2s ease;
+}
+
+.aps-buttons button:hover {
+    background: #e98a17;
+    transform: translateY(-2px);
+}
+
+.aps-buttons button:focus-visible {
+    outline: 2px solid #087e8b;
+    outline-offset: 3px;
+}
+
+
+/* UNIVERSITY GRID */
+
+.aps-universities {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: clamp(.8rem, 1.6vw, 1.3rem);
+    min-width: 0;
+    perspective: 1000px;
+}
+
+
+/* UNIVERSITY CARDS */
+
+.aps-university-card {
+    min-width: 0;
+    min-height: 9rem;
+    perspective: 1000px;
+    background: transparent;
+}
+
+.card-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    min-height: 9rem;
+    transform-style: preserve-3d;
+    transition: transform .8s cubic-bezier(.2, .7, .2, 1);
+}
+
+.aps-university-card.is-flipped .card-inner {
+    transform: rotateY(180deg);
+}
+
+.card-front,
+.card-back {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: .8rem;
+    border-radius: .5rem;
+    background: #f6e6d4;
+    color: #354346;
+    text-align: center;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+}
+
+.card-front {
+    gap: .7rem;
+    font-size: clamp(.63rem, .85vw, .76rem);
+    font-weight: 600;
+    line-height: 1.4;
+}
+
+.card-back {
+    transform: rotateY(180deg);
+    gap: .55rem;
+    justify-content: space-evenly;
+}
+
+.card-back h3 {
+    margin: 0;
+    font-size: clamp(.62rem, .8vw, .75rem);
+    font-weight: 800;
+    line-height: 1.3;
+}
+
+
+/* LOGOS */
+
+.university-logo {
+    width: clamp(2rem, 3vw, 2.8rem);
+    height: clamp(2rem, 3vw, 2.8rem);
+    flex: 0 0 auto;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: #fffdf7;
+    border: 1px solid #e0d4c2;
+    color: #526a71;
+    font-size: .65rem;
+    font-weight: 800;
+}
+
+
+/* RESULTS */
+
+.result-item {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: .15rem;
+    align-items: center;
+}
+
+.result-item span {
+    font-size: .59rem;
+    color: #687875;
+}
+
+.result-item strong {
+    color: #263b3d;
+    font-size: 1.25rem;
+    font-weight: 800;
+}
+
+
+/* COURSE BUTTON */
+
+.view-university-courses {
+    width: 100%;
+    padding: .45rem .4rem;
+    border: none;
+    border-radius: .35rem;
+    background: #00bdc9;
+    color: #153d40;
+    font-family: inherit;
+    font-size: .6rem;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.view-university-courses:disabled {
+    background: #c5d3ce;
+    color: #6d7c76;
+    cursor: not-allowed;
+}
+
+.wits-programme-results {
+    margin-top: 2rem;
+    padding: clamp(1rem, 2vw, 1.5rem);
+    border: 1px solid #b7c0b8;
+    border-radius: .6rem;
+    background: #fffdf7;
+}
+
+.wits-programme-results h2 {
+    margin: 0 0 .5rem;
+    color: #27383b;
+    font-size: 1rem;
+}
+
+.wits-results-note,
+.wits-source {
+    color: #687875;
+    font-size: .72rem;
+    line-height: 1.5;
+}
+
+#wits-eligible-programmes {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+    gap: .75rem;
+    margin: 1rem 0;
+    padding: 0;
+    list-style: none;
+}
+
+#wits-eligible-programmes li {
+    padding: .8rem;
+    border: 1px solid #d5ddd7;
+    border-radius: .4rem;
+}
+
+#wits-eligible-programmes a {
+    color: #087e8b;
+    font-size: .8rem;
+    font-weight: 800;
+}
+
+#wits-eligible-programmes p {
+    margin: .35rem 0 0;
+    color: #687875;
+    font-size: .68rem;
+    line-height: 1.4;
+}
+
+.wits-source a {
+    color: #087e8b;
+}
+
+
+/* FOOTER */
+
+.aps-page + .footer {
+    width: 100%;
+    border-top: 1px solid #b7c0b8;
+    text-align: center;
+    padding: .8rem 1rem;
+}
+
+.aps-page + .footer p {
+    margin: 0;
+    font-size: .65rem;
+    color: #78827c;
+}
+
+
+/* TABLET */
+
+@media (max-width: 850px) {
+
+    .aps-main-layout {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 2.5rem;
+    }
+
+    .marks-section {
+        width: min(100%, 35rem);
+        margin: 0 auto;
+    }
+
+    .aps-universities {
+        width: 100%;
+    }
+
+}
+
+
+/* MOBILE */
+
+@media (max-width: 550px) {
+
+    .aps-page {
+        width: calc(100% - 1.5rem);
+        padding-top: 1.4rem;
+    }
+
+    .aps-page-title {
+        font-size: 1.05rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .marks-section h2 {
+        font-size: .9rem;
+    }
+
+    .mark-row {
+        grid-template-columns: minmax(0, 1fr) 5rem auto;
+        gap: .5rem;
+    }
+
+    .mark-row input {
+        height: 2.4rem;
+        font-size: .7rem;
+    }
+
+    .mark-row label {
+        font-size: .67rem;
+    }
+
+    .aps-buttons {
+        margin-top: 1.4rem;
+    }
+
+    .aps-buttons button {
+        width: 65%;
+        min-height: 2.4rem;
+    }
+
+    .aps-universities {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: .75rem;
+    }
+
+    .aps-university-card,
+    .card-inner {
+        min-height: 9rem;
+    }
+
+    .card-front,
+    .card-back {
+        padding: .6rem;
+    }
+
+    .university-logo {
+        width: 2rem;
+        height: 2rem;
+        font-size: .55rem;
+    }
+
+}
+
+
+/* VERY SMALL SCREENS */
+
+@media (max-width: 350px) {
+
+    .aps-universities {
+        grid-template-columns: 1fr;
+    }
+
+    .mark-row {
+        grid-template-columns: minmax(0, 1fr) 4.5rem auto;
+    }
+
+    .remove-subject {
+        padding: .4rem;
+        font-size: .6rem;
+    }
+
+}
+
+
+/* REDUCED MOTION ACCESSIBILITY */
+
+@media (prefers-reduced-motion: reduce) {
+
+    .card-inner {
+        transition: none;
+    }
+
+    .aps-buttons button {
+        transition: none;
+    }
+
+}

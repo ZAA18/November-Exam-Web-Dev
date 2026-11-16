@@ -20,10 +20,12 @@
     <!-- CSS -->
     <link rel="stylesheet" href="/css/styles.css">
     <link rel="stylesheet" href="/css/navigation.css">
+    <link rel="stylesheet" href="/css/assistant.css">
 
     <!-- JavaScript -->
     <script src="/js/navigation.js" defer></script>
     <script src="/js/home.js" defer></script>
+    <script src="/js/assistant.js" defer></script>
 
 </head>
 
@@ -499,89 +501,6 @@
         </p>
 
     </footer>
-
-
-    <!-- FLOATING AI ASSISTANT -->
-
-    <button class="chat-launcher"
-        id="chat-launcher"
-        aria-label="Open UniCompanion AI assistant"
-        aria-expanded="false"
-        aria-controls="chat-panel"
-        title="Drag to move; click to open the assistant">
-
-        <span class="chat-launcher-icon">🤖</span>
-
-        <span class="chat-launcher-text">
-
-            <strong>Ask UniCompanion AI</strong>
-
-            <small>How can I help you today?</small>
-
-        </span>
-
-    </button>
-
-
-    <!-- AI CHAT WINDOW -->
-
-    <section class="chat-panel"
-        id="chat-panel"
-        aria-label="UniCompanion AI chat"
-        aria-hidden="true">
-
-        <div class="chat-header">
-
-            <div>
-                <strong>🤖 UniCompanion AI</strong>
-                <small>Your university guide</small>
-            </div>
-
-            <button id="close-chat" aria-label="Close chatbot">
-                ×
-            </button>
-
-        </div>
-
-
-        <div class="chat-messages" id="chat-messages" aria-live="polite">
-
-            <div class="bot-message">
-
-                Hi! Welcome to UniCompanion.
-
-                I'm here to help you with university applications,
-                APS calculations and finding courses.
-
-                What would you like to know?
-
-            </div>
-
-            <div class="chat-notice">
-                Gemini AI connection will be configured in the next step.
-            </div>
-
-        </div>
-
-
-        <form class="chat-input" id="chat-form">
-
-            <label for="chat-message" class="sr-only">
-                Enter your message
-            </label>
-
-            <input type="text"
-                id="chat-message"
-                placeholder="Ask me anything..."
-                autocomplete="off">
-
-            <button type="submit" aria-label="Send message">
-                ➤
-            </button>
-
-        </form>
-
-    </section>
 
 
 </body>
