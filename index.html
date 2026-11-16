@@ -6,6 +6,557 @@
     <meta name ="description" content="UniCompanion helps South African students find the best universities, calculate APS and explore courses.">
     <title>UniCompanion | Your AI-Powered University Guide</title>
     
+      <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="styles.css">
+
+    <!-- JavaScript -->
+    <script src="script.js" defer></script>
+</head>
+
+<body>
+
+    <!-- ================= LOADING SCREEN ================= -->
+
+    <div class="loader" id="loader">
+        <div class="loader-logo">🎓</div>
+
+        <h2>UniCompanion</h2>
+        <p>Preparing your university journey...</p>
+
+        <div class="loader-bar">
+            <span></span>
+        </div>
+    </div>
+
+
+    <!-- ================= HEADER ================= -->
+
+    <header class="header">
+
+        <!-- Logo -->
+        <a href="#home" class="logo">
+
+            <span class="logo-icon">🎓</span>
+
+            <span class="logo-text">
+                <strong>UniCompanion</strong>
+                <small>Your AI-Powered University Guide</small>
+            </span>
+
+        </a>
+
+
+        <!-- Mobile Menu Button -->
+        <button class="menu-toggle" id="menu-toggle"
+            aria-label="Open navigation"
+            aria-expanded="false"
+            aria-controls="navigation">
+
+            <span></span>
+            <span></span>
+            <span></span>
+
+        </button>
+
+
+        <!-- Navigation -->
+        <nav class="navigation" id="navigation" aria-label="Main navigation">
+
+            <a href="#home" class="nav-link active">
+                <span>⌂</span> Home
+            </a>
+
+            <a href="#aps" class="nav-link">
+                <span>▦</span> APS & Average Calculator
+            </a>
+
+            <a href="#courses" class="nav-link">
+                <span>▤</span> View Courses
+            </a>
+
+            <a href="#find-course" class="nav-link">
+                <span>◎</span> Find My Course
+            </a>
+
+        </nav>
+
+
+        <!-- Search -->
+        <form class="search-form" id="search-form" role="search">
+
+            <label for="site-search" class="sr-only">
+                Search universities or courses
+            </label>
+
+            <input type="search"
+                id="site-search"
+                placeholder="Search for universities or courses">
+
+            <button type="submit" aria-label="Search">
+                ⌕
+            </button>
+
+        </form>
+
+    </header>
+
+
+    <!-- ================= MAIN CONTENT ================= -->
+
+    <main id="home">
+
+
+        <!-- ================= HERO SECTION ================= -->
+
+        <section class="hero">
+
+            <div class="hero-container">
+
+                <!-- Hero Text -->
+                <div class="hero-content">
+
+                    <span class="hero-badge">
+                        Smarter Choices. Brighter Futures.
+                    </span>
+
+                    <h1>
+                        Find your Perfect University and Course
+                    </h1>
+
+                    <p>
+                        UniCompanion helps South African students make
+                        informed university decisions. Calculate your APS,
+                        explore courses, compare universities and get
+                        personalised guidance all in one place.
+                    </p>
+
+                </div>
+
+
+                <!-- Hero Image -->
+                <div class="hero-visual">
+
+                    <span class="floating-label label-one">
+                        Get Personalised recommendations
+                    </span>
+
+                    <span class="floating-label label-two">
+                        Understand your APS
+                    </span>
+
+                    <span class="floating-label label-three">
+                        Compare Universities
+                    </span>
+
+                    <span class="floating-label label-four">
+                        Ask AI Questions
+                    </span>
+
+                    <img
+                        src="https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=900&q=85"
+                        alt="University students celebrating their graduation"
+                        class="hero-image">
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ================= FEATURE CARDS ================= -->
+
+        <section class="features" aria-label="UniCompanion features">
+
+            <div class="feature-container">
+
+
+                <!-- APS Calculator -->
+                <a href="#aps" class="feature-card aps-card">
+
+                    <div class="feature-icon">▦</div>
+
+                    <div class="feature-information">
+
+                        <h2>Calculate Your APS</h2>
+
+                        <p>
+                            Enter your marks and get your APS instantly.
+                        </p>
+
+                        <span>Go to Calculator →</span>
+
+                    </div>
+
+                </a>
+
+
+                <!-- Explore Universities -->
+                <a href="#universities" class="feature-card explore-card">
+
+                    <div class="feature-icon">🎓</div>
+
+                    <div class="feature-information">
+
+                        <h2>Explore Universities</h2>
+
+                        <p>
+                            View all universities and available courses.
+                        </p>
+
+                        <span>Browse Universities →</span>
+
+                    </div>
+
+                </a>
+
+
+                <!-- Find Course -->
+                <a href="#find-course" class="feature-card course-card">
+
+                    <div class="feature-icon">🎯</div>
+
+                    <div class="feature-information">
+
+                        <h2>Find Your Course</h2>
+
+                        <p>
+                            Get AI-powered recommendations based on your interests.
+                        </p>
+
+                        <span>Start Now →</span>
+
+                    </div>
+
+                </a>
+
+
+                <!-- AI Guidance -->
+                <button class="feature-card guidance-card" id="open-chat">
+
+                    <div class="feature-icon">🤖</div>
+
+                    <div class="feature-information">
+
+                        <h2>Get AI Guidance</h2>
+
+                        <p>
+                            Ask questions and get personalized advice from our AI.
+                        </p>
+
+                        <span>Open AI →</span>
+
+                    </div>
+
+                </button>
+
+            </div>
+
+        </section>
+
+
+        <!-- ================= POPULAR UNIVERSITIES ================= -->
+
+        <section class="universities" id="universities">
+
+            <div class="section-heading">
+
+                <h2>Popular Universities</h2>
+
+                <a href="#courses">View all universities</a>
+
+            </div>
+
+
+            <div class="university-carousel">
+
+                <button class="carousel-button previous"
+                    id="previous-university"
+                    aria-label="Previous universities">
+
+                    ←
+
+                </button>
+
+
+                <div class="university-track" id="university-track">
+
+
+                    <!-- University of Johannesburg -->
+                    <article class="university-card">
+
+                        <div class="university-logo uj-logo">
+                            UJ
+                        </div>
+
+                        <h3>
+                            University Of<br>
+                            Johannesburg
+                        </h3>
+
+                    </article>
+
+
+                    <!-- University of Pretoria -->
+                    <article class="university-card">
+
+                        <div class="university-logo up-logo">
+                            UP
+                        </div>
+
+                        <h3>
+                            University Of<br>
+                            Pretoria
+                        </h3>
+
+                    </article>
+
+
+                    <!-- University of Cape Town -->
+                    <article class="university-card">
+
+                        <div class="university-logo uct-logo">
+                            UCT
+                        </div>
+
+                        <h3>
+                            University Of<br>
+                            Cape Town
+                        </h3>
+
+                    </article>
+
+
+                    <!-- Wits University -->
+                    <article class="university-card">
+
+                        <div class="university-logo wits-logo">
+                            W
+                        </div>
+
+                        <h3>
+                            Wits University
+                        </h3>
+
+                    </article>
+
+                </div>
+
+
+                <button class="carousel-button next"
+                    id="next-university"
+                    aria-label="Next universities">
+
+                    →
+
+                </button>
+
+            </div>
+
+        </section>
+
+
+        <!-- ================= HOW IT WORKS ================= -->
+
+        <section class="how-it-works">
+
+            <h2>How UniCompanion Works</h2>
+
+            <ol class="steps-container">
+
+
+                <li class="step-card step-one">
+
+                    <span class="step-icon">▤</span>
+
+                    <h3>Enter Your Marks</h3>
+
+                    <p>
+                        Input your subjects and results.
+                    </p>
+
+                    <span class="step-number">1</span>
+
+                </li>
+
+
+                <li class="step-arrow" aria-hidden="true">➜</li>
+
+
+                <li class="step-card step-two">
+
+                    <span class="step-icon">▦</span>
+
+                    <h3>Calculate Your APS</h3>
+
+                    <p>
+                        Get your APS and average instantly.
+                    </p>
+
+                    <span class="step-number">2</span>
+
+                </li>
+
+
+                <li class="step-arrow" aria-hidden="true">➜</li>
+
+
+                <li class="step-card step-three">
+
+                    <span class="step-icon">🎓</span>
+
+                    <h3>Explore Options</h3>
+
+                    <p>
+                        View universities and programmes that match your interests.
+                    </p>
+
+                    <span class="step-number">3</span>
+
+                </li>
+
+
+                <li class="step-arrow" aria-hidden="true">➜</li>
+
+
+                <li class="step-card step-four">
+
+                    <span class="step-icon">🎯</span>
+
+                    <h3>Make a Decision</h3>
+
+                    <p>
+                        Compare courses and find the best fit for you.
+                    </p>
+
+                    <span class="step-number">4</span>
+
+                </li>
+
+
+                <li class="step-arrow" aria-hidden="true">➜</li>
+
+
+                <li class="step-card step-five">
+
+                    <span class="step-icon">🤖</span>
+
+                    <h3>Get AI Guidance</h3>
+
+                    <p>
+                        Ask questions and receive personalised advice.
+                    </p>
+
+                    <span class="step-number">5</span>
+
+                </li>
+
+            </ol>
+
+        </section>
+
+    </main>
+
+
+    <!-- ================= FOOTER ================= -->
+
+    <footer class="footer">
+
+        <p>
+            © 2026 UniCompanion. All rights reserved.
+        </p>
+
+    </footer>
+
+
+    <!-- ================= FLOATING AI ASSISTANT ================= -->
+
+    <button class="chat-launcher" id="chat-launcher"
+        aria-label="Open UniCompanion AI assistant"
+        aria-expanded="false"
+        aria-controls="chat-panel">
+
+        <span class="chat-launcher-icon">🤖</span>
+
+        <span class="chat-launcher-text">
+
+            <strong>Ask UniCompanion AI</strong>
+
+            <small>How can I help you today?</small>
+
+        </span>
+
+    </button>
+
+
+    <!-- CHAT WINDOW -->
+    <section class="chat-panel" id="chat-panel"
+        aria-label="UniCompanion AI chat"
+        aria-hidden="true">
+
+        <div class="chat-header">
+
+            <div>
+                <strong>🤖 UniCompanion AI</strong>
+                <small>Your university guide</small>
+            </div>
+
+            <button id="close-chat" aria-label="Close chatbot">
+                ×
+            </button>
+
+        </div>
+
+
+        <div class="chat-messages" id="chat-messages" aria-live="polite">
+
+            <div class="bot-message">
+
+                Hi! Welcome to UniCompanion.
+
+                I'm here to help you with university applications,
+                APS calculations and finding courses.
+
+                What would you like to know?
+
+            </div>
+
+            <div class="chat-notice">
+                Gemini AI connection will be configured in the next step.
+            </div>
+
+        </div>
+
+
+        <form class="chat-input" id="chat-form">
+
+            <label for="chat-message" class="sr-only">
+                Enter your message
+            </label>
+
+            <input type="text"
+                id="chat-message"
+                placeholder="Ask me anything..."
+                autocomplete="off">
+
+            <button type="submit" aria-label="Send message">
+                ➤
+            </button>
+
+        </form>
+
+    </section>
+
+
+</body>
+</html>
 </head>
 <body>
     
