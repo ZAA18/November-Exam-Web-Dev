@@ -1,12 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name ="description" content="UniCompanion helps South African students find the best universities, calculate APS and explore courses.">
+
+    <meta name="description"
+        content="UniCompanion helps South African students find universities, calculate APS and explore courses.">
+
     <title>UniCompanion | Your AI-Powered University Guide</title>
-    
-      <!-- Google Fonts -->
+
+    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
@@ -14,33 +18,38 @@
         rel="stylesheet">
 
     <!-- CSS -->
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/navigation.css">
 
     <!-- JavaScript -->
-    <script src="script.js" defer></script>
+    <script src="/js/navigation.js" defer></script>
+    <script src="/js/home.js" defer></script>
+
 </head>
 
 <body>
 
-    <!-- ================= LOADING SCREEN ================= -->
+    <!-- LOADING SCREEN -->
 
     <div class="loader" id="loader">
+
         <div class="loader-logo">🎓</div>
 
         <h2>UniCompanion</h2>
+
         <p>Preparing your university journey...</p>
 
         <div class="loader-bar">
             <span></span>
         </div>
+
     </div>
 
 
-    <!-- ================= HEADER ================= -->
+    <!-- HEADER / NAVIGATION -->
 
     <header class="header">
 
-        <!-- Logo -->
         <a href="#home" class="logo">
 
             <span class="logo-icon">🎓</span>
@@ -54,7 +63,9 @@
 
 
         <!-- Mobile Menu Button -->
-        <button class="menu-toggle" id="menu-toggle"
+
+        <button class="menu-toggle"
+            id="menu-toggle"
             aria-label="Open navigation"
             aria-expanded="false"
             aria-controls="navigation">
@@ -66,8 +77,10 @@
         </button>
 
 
-        <!-- Navigation -->
-        <nav class="navigation" id="navigation" aria-label="Main navigation">
+        <!-- Navigation Links -->
+
+        <nav class="navigation" id="navigation"
+            aria-label="Main navigation">
 
             <a href="#home" class="nav-link active">
                 <span>⌂</span> Home
@@ -88,7 +101,8 @@
         </nav>
 
 
-        <!-- Search -->
+        <!-- Website Search -->
+
         <form class="search-form" id="search-form" role="search">
 
             <label for="site-search" class="sr-only">
@@ -108,18 +122,20 @@
     </header>
 
 
-    <!-- ================= MAIN CONTENT ================= -->
+    <!-- MAIN CONTENT -->
 
     <main id="home">
 
 
-        <!-- ================= HERO SECTION ================= -->
+        <!-- HERO SECTION -->
 
         <section class="hero">
 
             <div class="hero-container">
 
+
                 <!-- Hero Text -->
+
                 <div class="hero-content">
 
                     <span class="hero-badge">
@@ -141,6 +157,7 @@
 
 
                 <!-- Hero Image -->
+
                 <div class="hero-visual">
 
                     <span class="floating-label label-one">
@@ -171,7 +188,7 @@
         </section>
 
 
-        <!-- ================= FEATURE CARDS ================= -->
+        <!-- FEATURE CARDS -->
 
         <section class="features" aria-label="UniCompanion features">
 
@@ -179,6 +196,7 @@
 
 
                 <!-- APS Calculator -->
+
                 <a href="#aps" class="feature-card aps-card">
 
                     <div class="feature-icon">▦</div>
@@ -199,6 +217,7 @@
 
 
                 <!-- Explore Universities -->
+
                 <a href="#universities" class="feature-card explore-card">
 
                     <div class="feature-icon">🎓</div>
@@ -219,6 +238,7 @@
 
 
                 <!-- Find Course -->
+
                 <a href="#find-course" class="feature-card course-card">
 
                     <div class="feature-icon">🎯</div>
@@ -239,6 +259,7 @@
 
 
                 <!-- AI Guidance -->
+
                 <button class="feature-card guidance-card" id="open-chat">
 
                     <div class="feature-icon">🤖</div>
@@ -248,7 +269,7 @@
                         <h2>Get AI Guidance</h2>
 
                         <p>
-                            Ask questions and get personalized advice from our AI.
+                            Ask questions and get personalised advice from our AI.
                         </p>
 
                         <span>Open AI →</span>
@@ -262,7 +283,7 @@
         </section>
 
 
-        <!-- ================= POPULAR UNIVERSITIES ================= -->
+        <!-- POPULAR UNIVERSITIES -->
 
         <section class="universities" id="universities">
 
@@ -290,6 +311,7 @@
 
 
                     <!-- University of Johannesburg -->
+
                     <article class="university-card">
 
                         <div class="university-logo uj-logo">
@@ -305,6 +327,7 @@
 
 
                     <!-- University of Pretoria -->
+
                     <article class="university-card">
 
                         <div class="university-logo up-logo">
@@ -320,6 +343,7 @@
 
 
                     <!-- University of Cape Town -->
+
                     <article class="university-card">
 
                         <div class="university-logo uct-logo">
@@ -335,6 +359,7 @@
 
 
                     <!-- Wits University -->
+
                     <article class="university-card">
 
                         <div class="university-logo wits-logo">
@@ -363,7 +388,7 @@
         </section>
 
 
-        <!-- ================= HOW IT WORKS ================= -->
+        <!-- HOW UNICOMPANION WORKS -->
 
         <section class="how-it-works">
 
@@ -465,7 +490,7 @@
     </main>
 
 
-    <!-- ================= FOOTER ================= -->
+    <!-- FOOTER -->
 
     <footer class="footer">
 
@@ -476,12 +501,14 @@
     </footer>
 
 
-    <!-- ================= FLOATING AI ASSISTANT ================= -->
+    <!-- FLOATING AI ASSISTANT -->
 
-    <button class="chat-launcher" id="chat-launcher"
+    <button class="chat-launcher"
+        id="chat-launcher"
         aria-label="Open UniCompanion AI assistant"
         aria-expanded="false"
-        aria-controls="chat-panel">
+        aria-controls="chat-panel"
+        title="Drag to move; click to open the assistant">
 
         <span class="chat-launcher-icon">🤖</span>
 
@@ -496,8 +523,10 @@
     </button>
 
 
-    <!-- CHAT WINDOW -->
-    <section class="chat-panel" id="chat-panel"
+    <!-- AI CHAT WINDOW -->
+
+    <section class="chat-panel"
+        id="chat-panel"
         aria-label="UniCompanion AI chat"
         aria-hidden="true">
 
@@ -555,10 +584,5 @@
     </section>
 
 
-</body>
-</html>
-</head>
-<body>
-    
 </body>
 </html>
