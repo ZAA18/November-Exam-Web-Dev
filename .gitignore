@@ -1,0 +1,14 @@
+# Private Gemini API configuration
+js/gemini-config.js
+
+# Dependencies
+node_modules/
+
+# Environment and secret files
+.env
+.env.local
+.env.*
+
+# Temporary files
+*.log
+.DS_Store

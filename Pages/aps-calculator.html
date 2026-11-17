@@ -13,19 +13,27 @@
     <link rel="stylesheet" href="../css/aps.css">
     <link rel="stylesheet" href="../css/assistant.css">
 
-   <script
-    src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"
-    defer>
-</script>
+  <!-- PDF.js -->
+<!-- PDF.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 
-<script src="../js/navigation.js" defer></script>
-<script src="../js/assistant.js" defer></script>
+<!-- Gemini connection -->
+<script src="../js/gemini-config.js"></script>
+<script src="../js/gemini-service.js"></script>
 
-<!-- Load the prospectus reader before the calculator -->
-<script src="../js/prospectus-reader.js" defer></script>
+<!-- Existing website scripts -->
+<script src="../js/navigation.js"></script>
 
-<script src="../js/wits-requirements.js" defer></script>
-<script src="../js/aps.js" defer></script>
+<!-- Prospectus extraction -->
+<script src="../js/prospectus-reader.js"></script>
+<script src="../js/prospectus-ai.js"></script>
+
+<!-- Existing calculator scripts -->
+<script src="../js/wits-requirements.js"></script>
+<script src="../js/aps.js"></script>
+
+<!-- AI assistant -->
+<script src="../js/assistant.js"></script>
 </head>
 
 <body>
@@ -101,6 +109,18 @@
                 <p class="marks-description">
                     Choose the subjects you take, add them below, then enter your marks.
                 </p>
+
+                <!-- Prospectus loading status -->
+<div class="prospectus-status-container">
+    <p
+        id="prospectus-status"
+        class="aps-message"
+        role="status"
+        aria-live="polite"
+    >
+        Preparing Wits prospectus...
+    </p>
+</div>
 
                 <div class="subject-picker">
                     <label for="subject-select">Choose a subject</label>
@@ -749,6 +769,33 @@
             </section>
 
         </div>
+
+        <section class="prospectus-extraction">
+
+    <h2>Wits Prospectus Data Extraction</h2>
+
+    <p>
+        Extract university programme requirements
+        from the Wits 2027 prospectus using Gemini AI.
+    </p>
+
+    <button
+        type="button"
+        id="extract-wits-button">
+
+        Extract Wits Requirements
+
+    </button>
+
+    <p
+        id="extraction-status"
+        aria-live="polite">
+
+        Ready to extract prospectus information.
+
+    </p>
+
+</section>
 
         <section class="wits-programme-results"
                  id="wits-programme-results"

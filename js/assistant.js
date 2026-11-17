@@ -529,59 +529,144 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
 
-    /* =====================================
-       18. SEND CHAT MESSAGE
-    ===================================== */
+  /* =====================================
+   18. SEND CHAT MESSAGE TO GEMINI
+===================================== */
 
-    chatForm.addEventListener("submit", event => {
+// Stores the conversation so the assistant
+// can understand follow-up questions.
+const conversationHistory = [];
 
-        event.preventDefault();
+function getAssistantResponseText(response) {
 
+    if (typeof response === "string") {
+        return response;
+    }
 
-        const message = chatInput.value.trim();
+    if (response && typeof response.text === "string") {
+        return response.text;
+    }
 
+    if (response && typeof response.response === "string") {
+        return response.response;
+    }
 
-        if (!message) {
-            return;
+    if (response?.candidates?.[0]?.content?.parts) {
+        return response.candidates[0].content.parts
+            .map(part => part.text || "")
+            .join("\n");
+    }
+
+    throw new Error("Unexpected Gemini response.");
+}
+
+function addChatMessage(message, className) {
+
+    const element = document.createElement("div");
+
+    element.className = className;
+
+    // textContent prevents AI output from being
+    // interpreted as HTML.
+    element.textContent = message;
+
+    chatMessages.appendChild(element);
+
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+
+    return element;
+}
+
+chatForm.addEventListener("submit", async event => {
+
+    event.preventDefault();
+
+    const message = chatInput.value.trim();
+
+    if (!message) {
+        return;
+    }
+
+    // Check Gemini connection.
+    if (!window.UniCompanionGemini?.chat) {
+
+        addChatMessage(
+            "The AI service is not connected yet. Please check the Gemini configuration.",
+            "bot-message"
+        );
+
+        return;
+    }
+
+    // Display the user's message.
+    addChatMessage(message, "user-message");
+
+    // Clear input.
+    chatInput.value = "";
+
+    // Prevent duplicate requests.
+    chatInput.disabled = true;
+
+    const sendButton = chatForm.querySelector(
+        'button[type="submit"]'
+    );
+
+    if (sendButton) {
+        sendButton.disabled = true;
+    }
+
+    // Display loading message.
+    const loadingMessage = addChatMessage(
+        "Thinking...",
+        "bot-message"
+    );
+
+    try {
+
+        // Ask Gemini using the shared service.
+        const response = await window.UniCompanionGemini.chat(
+            message,
+            conversationHistory
+        );
+
+        const answer = getAssistantResponseText(response);
+
+        loadingMessage.textContent = answer;
+
+        // Save both messages for follow-up questions.
+        conversationHistory.push(
+            {
+                role: "user",
+                parts: [{ text: message }]
+            },
+            {
+                role: "model",
+                parts: [{ text: answer }]
+            }
+        );
+
+    } catch (error) {
+
+        console.error("Gemini assistant error:", error);
+
+        loadingMessage.textContent =
+            "I'm having trouble connecting right now. Please try again shortly.";
+
+    } finally {
+
+        chatInput.disabled = false;
+
+        if (sendButton) {
+            sendButton.disabled = false;
         }
-
-
-        // USER MESSAGE
-
-        const userMessage = document.createElement("div");
-
-        userMessage.className = "user-message";
-
-        userMessage.textContent = message;
-
-        chatMessages.appendChild(userMessage);
-
-
-        // TEMPORARY AI RESPONSE
-
-        const response = document.createElement("div");
-
-        response.className = "bot-message";
-
-        response.textContent =
-            "Thanks for your question! The Gemini AI connection still needs to be configured.";
-
-
-        chatMessages.appendChild(response);
-
-
-        // CLEAR INPUT
-
-        chatInput.value = "";
-
-
-        // SCROLL TO LATEST MESSAGE
-
-        chatMessages.scrollTop = chatMessages.scrollHeight;
 
         chatInput.focus();
 
-    });
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+
+    }
+
+});
 
 
     console.log("UniCompanion shared AI assistant loaded.");
