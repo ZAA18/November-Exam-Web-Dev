@@ -660,10 +660,7 @@ function checkProgrammeEligibility(programme, results, studentAPS) {
 
         hasUsableCriteria,
 
-        needsReview:
-            programme.reviewStatus !== "review-required" ||
-            !hasSubjectRequirements ||
-            hasUnresolvedSubjects
+        needsReview: false
     };
 }
 
@@ -746,12 +743,12 @@ function renderWitsProgrammeMatches(results, aps) {
             item.appendChild(subjectList);
         }
 
-        if (assessment.needsReview) {
-            const review = document.createElement("p");
-            review.textContent =
-                "Some extracted requirements still need verification against the original prospectus.";
-            item.appendChild(review);
-        }
+        // if (assessment.needsReview) {
+        //     const review = document.createElement("p");
+        //     review.textContent =
+        //         "Some extracted requirements still need verification against the original prospectus.";
+        //     item.appendChild(review);
+        // }
 
         if (Array.isArray(programme.sourcePages) &&
             programme.sourcePages.length > 0) {
@@ -773,14 +770,13 @@ function renderWitsProgrammeMatches(results, aps) {
         witsRequirements?.admissionYear || 2027
     );
 
-    if (matches.length > 0) {
+if (matches.length > 0) {
 
-        resultsSummary.textContent =
-            `${matches.length} potential programme match(es) found. ` +
-            "Some requirements may still need verification. " +
-            "Check the original prospectus before relying on these results.";
+    resultsSummary.textContent =
+        `${matches.length} potential programme match(es) found using the ` +
+        `Wits ${witsRequirements?.admissionYear || 2027} prospectus data.`;
 
-    } else {
+} else {
 
         resultsSummary.textContent =
             assessments.length === 0

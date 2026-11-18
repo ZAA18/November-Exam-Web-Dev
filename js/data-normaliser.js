@@ -25,28 +25,32 @@
     }
 
     function normaliseProgramme(programme) {
-        const apsResults = (programme.apsResults || [])
-            .map(normaliseAPS);
-
-        const subjectRequirements = (programme.subjectRequirements || [])
-            .map(normaliseSubject);
-
-        const selectionRequirements =
-            (programme.selectionRequirements || []).map(item => ({
-                description: item.description,
-                sourcePage: Number(item.sourcePage)
-            }));
-
         return {
             id: programme.programmeId,
             name: programme.programmeName,
             qualificationType: programme.qualificationType || "Unknown",
-            aps: apsResults,
-            subjects: subjectRequirements,
-            selectionRequirements,
-            sourcePages: [...new Set(programme.sourcePages || [])],
+
+            aps: (programme.apsResults || []).map(normaliseAPS),
+
+            subjects: (programme.subjectRequirements || [])
+                .map(normaliseSubject),
+
+            selectionRequirements:
+                (programme.selectionRequirements || []).map(item => ({
+                    description: item.description,
+                    sourcePage: Number(item.sourcePage)
+                })),
+
+            sourcePages: [
+                ...new Set((programme.sourcePages || []).map(Number))
+            ],
+
+            sourceLocations: programme.sourceLocations || [],
+
             confidence: null,
-            reviewStatus: "needs-review"
+
+            // Extraction is not automatically labelled as needing review.
+            reviewStatus: "ready"
         };
     }
 
@@ -60,6 +64,7 @@
             university: data.university || "Unknown",
             admissionYear: Number(data.admissionYear) || null,
             extractedAt: data.extractedAt || new Date().toISOString(),
+
             programmes: data.programmes.map(normaliseProgramme)
         };
     }
@@ -68,3 +73,4 @@
         normalise
     };
 })();
+

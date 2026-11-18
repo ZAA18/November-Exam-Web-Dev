@@ -277,4 +277,19 @@ allText.push(
     // Start loading the prospectus when the page opens.
     window.UniCompanionProspectusReady = readProspectus();
 
+    window.UniCompanionProspectusReady.then(prospectus => {
+    const page = prospectus.pages.find(p => p.pageNumber === 18);
+
+    console.log("WITS PAGE 18 — POSITIONED TEXT");
+
+    console.table(
+        page.items.map(item => ({
+            text: item.text,
+            x: Math.round(item.x),
+            y: Math.round(item.y),
+            width: Math.round(item.width)
+        }))
+    );
+});
+
 })();

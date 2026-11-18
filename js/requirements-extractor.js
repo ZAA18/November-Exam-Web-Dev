@@ -1,16 +1,11 @@
 
 /* =========================================================
    UNICOMPANION — REQUIREMENTS EXTRACTOR
-   Extracts APS, subject levels and selection information.
+   Extracts requirements from each programme's own section.
 ========================================================= */
 
 (() => {
     "use strict";
-
-    const CONFIG = {
-        pagesBefore: 1,
-        pagesAfter: 2
-    };
 
     const SUBJECTS = [
         { name: "Mathematics", pattern: /\bmathematics\b|\bmaths\b/i },
@@ -35,42 +30,104 @@
             .trim();
     }
 
-    function getPageText(page) {
+    function getPageLines(page) {
         if (Array.isArray(page.lines) && page.lines.length) {
             return page.lines
-                .map(line => typeof line === "string" ? line : line.text)
-                .filter(Boolean)
-                .join("\n");
+                .map(line =>
+                    typeof line === "string" ? line : line.text
+                )
+                .filter(Boolean);
         }
 
-        return String(page.text || "");
+        return String(page.text || "")
+            .split(/\n/)
+            .filter(Boolean);
     }
 
-    function findPage(prospectus, pageNumber) {
+    function getPage(prospectus, pageNumber) {
         return prospectus.pages.find(
             page => page.pageNumber === pageNumber
         );
     }
 
-    function getProgrammePages(programme, prospectus) {
-        const pageNumbers = new Set();
+    function getProgrammeSections(programme, detection, prospectus) {
+        const allLocations = [];
 
-        for (const sourcePage of programme.sourcePages || []) {
+        for (const item of detection.programmes || []) {
+            for (const location of item.sourceLocations || []) {
+                allLocations.push({
+                    programmeId: item.id,
+                    pageNumber: location.pageNumber,
+                    lineIndex: location.lineIndex
+                });
+            }
+        }
+
+        allLocations.sort((a, b) =>
+            a.pageNumber - b.pageNumber ||
+            a.lineIndex - b.lineIndex
+        );
+
+        const ownLocations = (programme.sourceLocations || [])
+            .slice()
+            .sort((a, b) =>
+                a.pageNumber - b.pageNumber ||
+                a.lineIndex - b.lineIndex
+            );
+
+        const sections = [];
+
+        for (const location of ownLocations) {
+            const currentIndex = allLocations.findIndex(item =>
+                item.programmeId === programme.id &&
+                item.pageNumber === location.pageNumber &&
+                item.lineIndex === location.lineIndex
+            );
+
+            const nextLocation = currentIndex >= 0
+                ? allLocations[currentIndex + 1]
+                : null;
+
+            const startPage = location.pageNumber;
+            const endPage = nextLocation
+                ? nextLocation.pageNumber
+                : prospectus.pageCount;
+
             for (
-                let number = sourcePage - CONFIG.pagesBefore;
-                number <= sourcePage + CONFIG.pagesAfter;
-                number++
+                let pageNumber = startPage;
+                pageNumber <= endPage;
+                pageNumber++
             ) {
-                if (number >= 1 && number <= prospectus.pageCount) {
-                    pageNumbers.add(number);
+                const page = getPage(prospectus, pageNumber);
+
+                if (!page) continue;
+
+                const lines = getPageLines(page);
+
+                let startLine = 0;
+                let endLine = lines.length;
+
+                if (pageNumber === startPage) {
+                    startLine = location.lineIndex;
+                }
+
+                if (
+                    nextLocation &&
+                    pageNumber === nextLocation.pageNumber
+                ) {
+                    endLine = nextLocation.lineIndex;
+                }
+
+                if (endLine > startLine) {
+                    sections.push({
+                        pageNumber,
+                        lines: lines.slice(startLine, endLine)
+                    });
                 }
             }
         }
 
-        return Array.from(pageNumbers)
-            .sort((a, b) => a - b)
-            .map(number => findPage(prospectus, number))
-            .filter(Boolean);
+        return sections;
     }
 
     function extractAPS(text, pageNumber) {
@@ -78,7 +135,7 @@
 
         const patterns = [
             /\bAPS\b\s*(?:score|of|:|=)?\s*(?:is|of|:|=)?\s*(\d{1,2})\b/gi,
-            /\bAdmission\s+Point(?:s)?\s+Score\b\s*(?:of|:|=)?\s*(\d{1,2})\b/gi,
+            /\bAdmission\s+Points?\s+Score\b\s*(?:of|:|=)?\s*(\d{1,2})\b/gi,
             /\bminimum\s+APS\b\s*(?:of|:|=)?\s*(\d{1,2})\b/gi,
             /\bminimum\s+admission\s+points?\b\s*(?:of|:|=)?\s*(\d{1,2})\b/gi
         ];
@@ -107,6 +164,13 @@
         const results = [];
         const lines = text.split(/\n/);
 
+        const levelPatterns = [
+            /\b(?:level|achievement level)\s*(\d)\b/i,
+            /\b(?:at least|minimum of)\s*(\d)\s*(?:on the NSC scale)?/i,
+            /\bNSC\s*(?:level)?\s*(\d)\b/i,
+            /\b(\d)\s*(?:or higher|minimum)\b/i
+        ];
+
         for (let i = 0; i < lines.length; i++) {
             const line = clean(lines[i]);
 
@@ -121,19 +185,14 @@
                     lines[i + 1] || ""
                 ].join(" ");
 
-                const levelPatterns = [
-                    /\b(?:level|achievement level)\s*(\d)\b/i,
-                    /\b(?:at least|minimum of)\s*(\d)\s*(?:on the NSC scale)?/i,
-                    /\bNSC\s*(?:level)?\s*(\d)\b/i,
-                    /\b(\d)\s*(?:or higher|minimum)\b/i
-                ];
-
                 let level = null;
 
                 for (const pattern of levelPatterns) {
                     const match = context.match(pattern);
+
                     if (match) {
                         const value = Number(match[1]);
+
                         if (value >= 1 && value <= 7) {
                             level = value;
                             break;
@@ -146,7 +205,7 @@
                         subject: subject.name,
                         minimumLevel: level,
                         sourcePage: pageNumber,
-                        sourceText: context.trim(),
+                        sourceText: clean(context),
                         type: "subject"
                     });
                 }
@@ -158,32 +217,29 @@
 
     function extractSelectionRequirements(text, pageNumber) {
         const results = [];
+
         const patterns = [
-            /\bportfolio\b/gi,
-            /\baudition\b/gi,
-            /\binterview\b/gi,
-            /\bselection test\b/gi,
-            /\bselection criteria\b/gi,
-            /\badditional selection requirements\b/gi,
-            /\bmedical examination\b/gi,
-            /\bpractical assessment\b/gi
+            /\bportfolio\b/i,
+            /\baudition\b/i,
+            /\binterview\b/i,
+            /\bselection test\b/i,
+            /\bselection criteria\b/i,
+            /\badditional selection requirements\b/i,
+            /\bmedical examination\b/i,
+            /\bpractical assessment\b/i
         ];
 
-        const lines = text.split(/\n/);
-
-        for (const line of lines) {
+        for (const line of text.split(/\n/)) {
             const cleaned = clean(line);
+
             if (!cleaned) continue;
 
-            for (const pattern of patterns) {
-                if (pattern.test(cleaned)) {
-                    results.push({
-                        description: cleaned,
-                        sourcePage: pageNumber,
-                        type: "selection"
-                    });
-                    pattern.lastIndex = 0;
-                }
+            if (patterns.some(pattern => pattern.test(cleaned))) {
+                results.push({
+                    description: cleaned,
+                    sourcePage: pageNumber,
+                    type: "selection"
+                });
             }
         }
 
@@ -195,74 +251,87 @@
 
         for (const item of items) {
             const key = keyFunction(item);
-            if (!map.has(key)) map.set(key, item);
+
+            if (!map.has(key)) {
+                map.set(key, item);
+            }
         }
 
         return Array.from(map.values());
     }
 
-    function extractProgrammeRequirements(programme, prospectus) {
-        const pages = getProgrammePages(programme, prospectus);
+    function extractProgrammeRequirements(programme, detection, prospectus) {
+        const sections = getProgrammeSections(
+            programme,
+            detection,
+            prospectus
+        );
 
         const aps = [];
         const subjects = [];
         const selection = [];
         const sourcePages = [];
 
-        for (const page of pages) {
-            const text = getPageText(page);
+        for (const section of sections) {
+            const text = section.lines.join("\n");
 
-            aps.push(...extractAPS(text, page.pageNumber));
+            aps.push(...extractAPS(text, section.pageNumber));
             subjects.push(
-                ...extractSubjectRequirements(text, page.pageNumber)
+                ...extractSubjectRequirements(text, section.pageNumber)
             );
             selection.push(
-                ...extractSelectionRequirements(text, page.pageNumber)
+                ...extractSelectionRequirements(text, section.pageNumber)
             );
 
-            sourcePages.push(page.pageNumber);
+            sourcePages.push(section.pageNumber);
         }
-
-        const uniqueAPS = uniqueBy(
-            aps,
-            item => `${item.value}-${item.sourcePage}`
-        );
-
-        const uniqueSubjects = uniqueBy(
-            subjects,
-            item => `${item.subject}-${item.minimumLevel}-${item.sourcePage}`
-        );
-
-        const uniqueSelection = uniqueBy(
-            selection,
-            item => `${item.description}-${item.sourcePage}`
-        );
 
         return {
             programmeId: programme.id,
             programmeName: programme.programmeName,
             qualificationType: programme.qualificationType,
-            apsResults: uniqueAPS,
-            subjectRequirements: uniqueSubjects,
-            selectionRequirements: uniqueSelection,
-            sourcePages,
-            extractionStatus: "needs-review"
+
+            apsResults: uniqueBy(
+                aps,
+                item => `${item.value}-${item.sourcePage}`
+            ),
+
+            subjectRequirements: uniqueBy(
+                subjects,
+                item =>
+                    `${item.subject}-${item.minimumLevel}-${item.sourcePage}`
+            ),
+
+            selectionRequirements: uniqueBy(
+                selection,
+                item => `${item.description}-${item.sourcePage}`
+            ),
+
+            sourcePages: [...new Set(sourcePages)],
+            sourceLocations: programme.sourceLocations || [],
+            extractionStatus: "ready"
         };
     }
 
     function extractAll(prospectus, detection) {
         if (!prospectus || !detection) {
-            throw new Error("Prospectus or programme detection data is missing.");
+            throw new Error(
+                "Prospectus or programme detection data is missing."
+            );
         }
-
-        const programmes = detection.programmes || [];
 
         return {
             university: prospectus.university,
             admissionYear: prospectus.admissionYear,
-            programmes: programmes.map(programme =>
-                extractProgrammeRequirements(programme, prospectus)
+
+            programmes: (detection.programmes || []).map(programme =>
+                extractProgrammeRequirements(
+                    programme,
+                    detection,
+                    prospectus
+                )
             ),
+
             extractedAt: new Date().toISOString()
         };
     }
@@ -276,11 +345,15 @@
         window.UniCompanionRequirements = result;
 
         console.log("[Requirements Extractor] Complete.");
+
         console.table(result.programmes.map(programme => ({
             programme: programme.programmeName,
-            APS: programme.apsResults.map(item => item.value).join(", ") || "Not found",
+            APS: programme.apsResults
+                .map(item => item.value)
+                .join(", ") || "Not found",
             subjects: programme.subjectRequirements.length,
-            selection: programme.selectionRequirements.length
+            selection: programme.selectionRequirements.length,
+            pages: programme.sourcePages.join(", ")
         })));
 
         return result;
