@@ -43,16 +43,76 @@
             CONFIG.pdfJsWorker;
     }
 
-    function extractPageText(textContent) {
-        const items = textContent.items || [];
+   function extractPageContent(textContent) {
+    const items = (textContent.items || [])
+        .filter(item =>
+            typeof item.str === "string" &&
+            item.str.trim()
+        );
 
-        // Keep the text in the order supplied by PDF.js.
-        return items
-            .filter(item => typeof item.str === "string")
-            .map(item => item.str.trim())
-            .filter(Boolean)
-            .join(" ");
-    }
+    // Preserve the position of every text item.
+    const positionedItems = items.map(item => ({
+        text: item.str.trim(),
+        x: item.transform?.[4] ?? 0,
+        y: item.transform?.[5] ?? 0,
+        width: item.width || 0,
+        height: item.height || 0
+    }));
+
+    // Sort from top to bottom, then left to right.
+    positionedItems.sort((a, b) => {
+        if (Math.abs(a.y - b.y) > 3) {
+            return b.y - a.y;
+        }
+
+        return a.x - b.x;
+    });
+
+    // Group text items that appear on approximately the same line.
+    const lines = [];
+
+    positionedItems.forEach(item => {
+        let existingLine = lines.find(line =>
+            Math.abs(line.y - item.y) <= 3
+        );
+
+        if (!existingLine) {
+            existingLine = {
+                y: item.y,
+                items: []
+            };
+
+            lines.push(existingLine);
+        }
+
+        existingLine.items.push(item);
+    });
+
+    // Reconstruct each line from its left-to-right text items.
+    const structuredLines = lines
+        .sort((a, b) => b.y - a.y)
+        .map(line => {
+            line.items.sort((a, b) => a.x - b.x);
+
+            return {
+                y: line.y,
+                text: line.items
+                    .map(item => item.text)
+                    .join(" "),
+                items: line.items
+            };
+        });
+
+    const text = structuredLines
+        .map(line => line.text)
+        .join("\n");
+
+    return {
+        text,
+        lines: structuredLines,
+        items: positionedItems
+    };
+}
 
     async function readProspectus() {
         if (loadedProspectus) {
@@ -96,16 +156,18 @@
                     const page = await pdf.getPage(pageNumber);
                     const textContent = await page.getTextContent();
 
-                    const pageText = extractPageText(textContent);
+                  const pageContent = extractPageContent(textContent);
 
-                    pages.push({
-                        pageNumber,
-                        text: pageText
-                    });
+pages.push({
+    pageNumber,
+    text: pageContent.text,
+    lines: pageContent.lines,
+    items: pageContent.items
+});
 
-                    allText.push(
-                        `PAGE ${pageNumber}\n${pageText}`
-                    );
+allText.push(
+    `PAGE ${pageNumber}\n${pageContent.text}`
+);
 
                     setStatus(
                         `Extracting prospectus text: ${pageNumber}/${pdf.numPages} pages`

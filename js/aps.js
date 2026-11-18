@@ -1,16 +1,14 @@
 
 /* =====================================================
    UNICOMPANION — APS & ELIGIBILITY CALCULATOR
-   Front-end JavaScript
-   First university: Wits
+   Requirements are loaded from Gemini's JSON extraction.
 ===================================================== */
 
 document.addEventListener("DOMContentLoaded", () => {
-
     "use strict";
 
     /* =================================================
-       1. GET HTML ELEMENTS
+       1. HTML ELEMENTS
     ================================================= */
 
     const marksList = document.getElementById("marks-list");
@@ -18,35 +16,18 @@ document.addEventListener("DOMContentLoaded", () => {
     const addSubjectButton = document.getElementById("add-subject");
     const subjectTemplate = document.getElementById("subject-options");
 
-    const calculateAPSButton =
-        document.getElementById("calculate-aps");
+    const calculateAPSButton = document.getElementById("calculate-aps");
+    const calculateAverageButton = document.getElementById("calculate-average");
+    const apsMessage = document.getElementById("aps-message");
+    const prospectusStatus = document.getElementById("prospectus-status");
 
-    const calculateAverageButton =
-        document.getElementById("calculate-average");
+    const universityCards = document.querySelectorAll(".aps-university-card");
+    const witsCard = document.querySelector('[data-university="wits"]');
 
-    const apsMessage =
-        document.getElementById("aps-message");
-
-    const universityCards =
-        document.querySelectorAll(".aps-university-card");
-
-    const witsCard =
-        document.querySelector('[data-university="wits"]');
-
-    const resultsSection =
-        document.getElementById("wits-programme-results");
-
-    const resultsSummary =
-        document.getElementById("wits-results-summary");
-
-    const eligibleProgrammesList =
-        document.getElementById("wits-eligible-programmes");
-
-    const requirementsYear =
-        document.getElementById("wits-requirements-year");
-
-    const prospectusStatus =
-        document.getElementById("prospectus-status");
+    const resultsSection = document.getElementById("wits-programme-results");
+    const resultsSummary = document.getElementById("wits-results-summary");
+    const eligibleProgrammesList = document.getElementById("wits-eligible-programmes");
+    const requirementsYear = document.getElementById("wits-requirements-year");
 
     const requiredElements = [
         marksList,
@@ -64,101 +45,70 @@ document.addEventListener("DOMContentLoaded", () => {
     ];
 
     if (requiredElements.some(element => !element)) {
-        console.error(
-            "UniCompanion could not initialize. One or more HTML elements are missing."
-        );
+        console.error("APS calculator: One or more HTML elements are missing.");
         return;
     }
+
+    const witsAPSDisplay = witsCard.querySelector(".university-aps");
+    const witsEligibleCount = witsCard.querySelector(".eligible-count");
+    const witsCoursesButton = witsCard.querySelector(".view-university-courses");
+
+    if (!witsAPSDisplay || !witsEligibleCount || !witsCoursesButton) {
+        console.error("APS calculator: Wits card is incomplete.");
+        return;
+    }
+
+/* =================================================
+   2. LOAD DATA FROM THE NEW EXTRACTION ENGINE
+================================================= */
+
+let witsRequirements = null;
+
+function loadWitsRequirements(data) {
+    if (!data || !Array.isArray(data.programmes)) {
+        console.error("[APS] Invalid extracted programme data.");
+        return false;
+    }
+
+    witsRequirements = data;
+
+    if (prospectusStatus) {
+        prospectusStatus.textContent =
+            `${data.programmes.length} programme candidates extracted from the Wits prospectus.`;
+    }
+
+    requirementsYear.textContent =
+        String(data.admissionYear || 2027);
+
+    console.log("[APS] Programme data successfully connected.", {
+        university: data.university,
+        year: data.admissionYear,
+        programmes: data.programmes.length
+    });
+
+    return true;
+}
+
+window.addEventListener("unicomp:prospectus-ready", event => {
+    loadWitsRequirements(event.detail);
+});
+
+window.addEventListener("unicomp:prospectus-error", event => {
+    if (prospectusStatus) {
+        prospectusStatus.textContent =
+            `Prospectus extraction failed: ${event.detail?.message || "Unknown error"}`;
+    }
+});
+
+// Handle the possibility that extraction finished
+// before the APS calculator registered its event listener.
+if (window.UniCompanionExtractedData) {
+    loadWitsRequirements(window.UniCompanionExtractedData);
+}
 
     /* =================================================
-       2. LOAD WITS REQUIREMENTS
-    ================================================= */
-
-    const witsRequirements = window.WITS_REQUIREMENTS;
-
-    if (
-        !witsRequirements ||
-        !Array.isArray(witsRequirements.programmes) ||
-        !Number.isInteger(witsRequirements.year)
-    ) {
-        console.error(
-            "Wits requirements are missing. Check wits-requirements.js and its script order."
-        );
-
-        apsMessage.textContent =
-            "Wits programme requirements could not be loaded.";
-
-        return;
-    }
-
-    function validateProgrammeData(programmes) {
-        return programmes.every(programme => {
-
-            if (
-                !programme.name ||
-                !programme.faculty ||
-                !Array.isArray(programme.requirements) ||
-                !programme.url
-            ) {
-                return false;
-            }
-
-            if (
-                programme.aps !== null &&
-                !Number.isFinite(programme.aps)
-            ) {
-                return false;
-            }
-
-            return programme.requirements.every(requirement => {
-
-                return (
-                    Array.isArray(requirement.subjects) &&
-                    requirement.subjects.length > 0 &&
-                    Number.isInteger(requirement.level) &&
-                    requirement.level >= 1 &&
-                    requirement.level <= 7 &&
-                    ["all", "any"].includes(requirement.mode)
-                );
-
-            });
-
-        });
-    }
-
-    if (!validateProgrammeData(witsRequirements.programmes)) {
-        console.error("One or more Wits programme entries are invalid.");
-
-        apsMessage.textContent =
-            "Some Wits programme requirements contain invalid data.";
-
-        return;
-    }
-
-    /* =================================================
-       3. GET WITS CARD ELEMENTS
-    ================================================= */
-
-    const witsAPSDisplay =
-        witsCard.querySelector(".university-aps");
-
-    const witsEligibleCount =
-        witsCard.querySelector(".eligible-count");
-
-    const witsCoursesButton =
-        witsCard.querySelector(".view-university-courses");
-
-    if (
-        !witsAPSDisplay ||
-        !witsEligibleCount ||
-        !witsCoursesButton
-    ) {
-        console.error("Wits university card is incomplete.");
-        return;
-    }
-
-    /* =================================================
-       4. SUBJECT PICKER
+       3. SUBJECT PICKER
+       This works independently of the JSON file.
     ================================================= */
 
     const subjectRows = Array.from(
@@ -168,13 +118,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const subjectDefinitions = new Map();
 
     subjectRows.forEach(row => {
-
         const input = row.querySelector("input[data-subject]");
         const label = row.querySelector("label");
 
-        if (!input || !label) {
-            return;
-        }
+        if (!input || !label) return;
 
         const subjectKey = input.dataset.subject;
 
@@ -185,18 +132,16 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         const option = document.createElement("option");
-
         option.value = subjectKey;
         option.textContent = label.textContent.trim();
 
         subjectSelect.appendChild(option);
-
     });
 
     if (subjectDefinitions.size === 0) {
         apsMessage.textContent =
-            "No subjects were found in the subject template.";
-
+            "No subjects were found. Check the subject-options template in your HTML.";
+        console.error("No subject rows were found.");
         return;
     }
 
@@ -210,82 +155,40 @@ document.addEventListener("DOMContentLoaded", () => {
         const addedSubjects = new Set(getAddedSubjects());
 
         Array.from(subjectSelect.options).forEach(option => {
-            if (!option.value) {
-                return;
-            }
-
-            option.disabled = addedSubjects.has(option.value);
-        });
-    }
-
-    function resetResults() {
-        resultsSection.hidden = true;
-
-        witsAPSDisplay.textContent = "--";
-        witsEligibleCount.textContent = "Pending";
-
-        witsCoursesButton.disabled = true;
-
-        apsMessage.textContent = "";
-
-        universityCards.forEach(card => {
-            card.classList.remove("is-flipped");
-        });
-
-        // Other universities are not configured yet.
-        universityCards.forEach(card => {
-            if (card.dataset.university !== "wits") {
-                const aps = card.querySelector(".university-aps");
-                const count = card.querySelector(".eligible-count");
-                const button = card.querySelector(".view-university-courses");
-
-                if (aps) aps.textContent = "--";
-                if (count) count.textContent = "Not configured";
-                if (button) button.disabled = true;
+            if (option.value) {
+                option.disabled = addedSubjects.has(option.value);
             }
         });
-
-        window.UniCompanionStudentResults = null;
     }
 
     function addSubject() {
         const subjectKey = subjectSelect.value;
 
         if (!subjectKey) {
-            apsMessage.textContent =
-                "Please choose a subject first.";
-
+            apsMessage.textContent = "Please choose a subject first.";
             return;
         }
 
         const definition = subjectDefinitions.get(subjectKey);
 
-        if (!definition) {
-            return;
-        }
+        if (!definition) return;
 
         if (getAddedSubjects().includes(subjectKey)) {
-            apsMessage.textContent =
-                "You have already added that subject.";
-
+            apsMessage.textContent = "You have already added that subject.";
             return;
         }
 
         const row = definition.row.cloneNode(true);
-
         const input = row.querySelector("input[data-subject]");
-        const label = row.querySelector("label");
 
         input.value = "";
         input.required = false;
         input.setCustomValidity("");
 
         const removeButton = document.createElement("button");
-
         removeButton.type = "button";
         removeButton.className = "remove-subject";
         removeButton.textContent = "Remove";
-
         removeButton.setAttribute(
             "aria-label",
             `Remove ${definition.name}`
@@ -309,37 +212,58 @@ document.addEventListener("DOMContentLoaded", () => {
 
         updateSubjectOptions();
         resetResults();
-
-        if (input) {
-            input.focus();
-        }
+        input.focus();
     }
 
     addSubjectButton.addEventListener("click", addSubject);
+
+    /* =================================================
+       4. RESET RESULTS
+    ================================================= */
+
+    function resetResults() {
+        resultsSection.hidden = true;
+
+        witsAPSDisplay.textContent = "--";
+        witsEligibleCount.textContent = "Pending";
+        witsCoursesButton.disabled = true;
+
+        apsMessage.textContent = "";
+
+        universityCards.forEach(card => {
+            card.classList.remove("is-flipped");
+
+            if (card.dataset.university !== "wits") {
+                const aps = card.querySelector(".university-aps");
+                const count = card.querySelector(".eligible-count");
+                const button = card.querySelector(".view-university-courses");
+
+                if (aps) aps.textContent = "--";
+                if (count) count.textContent = "Not configured";
+                if (button) button.disabled = true;
+            }
+        });
+
+        window.UniCompanionStudentResults = null;
+    }
 
     /* =================================================
        5. COLLECT STUDENT MARKS
     ================================================= */
 
     function getStudentResults() {
-
         const results = {};
         let invalidInput = false;
 
-        const inputs = marksList.querySelectorAll(
-            "input[data-subject]"
-        );
+        const inputs = marksList.querySelectorAll("input[data-subject]");
 
         inputs.forEach(input => {
-
             const rawValue = input.value.trim();
             const subject = input.dataset.subject;
 
             input.setCustomValidity("");
 
-            if (rawValue === "") {
-                return;
-            }
+            if (rawValue === "") return;
 
             const mark = Number(rawValue);
 
@@ -349,25 +273,18 @@ document.addEventListener("DOMContentLoaded", () => {
                 mark > 100 ||
                 !Number.isInteger(mark)
             ) {
-
                 input.setCustomValidity(
                     "Enter a whole-number percentage from 0 to 100."
                 );
 
                 invalidInput = true;
-
                 return;
             }
 
             results[subject] = mark;
-
         });
 
-        if (invalidInput) {
-            return null;
-        }
-
-        return results;
+        return invalidInput ? null : results;
     }
 
     /* =================================================
@@ -375,7 +292,6 @@ document.addEventListener("DOMContentLoaded", () => {
     ================================================= */
 
     function validateStudentResults(results) {
-
         if (!results) {
             return "Please correct your marks. Use whole numbers between 0 and 100.";
         }
@@ -412,63 +328,49 @@ document.addEventListener("DOMContentLoaded", () => {
     ================================================= */
 
     function getNSCLevel(mark) {
-
         if (mark >= 80) return 7;
         if (mark >= 70) return 6;
         if (mark >= 60) return 5;
         if (mark >= 50) return 4;
         if (mark >= 40) return 3;
         if (mark >= 30) return 2;
-
         return 1;
     }
 
     /* =================================================
        8. WITS APS POINTS
-       
-       This retains the scoring method in your
-       existing implementation. Verify it against
-       the official admission-year scoring guide.
+       Retains your existing scoring implementation.
     ================================================= */
 
     function getWitsPoints(subject, mark) {
-
-        // Life Orientation.
         if (subject === "lifeOrientation") {
-
             if (mark >= 90) return 4;
             if (mark >= 80) return 3;
             if (mark >= 70) return 2;
             if (mark >= 60) return 1;
-
             return 0;
         }
 
-        // English and Mathematics.
         if (
             subject === "englishHome" ||
             subject === "englishFAL" ||
             subject === "mathematics"
         ) {
-
             if (mark >= 90) return 10;
             if (mark >= 80) return 9;
             if (mark >= 70) return 8;
             if (mark >= 60) return 7;
             if (mark >= 50) return 4;
             if (mark >= 40) return 3;
-
             return 0;
         }
 
-        // Other subjects, including Mathematical Literacy.
         if (mark >= 90) return 8;
         if (mark >= 80) return 7;
         if (mark >= 70) return 6;
         if (mark >= 60) return 5;
         if (mark >= 50) return 4;
         if (mark >= 40) return 3;
-
         return 0;
     }
 
@@ -477,7 +379,6 @@ document.addEventListener("DOMContentLoaded", () => {
     ================================================= */
 
     function calculateWitsAPS(results) {
-
         const lifeOrientationMark = results.lifeOrientation;
 
         const otherSubjects = Object.entries(results)
@@ -489,11 +390,9 @@ document.addEventListener("DOMContentLoaded", () => {
             }));
 
         otherSubjects.sort((a, b) => {
-
             if (b.points !== a.points) {
                 return b.points - a.points;
             }
-
             return b.mark - a.mark;
         });
 
@@ -502,414 +401,542 @@ document.addEventListener("DOMContentLoaded", () => {
         const lifeOrientation = {
             subject: "lifeOrientation",
             mark: lifeOrientationMark,
-            points: getWitsPoints(
-                "lifeOrientation",
-                lifeOrientationMark
-            )
+            points: getWitsPoints("lifeOrientation", lifeOrientationMark)
         };
 
-        const selectedSubjects = [
-            ...bestSix,
-            lifeOrientation
-        ];
+        const subjectsUsed = [...bestSix, lifeOrientation];
 
-        const aps = selectedSubjects.reduce(
+        const aps = subjectsUsed.reduce(
             (total, item) => total + item.points,
             0
         );
 
         return {
             aps,
-            subjectsUsed: selectedSubjects,
+            subjectsUsed,
             otherSubjectsNotUsed: otherSubjects.slice(6)
         };
     }
 
     /* =================================================
-       10. CALCULATE GENERAL AVERAGE
+       10. GENERAL AVERAGE
     ================================================= */
 
     function calculateAverage(results) {
-
         const marks = Object.values(results);
 
-        if (marks.length === 0) {
-            return null;
-        }
+        if (marks.length === 0) return null;
 
-        const total = marks.reduce(
-            (sum, mark) => sum + mark,
-            0
-        );
+        const total = marks.reduce((sum, mark) => sum + mark, 0);
 
         return (total / marks.length).toFixed(2);
     }
 
     /* =================================================
-       11. CHECK INDIVIDUAL SUBJECT REQUIREMENTS
-       
-       Supports your existing data structure:
-       mode: "all" = every listed subject is required.
-       mode: "any" = at least one listed subject is required.
+       11. MATCH EXTRACTED SUBJECT NAMES
+       Gemini may return names rather than our JS keys.
+    ================================================= */
+
+    function normaliseSubjectName(name) {
+        return String(name || "")
+            .toLowerCase()
+            .replace(/[^a-z0-9]/g, "");
+    }
+
+    const subjectNameToKey = new Map();
+
+    subjectDefinitions.forEach(definition => {
+        subjectNameToKey.set(
+            normaliseSubjectName(definition.name),
+            definition.key
+        );
+
+        subjectNameToKey.set(
+            normaliseSubjectName(definition.key),
+            definition.key
+        );
+    });
+
+    const subjectAliases = {
+        englishhl: "englishHome",
+        englishhome: "englishHome",
+        englishhomelanguage: "englishHome",
+        englishfal: "englishFAL",
+        englishfirstadditional: "englishFAL",
+        englishfirstadditionallanguage: "englishFAL",
+        maths: "mathematics",
+        mathematics: "mathematics",
+        mathsliteracy: "mathLiteracy",
+        mathematicalliteracy: "mathLiteracy",
+        physicalscience: "physicalSciences",
+        physicalsciences: "physicalSciences",
+        lifescience: "lifeSciences",
+        lifesciences: "lifeSciences",
+        cat: "computerApplicationsTechnology",
+        computerapplicationstechnology: "computerApplicationsTechnology",
+        it: "informationTechnology",
+        informationtechnology: "informationTechnology",
+        visualarts: "visualArts",
+        lifeorientation: "lifeOrientation"
+    };
+
+    let resultsForSubjectLookup = {};
+
+function getSubjectKey(extractedName) {
+    const normalised = normaliseSubjectName(extractedName);
+
+    // If the prospectus only says "English", use the
+    // English subject the student actually entered.
+    if (normalised === "english") {
+        if (resultsForSubjectLookup.englishHome !== undefined) {
+            return "englishHome";
+        }
+
+        if (resultsForSubjectLookup.englishFAL !== undefined) {
+            return "englishFAL";
+        }
+
+        return null;
+    }
+
+    return subjectNameToKey.get(normalised) ||
+        subjectAliases[normalised] ||
+        null;
+}
+
+
+    /* =================================================
+       12. CHECK SUBJECT REQUIREMENTS
     ================================================= */
 
     function checkSubjectRequirement(requirement, results) {
+        const subjectNames = Array.isArray(requirement.subjects)
+            ? requirement.subjects
+            : [];
 
-        const checks = requirement.subjects.map(subject => {
+        const requiredLevel = Number(requirement.level);
+        const mode = requirement.mode === "any" ? "any" : "all";
 
-            const mark = results[subject];
+        const checks = subjectNames.map(subjectName => {
+            const subjectKey = getSubjectKey(subjectName);
+            const mark = subjectKey ? results[subjectKey] : undefined;
 
             return {
-                subject,
-                mark,
-                level: mark === undefined
-                    ? null
-                    : getNSCLevel(mark),
-                passed: mark !== undefined &&
-                    getNSCLevel(mark) >= requirement.level
+                subject: subjectName,
+                subjectKey,
+                mark: mark === undefined ? null : mark,
+                level: mark === undefined ? null : getNSCLevel(mark),
+                passed: Boolean(
+                    subjectKey &&
+                    mark !== undefined &&
+                    getNSCLevel(mark) >= requiredLevel
+                )
             };
         });
 
-        const passed = requirement.mode === "all"
-            ? checks.every(item => item.passed)
-            : checks.some(item => item.passed);
+        const passed = checks.length > 0 &&
+            (mode === "all"
+                ? checks.every(item => item.passed)
+                : checks.some(item => item.passed));
 
         return {
             passed,
             checks,
-            mode: requirement.mode,
-            requiredLevel: requirement.level
+            mode,
+            requiredLevel
         };
     }
 
-    /* =================================================
-       12. CHECK A PROGRAMME
-    ================================================= */
+   
+/* =================================================
+   13. CHECK PROGRAMME ELIGIBILITY
+================================================= */
 
-    function checkProgrammeEligibility(
-        programme,
-        results,
-        studentAPS
-    ) {
+function checkProgrammeEligibility(programme, results, studentAPS) {
 
-        const subjectChecks = programme.requirements.map(
-            requirement =>
-                checkSubjectRequirement(requirement, results)
-        );
+    resultsForSubjectLookup = results;
+    // Extract unique APS scores.
+    const apsValues = [
+        ...new Set(
+            (programme.aps || [])
+                .map(item => Number(item.score))
+                .filter(score =>
+                    Number.isInteger(score) &&
+                    score >= 1 &&
+                    score <= 60
+                )
+        )
+    ];
 
-        const subjectRequirementsPassed =
-            subjectChecks.every(check => check.passed);
+    const hasAPSRequirement = apsValues.length === 1;
 
-        const hasAPSRequirement =
-            Number.isFinite(programme.aps);
+    const apsRequirement = hasAPSRequirement
+        ? apsValues[0]
+        : null;
 
-        const apsPassed = !hasAPSRequirement ||
-            studentAPS >= programme.aps;
+    const apsPassed =
+        hasAPSRequirement &&
+        studentAPS >= apsRequirement;
 
-        const eligible =
-            subjectRequirementsPassed && apsPassed;
+    // Check extracted subject requirements.
+    const subjectChecks = (programme.subjects || []).map(requirement => {
+
+        const subjectKey = getSubjectKey(requirement.subject);
+
+        const mark = subjectKey
+            ? results[subjectKey]
+            : undefined;
+
+        const requiredLevel = Number(requirement.minimumLevel);
+
+        const validLevel =
+            Number.isInteger(requiredLevel) &&
+            requiredLevel >= 1 &&
+            requiredLevel <= 7;
+
+        const studentLevel = mark === undefined
+            ? null
+            : getNSCLevel(mark);
 
         return {
-            eligible,
-            programme,
-            subjectRequirementsPassed,
-            subjectChecks,
-            hasAPSRequirement,
-            apsPassed,
-            studentAPS
+            subject: requirement.subject,
+            subjectKey,
+            requiredLevel: validLevel ? requiredLevel : null,
+            studentLevel,
+
+            // Unknown subjects and invalid requirements
+            // must be reviewed rather than silently treated
+            // as passed.
+            passed:
+                subjectKey !== null &&
+                mark !== undefined &&
+                validLevel &&
+                studentLevel >= requiredLevel,
+
+            needsReview:
+                !subjectKey || !validLevel
         };
-    }
+    });
+
+    // Known subject requirements must pass.
+    // An empty list is allowed because some programmes
+    // may only have an APS requirement extracted.
+    const subjectRequirementsPassed =
+        subjectChecks
+            .filter(item => !item.needsReview)
+            .every(item => item.passed);
+
+    const hasSubjectRequirements = subjectChecks.length > 0;
+
+    const hasUnresolvedSubjects =
+        subjectChecks.some(item => item.needsReview);
+
+    const hasUsableCriteria = hasAPSRequirement;
+
+    // Do not exclude every programme just because its
+    // automatically extracted data still needs review.
+    // Only programmes explicitly marked invalid are excluded.
+    const isInvalid =
+        programme.reviewStatus === "invalid";
+
+    const eligible =
+        hasUsableCriteria &&
+        apsPassed &&
+        subjectRequirementsPassed &&
+        !isInvalid;
+
+    return {
+        eligible,
+        programme,
+
+        apsRequirement,
+        hasAPSRequirement,
+        apsPassed,
+
+        subjectChecks,
+        subjectRequirementsPassed,
+        hasSubjectRequirements,
+        hasUnresolvedSubjects,
+
+        hasUsableCriteria,
+
+        needsReview:
+            programme.reviewStatus !== "review-required" ||
+            !hasSubjectRequirements ||
+            hasUnresolvedSubjects
+    };
+}
 
     /* =================================================
-       13. CHECK ALL WITS PROGRAMMES
+       14. CHECK ALL EXTRACTED PROGRAMMES
     ================================================= */
 
-    function findEligibleWitsProgrammes(results, aps) {
+    function findWitsProgrammeMatches(results, aps) {
+        if (!witsRequirements ||
+            !Array.isArray(witsRequirements.programmes)) {
+            return [];
+        }
 
         return witsRequirements.programmes
+            .filter(programme => programme && programme.name)
             .map(programme =>
-                checkProgrammeEligibility(
-                    programme,
-                    results,
-                    aps
-                )
+                checkProgrammeEligibility(programme, results, aps)
             );
     }
 
     /* =================================================
-       14. DISPLAY PROGRAMME MATCHES
+       15. DISPLAY PROGRAMME MATCHES
     ================================================= */
 
-    function renderWitsProgrammeMatches(results, aps) {
+   
+function renderWitsProgrammeMatches(results, aps) {
 
-        const assessments = findEligibleWitsProgrammes(
-            results,
-            aps
-        );
+    const assessments = findWitsProgrammeMatches(results, aps);
 
-        const matches = assessments.filter(
-            assessment => assessment.eligible
-        );
+    const matches = assessments.filter(
+        assessment => assessment.eligible
+    );
 
-        eligibleProgrammesList.replaceChildren();
+    eligibleProgrammesList.replaceChildren();
 
-        matches.forEach(assessment => {
+    matches.forEach(assessment => {
 
-            const programme = assessment.programme;
+        const programme = assessment.programme;
+        const item = document.createElement("li");
 
-            const item = document.createElement("li");
+        const name = document.createElement("strong");
+        name.textContent = programme.name;
+        item.appendChild(name);
 
-            const link = document.createElement("a");
-
-            const details = document.createElement("p");
-
-            link.href = programme.url;
-            link.target = "_blank";
-            link.rel = "noopener noreferrer";
-            link.textContent = programme.name;
-
-            const apsText = assessment.hasAPSRequirement
-                ? `Minimum APS: ${programme.aps}`
-                : "No minimum APS stated in the loaded dataset";
-
-            const selectionText =
-                programme.selectionRequirements
-                    ? ` Additional selection: ${programme.selectionRequirements}`
-                    : "";
-
-            details.textContent =
-                `${programme.faculty} · ${apsText}.${selectionText}`;
-
-            item.appendChild(link);
-            item.appendChild(details);
-
-            eligibleProgrammesList.appendChild(item);
-        });
-
-        witsEligibleCount.textContent = String(matches.length);
-
-        requirementsYear.textContent =
-            String(witsRequirements.year);
-
-        if (matches.length > 0) {
-
-            resultsSummary.textContent =
-                `${matches.length} listed programme(s) meet the APS and subject thresholds in your loaded Wits requirements dataset. Additional selection criteria may still apply.`;
-
-        } else {
-
-            resultsSummary.textContent =
-                "No programmes in the current Wits dataset meet all the checked minimum thresholds. This does not mean every Wits programme has been assessed.";
-
+        if (programme.faculty) {
+            const faculty = document.createElement("p");
+            faculty.textContent = programme.faculty;
+            item.appendChild(faculty);
         }
 
-        resultsSection.hidden = false;
-        witsCoursesButton.disabled = false;
+        const details = document.createElement("p");
 
-        return {
-            assessments,
-            matches
-        };
+        details.textContent =
+            `Minimum APS: ${assessment.apsRequirement}. ` +
+            `Your APS: ${aps}.`;
+
+        item.appendChild(details);
+
+        if (assessment.subjectChecks.length > 0) {
+
+            const subjectList = document.createElement("ul");
+
+            assessment.subjectChecks.forEach(check => {
+
+                const subjectItem = document.createElement("li");
+
+                if (check.needsReview) {
+                    subjectItem.textContent =
+                        `${check.subject}: Could not be reliably checked.`;
+                } else {
+                    subjectItem.textContent =
+                        `${check.subject}: Required level ${check.requiredLevel}, ` +
+                        `your level ${check.studentLevel}. ` +
+                        (check.passed ? "Passed" : "Not met");
+                }
+
+                subjectList.appendChild(subjectItem);
+            });
+
+            item.appendChild(subjectList);
+        }
+
+        if (assessment.needsReview) {
+            const review = document.createElement("p");
+            review.textContent =
+                "Some extracted requirements still need verification against the original prospectus.";
+            item.appendChild(review);
+        }
+
+        if (Array.isArray(programme.sourcePages) &&
+            programme.sourcePages.length > 0) {
+
+            const source = document.createElement("small");
+
+            source.textContent =
+                `Prospectus page(s): ${programme.sourcePages.join(", ")}`;
+
+            item.appendChild(source);
+        }
+
+        eligibleProgrammesList.appendChild(item);
+    });
+
+    witsEligibleCount.textContent = String(matches.length);
+
+    requirementsYear.textContent = String(
+        witsRequirements?.admissionYear || 2027
+    );
+
+    if (matches.length > 0) {
+
+        resultsSummary.textContent =
+            `${matches.length} potential programme match(es) found. ` +
+            "Some requirements may still need verification. " +
+            "Check the original prospectus before relying on these results.";
+
+    } else {
+
+        resultsSummary.textContent =
+            assessments.length === 0
+                ? "No programme candidates were extracted from the prospectus."
+                : "No extracted programmes currently meet the assessed APS and subject requirements. This does not mean that every Wits programme has been assessed.";
     }
 
+    resultsSection.hidden = false;
+    witsCoursesButton.disabled = false;
+
+    return {
+        assessments,
+        matches
+    };
+}
+
+
     /* =================================================
-       15. UNIVERSITY CARD DISPLAY
+       16. UNIVERSITY CARDS
     ================================================= */
 
     function flipUniversityCards() {
-
         universityCards.forEach(card => {
             card.classList.add("is-flipped");
         });
-
-    }
-
-    function updateWitsAPSDisplay(aps) {
-        witsAPSDisplay.textContent = String(aps);
     }
 
     function setOtherUniversitiesNotConfigured() {
-
         universityCards.forEach(card => {
-
-            if (card.dataset.university === "wits") {
-                return;
-            }
+            if (card.dataset.university === "wits") return;
 
             const aps = card.querySelector(".university-aps");
             const count = card.querySelector(".eligible-count");
             const button = card.querySelector(".view-university-courses");
 
-            if (aps) {
-                aps.textContent = "--";
-            }
-
-            if (count) {
-                count.textContent = "Not configured";
-            }
-
-            if (button) {
-                button.disabled = true;
-            }
-
+            if (aps) aps.textContent = "--";
+            if (count) count.textContent = "Not configured";
+            if (button) button.disabled = true;
         });
     }
 
-    /* =================================================
-       16. WITS RESULTS BUTTON
-    ================================================= */
-
     witsCoursesButton.addEventListener("click", () => {
-
         resultsSection.scrollIntoView({
             behavior: "smooth",
             block: "start"
         });
-
     });
 
     /* =================================================
-       17. CALCULATE APS BUTTON
+       17. CALCULATE APS
     ================================================= */
 
     calculateAPSButton.addEventListener("click", () => {
-
         const results = getStudentResults();
-
-        const validationError =
-            validateStudentResults(results);
+        const validationError = validateStudentResults(results);
 
         if (validationError) {
-
             apsMessage.textContent = validationError;
-
             return;
         }
 
         const witsResult = calculateWitsAPS(results);
 
-        const programmeResults =
-            renderWitsProgrammeMatches(
+        witsAPSDisplay.textContent = String(witsResult.aps);
+
+        flipUniversityCards();
+        setOtherUniversitiesNotConfigured();
+
+        let programmeResults = {
+            assessments: [],
+            matches: []
+        };
+
+        if (witsRequirements &&
+            Array.isArray(witsRequirements.programmes) &&
+            witsRequirements.programmes.length > 0) {
+            programmeResults = renderWitsProgrammeMatches(
                 results,
                 witsResult.aps
             );
+        } else {
+            witsEligibleCount.textContent = "Data unavailable";
+            witsCoursesButton.disabled = true;
 
-        flipUniversityCards();
-
-        setOtherUniversitiesNotConfigured();
-
-        updateWitsAPSDisplay(witsResult.aps);
+            apsMessage.textContent =
+                `Your calculated APS is ${witsResult.aps}. Programme eligibility cannot be checked yet because the Wits prospectus data has not been extracted.`;
+        }
 
         window.UniCompanionStudentResults = {
-
             subjects: results,
-
             witsAPS: witsResult.aps,
-
             witsSubjectsUsed: witsResult.subjectsUsed,
-
-            witsMatchingProgrammes:
-                programmeResults.matches.map(
-                    assessment => assessment.programme.name
-                ),
-
-            witsAssessments:
-                programmeResults.assessments,
-
-            requirementsYear: witsRequirements.year,
-
-            prospectusLoaded: Boolean(
-                window.UniCompanionProspectus
+            witsMatchingProgrammes: programmeResults.matches.map(
+                assessment => assessment.programme.name
             ),
-
+            witsAssessments: programmeResults.assessments,
+            requirementsYear: witsRequirements?.admissionYear || null,
+            prospectusLoaded: Boolean(window.UniCompanionProspectus),
             calculatedAt: new Date().toISOString()
         };
 
-        apsMessage.textContent =
-            `Your calculated Wits APS is ${witsResult.aps}. The programme results compare your marks with the currently loaded Wits requirements dataset.`;
+        if (programmeResults.matches.length > 0) {
+            apsMessage.textContent =
+                `Your calculated APS is ${witsResult.aps}. Potential programme matches are displayed. Check their source pages and selection criteria.`;
+        }
 
         console.log(
             "UniCompanion student results:",
             window.UniCompanionStudentResults
         );
-
     });
 
     /* =================================================
-       18. CALCULATE AVERAGE BUTTON
+       18. CALCULATE AVERAGE
     ================================================= */
 
     calculateAverageButton.addEventListener("click", () => {
-
         const results = getStudentResults();
 
         if (!results) {
-
             apsMessage.textContent =
                 "Please correct your marks before calculating your average.";
-
             return;
         }
 
         const average = calculateAverage(results);
 
         if (average === null) {
-
             apsMessage.textContent =
                 "Please add subjects and enter your marks first.";
-
             return;
         }
 
         apsMessage.textContent =
             `Your average is ${average}%. This average includes every subject you entered, including Life Orientation.`;
-
     });
 
     /* =================================================
        19. RESET WHEN MARKS CHANGE
     ================================================= */
 
-    marksList.addEventListener("input", () => {
-        resetResults();
-    });
+    marksList.addEventListener("input", resetResults);
 
     /* =================================================
        20. INITIALISE
     ================================================= */
 
     updateSubjectOptions();
-
     setOtherUniversitiesNotConfigured();
-
-    requirementsYear.textContent =
-        String(witsRequirements.year);
 
     if (prospectusStatus) {
         prospectusStatus.textContent =
-            "Loading the Wits prospectus in the background...";
+            "Loading extracted Wits programme data...";
     }
 
-    // The PDF loads independently of the calculator.
-    // A PDF failure does not stop the calculator.
-    if (window.UniCompanionProspectusReady) {
+    // loadWitsRequirements();
 
-        window.UniCompanionProspectusReady
-            .then(() => {
-                console.log(
-                    "Wits PDF is ready for searching."
-                );
-            })
-            .catch(error => {
-                console.warn(
-                    "Wits PDF could not be loaded. The calculator can still use its existing requirements dataset.",
-                    error
-                );
-            });
-    }
-
-    console.log(
-        "UniCompanion APS calculator initialised successfully."
-    );
-
+    console.log("UniCompanion APS calculator initialised.");
 });
