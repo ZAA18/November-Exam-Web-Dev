@@ -37,7 +37,6 @@
         }
 
         const startButton = document.getElementById("welcome-start");
-        const book = document.getElementById("welcome-book");
         const cover = document.getElementById("welcome-book-cover");
         const pages = document.getElementById("welcome-book-pages");
         const formPanel = document.getElementById("student-welcome-form");
@@ -75,9 +74,12 @@
             startButton.disabled = true;
             startButton.setAttribute("aria-expanded", "true");
             experience.classList.add("lights-on", "book-open");
-            book?.classList.add("is-opening");
             pages?.removeAttribute("aria-hidden");
             if (pages) pages.inert = false;
+            if (formPanel) {
+                formPanel.hidden = false;
+                formPanel.inert = true;
+            }
             if (cover) {
                 cover.setAttribute("aria-hidden", "true");
                 cover.inert = true;
@@ -91,13 +93,10 @@
             }
 
             window.setTimeout(() => {
-                // Make the book a flat, stable surface before exposing form controls.
-                // This avoids browser hit-testing glitches while 3D transforms are settling.
-                book?.classList.add("form-ready");
                 if (pages) pages.inert = false;
-                if (formPanel) formPanel.hidden = false;
+                if (formPanel) formPanel.inert = false;
                 nameInput.focus({ preventScroll: true });
-            }, reduceMotion ? 0 : 1120);
+            }, reduceMotion ? 0 : 1000);
         };
 
         startButton?.addEventListener("click", openBook);

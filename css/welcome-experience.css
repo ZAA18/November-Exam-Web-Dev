@@ -136,17 +136,12 @@ body.welcome-active {
 
 .welcome-book-stage {
     position: relative;
-    width: min(38rem, 94vw);
+    width: min(68rem, 94vw);
     height: min(36rem, 72vh);
     min-height: 29rem;
     overflow: hidden;
     perspective: 1800px;
     perspective-origin: 50% 48%;
-    transition: width .95s cubic-bezier(.2, .7, .15, 1);
-}
-
-.welcome-experience.book-open .welcome-book-stage {
-    width: min(68rem, 94vw);
 }
 
 .welcome-book-shadow {
@@ -166,52 +161,28 @@ body.welcome-active {
     position: absolute;
     inset: 0;
     transform-style: preserve-3d;
-    transform: rotateX(4deg) rotateY(-2deg);
-    transition: transform .9s cubic-bezier(.2, .7, .15, 1);
-}
-
-.welcome-book.is-opening {
-    transform: rotateX(0) rotateY(0);
-}
-
-/* Once the page is ready for typing, remove the 3D stacking context. */
-.welcome-book.form-ready {
-    transform: none !important;
-    transform-style: flat;
+    transform: none;
 }
 
 .welcome-book-pages {
     position: absolute;
     inset: 1.5% 0 1.5%;
-    z-index: 4;
+    z-index: 6;
     display: grid;
     grid-template-columns: 1fr 1fr;
     overflow: hidden;
     border: 1px solid #d4c6a9;
     border-radius: .55rem 1rem 1rem .55rem;
-    background: #f7f0df;
+    background: transparent;
     box-shadow: inset 0 0 0 .35rem #e9dfc8, 0 1.4rem 3.3rem #02090e73;
     color: #253c40;
-    transform: translateZ(-.55rem);
+    transform: none;
     transform-origin: center;
     visibility: hidden;
 }
 
 .welcome-experience.book-open .welcome-book-pages {
     visibility: visible;
-    animation: welcome-pages-settle .95s cubic-bezier(.2, .7, .15, 1) both;
-}
-
-.welcome-book.form-ready .welcome-book-pages {
-    z-index: 6;
-    transform: none;
-    background: transparent;
-}
-
-/* Keep the first page readable over the turned cover's inner face. */
-.welcome-book.form-ready .welcome-page-left {
-    z-index: 6;
-    background: transparent;
 }
 
 .welcome-book-pages::before {
@@ -236,7 +207,7 @@ body.welcome-active {
     display: flex;
     flex-direction: column;
     padding-right: clamp(2rem, 5vw, 4.3rem);
-    background: linear-gradient(110deg, #f8f2e3, #f3ecd9);
+    background: transparent;
 }
 
 .welcome-page-right {
@@ -403,12 +374,12 @@ body.welcome-active {
     position: absolute;
     top: 0;
     bottom: 0;
-    left: 0;
+    left: 25%;
     z-index: 3;
-    width: 100%;
+    width: 50%;
     transform-style: preserve-3d;
     transform-origin: left center;
-    transition: left .36s cubic-bezier(.2, .7, .15, 1), width .95s cubic-bezier(.2, .7, .15, 1), transform .72s cubic-bezier(.2, .7, .15, 1) .32s;
+    transition: left .95s cubic-bezier(.2, .7, .15, 1), width .95s cubic-bezier(.2, .7, .15, 1), transform .95s cubic-bezier(.2, .7, .15, 1);
     cursor: pointer;
     pointer-events: auto;
 }
@@ -685,11 +656,6 @@ body.welcome-active {
     to { transform: translate3d(4%, 3%, 0) scale(1.1); }
 }
 
-@keyframes welcome-pages-settle {
-    from { transform: translateZ(-.55rem) scaleX(.88); }
-    to { transform: translateZ(-.55rem) scaleX(1); }
-}
-
 @media (max-width: 760px) {
     .welcome-experience {
         padding: 1rem 1rem 1.2rem;
@@ -707,10 +673,6 @@ body.welcome-active {
         padding: 1rem 0;
     }
 
-    .welcome-experience.book-open .welcome-book-stage {
-        width: min(38rem, 96vw);
-    }
-
     .welcome-book {
         position: relative;
         min-height: 28rem;
@@ -723,7 +685,6 @@ body.welcome-active {
         overflow: visible;
         border-radius: .8rem;
         transform: none;
-        animation: none !important;
     }
 
     .welcome-book-pages::before {
@@ -821,16 +782,12 @@ body.welcome-active {
         animation: none;
     }
 
-    .welcome-book,
     .welcome-book-cover,
+    .welcome-book-stage,
     .welcome-book-shadow,
     .welcome-light-beams,
     .welcome-submit {
         transition: none;
     }
 
-    .welcome-book-pages,
-    .welcome-experience.book-open .welcome-book-pages {
-        animation: none !important;
-    }
 }
