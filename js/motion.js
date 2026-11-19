@@ -47,7 +47,83 @@
         );
     }
 
-    window.UniCompanionMotion = { flipCard, revealResponse, pulse };
+    function highlightUniversity(card) {
+        if (!card) return;
+        card.classList.add("is-highlighted");
+        if (!motionEnabled) return;
+        gsap.killTweensOf(card);
+        gsap.fromTo(card,
+            { scale: 0.9, y: 26, rotationY: -7, boxShadow: "0 0 0 0 #00bdc900" },
+            { scale: 1, y: 0, rotationY: 0, boxShadow: "0 0 0 5px #00bdc955, 0 1.2rem 2.5rem #123b3b28", duration: 0.85, ease: "back.out(1.45)", clearProps: "transform" }
+        );
+        gsap.to(card, {
+            boxShadow: "0 0 0 2px #00bdc955, 0 1rem 2rem #123b3b1f",
+            duration: 0.65,
+            repeat: 3,
+            yoyo: true,
+            delay: 0.85,
+            ease: "sine.inOut",
+            overwrite: "auto"
+        });
+    }
+
+    window.UniCompanionMotion = { flipCard, revealResponse, pulse, highlightUniversity };
+
+    // A branded curtain bridges the university choice and its course directory.
+    const destinationPage = document.querySelector(".courses-page");
+    let incomingTransition = false;
+    try {
+        incomingTransition = sessionStorage.getItem("unicomp:university-transition") === "1";
+        if (incomingTransition) sessionStorage.removeItem("unicomp:university-transition");
+    } catch (_) { /* Storage may be disabled; navigation still works normally. */ }
+
+    function makeTransitionOverlay() {
+        const overlay = document.createElement("div");
+        overlay.className = "page-transition-overlay";
+        overlay.setAttribute("aria-hidden", "true");
+        overlay.innerHTML = '<span class="page-transition-orbit" aria-hidden="true"></span><span class="page-transition-mark">UniCompanion</span><span class="page-transition-label">Finding your university</span>';
+        document.body.append(overlay);
+        return overlay;
+    }
+
+    if (incomingTransition && destinationPage) {
+        const overlay = makeTransitionOverlay();
+        if (motionEnabled) {
+            gsap.set(overlay, { clipPath: "circle(150% at 50% 50%)" });
+            gsap.fromTo(overlay.querySelector(".page-transition-mark"),
+                { autoAlpha: 0, y: 20, scale: 0.82 },
+                { autoAlpha: 1, y: 0, scale: 1, duration: 0.42, ease: "back.out(1.8)" }
+            );
+            gsap.to(overlay, {
+                clipPath: "circle(0% at 50% 50%)",
+                duration: 0.9,
+                delay: 0.22,
+                ease: "power4.inOut",
+                onComplete: () => overlay.remove()
+            });
+        } else {
+            overlay.remove();
+        }
+    }
+
+    document.addEventListener("click", event => {
+        const link = event.target instanceof Element ? event.target.closest("a[data-university-link]") : null;
+        if (!link || event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+        if (!motionEnabled) return;
+        event.preventDefault();
+        try { sessionStorage.setItem("unicomp:university-transition", "1"); } catch (_) { /* Continue with the same-page transition. */ }
+        const overlay = makeTransitionOverlay();
+        const mark = overlay.querySelector(".page-transition-mark");
+        const label = overlay.querySelector(".page-transition-label");
+        mark.textContent = link.querySelector("h3")?.textContent.trim() || "UniCompanion";
+        label.textContent = "Opening course directory";
+        gsap.set(overlay, { clipPath: "circle(0% at 50% 50%)" });
+        gsap.timeline({ onComplete: () => { window.location.href = link.href; } })
+            .to(overlay, { clipPath: "circle(150% at 50% 50%)", duration: 0.88, ease: "power4.inOut" })
+            .fromTo(mark, { autoAlpha: 0, y: 22, scale: 0.8 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.42, ease: "back.out(1.8)" }, "-=0.42")
+            .fromTo(overlay.querySelector(".page-transition-orbit"), { scale: 0.4, rotate: -35 }, { scale: 1, rotate: 0, duration: 0.7, ease: "power3.out" }, "<");
+    });
+
     if (!motionEnabled) return;
 
     document.documentElement.classList.add("gsap-motion");

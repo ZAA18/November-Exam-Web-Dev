@@ -513,6 +513,10 @@ main {
 /* University Cards */
 
 .university-card {
+    text-decoration: none;
+    color: inherit;
+    box-shadow: 0 .2rem .7rem #00000010;
+    transition: border-color 220ms ease, background-color 220ms ease;
     min-width: 0;
     min-height: 5.5rem;
 
@@ -528,6 +532,13 @@ main {
     border-radius: .65rem;
 
     background: #ffffff20;
+}
+
+.university-card:hover,
+.university-card:focus-visible {
+    border-color: #00a9bb;
+    outline: 2px solid #00a9bb;
+    outline-offset: 3px;
 }
 
 .university-card h3 {
@@ -774,6 +785,10 @@ main {
 ========================================= */
 
 @media (max-width: 950px) {
+
+    .university-track {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
 
     .hero-container {
         gap: 1.5rem;

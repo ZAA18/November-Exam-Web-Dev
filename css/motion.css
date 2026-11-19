@@ -32,6 +32,85 @@
     box-shadow: 0 0 8px #00c5d577;
 }
 
+.university-track {
+    perspective: 1100px;
+}
+
+.university-card {
+    position: relative;
+    transform-style: preserve-3d;
+    will-change: transform;
+}
+
+.university-card::after {
+    position: absolute;
+    inset: 0;
+    border: 1px solid #00a9bb55;
+    border-radius: inherit;
+    content: "";
+    opacity: 0;
+    transform: translateZ(-1px) scale(.94);
+    transition: opacity 220ms ease, transform 320ms ease;
+    pointer-events: none;
+}
+
+.university-card:hover::after,
+.university-card:focus-visible::after {
+    opacity: 1;
+    transform: translateZ(-1px) scale(1.025);
+}
+
+.directory-card.is-highlighted {
+    position: relative;
+    z-index: 1;
+    border-color: #00a9bb;
+    outline: 3px solid #00a9bb;
+    outline-offset: 4px;
+    background: linear-gradient(145deg, #ffffff, #e5f7f4);
+}
+
+.page-transition-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    display: grid;
+    align-content: center;
+    justify-items: center;
+    gap: .8rem;
+    overflow: hidden;
+    color: #12384a;
+    background: radial-gradient(circle at 50% 48%, #f7f6e9 0 12%, #d7efea 33%, #b9e8e4 58%, #f8a02a 140%);
+    clip-path: circle(150% at 50% 50%);
+    pointer-events: all;
+}
+
+.page-transition-orbit {
+    position: absolute;
+    width: min(76vw, 64rem);
+    aspect-ratio: 1;
+    border: 1px solid #087d8b55;
+    border-radius: 50%;
+    box-shadow: 0 0 0 2rem #ffffff14, 0 0 0 5rem #ffffff12, inset 0 0 5rem #ffffff66;
+}
+
+.page-transition-mark,
+.page-transition-label {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+}
+
+.page-transition-mark {
+    max-width: 80vw;
+    font-size: clamp(1.6rem, 5vw, 3.4rem);
+    font-weight: 800;
+    letter-spacing: -.04em;
+}
+
+.page-transition-label {
+    font-size: clamp(.9rem, 1.6vw, 1.1rem);
+}
+
 .gsap-motion .nav-link {
     position: relative;
 }
@@ -178,4 +257,6 @@
     .feature-card { transition: none; }
     .feature-card:hover { transform: none; box-shadow: none; }
     .loader-bar span { animation: none; }
+    .university-card { will-change: auto; }
+    .university-card::after { transition: none; }
 }
