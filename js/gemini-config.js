@@ -4,7 +4,7 @@
     window.UNICOMPANION_GEMINI_CONFIG = {
         apiBase: isLocal
             ? "http://127.0.0.1:8787"
-            : "https://YOUR-WORKER-SUBDOMAIN.workers.dev",
+            :   "https://unicomp-gemini-proxy.unicomp-gemini.workers.dev",
         models: {
             assistant: "gemini-3.5-flash-lite",
             prospectus: "gemini-3.8-flash"
