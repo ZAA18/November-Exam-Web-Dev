@@ -485,6 +485,7 @@
 
 .wits-programme-results {
     margin-top: 2rem;
+    scroll-margin-top: 1.25rem;
     padding: clamp(1rem, 2vw, 1.5rem);
     border: 1px solid #b7c0b8;
     border-radius: .6rem;
@@ -564,6 +565,54 @@
 
 .wits-source a {
     color: #087e8b;
+}
+
+@media (min-width: 851px) {
+    #university-programmes {
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 21rem), 1fr));
+        gap: 1.1rem;
+    }
+
+    .wits-programme-results h2 {
+        font-size: 1.2rem;
+    }
+
+    .wits-results-note,
+    .wits-source {
+        font-size: .82rem;
+        line-height: 1.6;
+    }
+
+    #university-programmes .programme-card {
+        padding: 1.15rem;
+    }
+
+    .wits-programme-results .programme-card-face {
+        padding: 1.15rem;
+    }
+
+    .programme-card h3 {
+        font-size: 1.05rem;
+    }
+
+    .programme-card p {
+        font-size: .85rem;
+        line-height: 1.6;
+    }
+
+    .programme-card small,
+    .programme-card details {
+        font-size: .8rem;
+    }
+
+    .programme-card .programme-status-label {
+        font-size: .74rem;
+    }
+
+    .wits-programme-results .programme-flip-control {
+        min-height: 2.5rem;
+        font-size: .82rem;
+    }
 }
 
 

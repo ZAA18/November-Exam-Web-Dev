@@ -346,10 +346,27 @@
     background: #fff;
     backface-visibility: hidden;
     -webkit-backface-visibility: hidden;
+    transition: visibility 0s linear .31s;
+}
+
+.programme-card-front {
+    visibility: visible;
+}
+
+.programme-card-back {
+    visibility: hidden;
 }
 
 .programme-card-back {
     transform: rotateY(180deg);
+}
+
+.programme-card.is-flipped .programme-card-front {
+    visibility: hidden;
+}
+
+.programme-card.is-flipped .programme-card-back {
+    visibility: visible;
 }
 
 .programme-university-name {
@@ -395,11 +412,6 @@
     outline-offset: 3px;
 }
 
-.programme-card-face > .programme-flip-control {
-    position: relative;
-    z-index: 1;
-}
-
 /* Typing feedback is visible even when GSAP or JavaScript animations fail. */
 .typing-indicator {
     display: inline-flex;
@@ -426,7 +438,8 @@
 
 @media (prefers-reduced-motion: reduce) {
     html { scroll-behavior: auto; }
-    .programme-card-inner { transition: none; }
+    .programme-card-inner,
+    .programme-card-face { transition: none; }
     .typing-indicator .typing-dot { animation: none; opacity: .7; }
     .gsap-motion .nav-link::after { transition: none; }
     .feature-card { transition: none; }

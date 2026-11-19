@@ -217,7 +217,12 @@ document.addEventListener("DOMContentLoaded", () => {
             item.append(inner);
             list.append(item);
         });
-        panel.scrollIntoView({behavior:"smooth",block:"start"});
+        requestAnimationFrame(() => {
+            panel.scrollIntoView({
+                behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
+                block: "start"
+            });
+        });
     }
     let calculating = false;
     let calculationRefreshQueued = false;

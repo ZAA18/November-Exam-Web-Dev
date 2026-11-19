@@ -117,11 +117,17 @@
     height: 1.2rem;
     flex: 0 0 1.2rem;
     object-fit: contain;
+    transition: transform .24s cubic-bezier(.2, .7, .2, 1);
 }
 
 .nav-link:hover,
 .nav-link.active {
     color: #008ca6;
+}
+
+.nav-link:hover .nav-icon,
+.nav-link:focus-visible .nav-icon {
+    transform: translateY(-2px) translateZ(8px) scale(1.16) rotateY(-8deg);
 }
 
 
