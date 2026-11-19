@@ -39,17 +39,26 @@ document.addEventListener("DOMContentLoaded", () => {
         const stats = document.createElement("div");
         stats.className = "directory-stats";
         stats.append(
-            makeStat("🎓", "Programmes Offered", university.programmes),
-            makeStat("🏛️", "Faculties", university.faculties)
+            makeStat("🎓", "Programmes Offered", university.programmes ?? "See list"),
+            makeStat("🏛️", university.facultyLabel || "Faculties", university.faculties)
         );
+        const programmeStat = stats.querySelector(".directory-stat");
+        if (programmeStat) {
+            const source = university.programmeSource || university.prospectus;
+            programmeStat.title = `${university.programmeBasis || "A verified total of distinct undergraduate programme choices is not available yet. Open the prospectus to browse the listed qualifications."}${source ? ` Source: ${source}` : ""}`;
+        }
+        const facultyStat = stats.querySelectorAll(".directory-stat")[1];
+        if (facultyStat && university.facultySource) {
+            facultyStat.title = `Faculty count verified from the university source: ${university.facultySource}`;
+        }
 
         const link = document.createElement("a");
         link.className = "directory-card-link";
         link.href = university.prospectus;
         link.target = "_blank";
         link.rel = "noopener";
-        link.textContent = "View courses";
-        link.setAttribute("aria-label", `View courses in the ${university.name} prospectus`);
+        link.textContent = "View programmes";
+        link.setAttribute("aria-label", `View programmes in the ${university.name} prospectus`);
 
         const name = document.createElement("h2");
         name.className = "directory-card-name";
