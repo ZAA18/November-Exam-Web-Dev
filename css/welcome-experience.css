@@ -4,17 +4,24 @@ html.has-student-session .welcome-experience {
 
 body.welcome-active {
     overflow: hidden;
+    background: #0b202d;
 }
 
 .welcome-experience {
     position: fixed;
     inset: 0;
     z-index: 5000;
+    box-sizing: border-box;
     display: flex;
     flex-direction: column;
+    height: 100vh;
+    height: 100dvh;
     min-height: 100vh;
     min-height: 100dvh;
-    overflow: auto;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
     padding: clamp(1rem, 3vw, 2.2rem) clamp(1rem, 5vw, 4rem) 1.25rem;
     isolation: isolate;
     color: #f7f6e8;
