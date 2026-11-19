@@ -297,3 +297,12 @@
     }
 
 }
+
+/* Prevent mobile Safari from zooming the page when a form field receives focus. */
+@media (max-width: 900px) {
+    input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]),
+    select,
+    textarea {
+        font-size: 16px !important;
+    }
+}

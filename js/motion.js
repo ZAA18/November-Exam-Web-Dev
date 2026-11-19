@@ -86,6 +86,26 @@
         return overlay;
     }
 
+    function makeUniversityRoster(universities) {
+        if (!universities?.length) return null;
+        const roster = document.createElement("div");
+        roster.className = "university-transition-roster";
+        roster.setAttribute("aria-hidden", "true");
+        universities.forEach(university => {
+            const tile = document.createElement("div");
+            tile.className = "university-transition-tile";
+            const logo = document.createElement("img");
+            logo.src = `assets/University%20Icons/${encodeURIComponent(university.icon)}`;
+            logo.alt = "";
+            logo.setAttribute("aria-hidden", "true");
+            const name = document.createElement("span");
+            name.textContent = university.name;
+            tile.append(logo, name);
+            roster.append(tile);
+        });
+        return roster;
+    }
+
     if (incomingTransition && destinationPage) {
         const overlay = makeTransitionOverlay();
         if (motionEnabled) {
@@ -110,6 +130,65 @@
         const featureLink = event.target instanceof Element ? event.target.closest("a.feature-card[href]") : null;
         if (featureLink && !event.defaultPrevented && event.button === 0 && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey && !featureLink.target && !featureLink.hasAttribute("download") && motionEnabled) {
             event.preventDefault();
+            if (featureLink.classList.contains("explore-card")) {
+                const universities = window.UniCompanionUniversityCatalog || [];
+                if (universities.length) {
+                    const bounds = featureLink.getBoundingClientRect();
+                    const originX = `${((bounds.left + bounds.width / 2) / window.innerWidth) * 100}%`;
+                    const originY = `${((bounds.top + bounds.height / 2) / window.innerHeight) * 100}%`;
+                    const overlay = document.createElement("div");
+                    overlay.className = "explore-university-transition";
+                    overlay.setAttribute("aria-hidden", "true");
+
+                    const orbit = document.createElement("span");
+                    orbit.className = "explore-university-orbit";
+                    const content = document.createElement("div");
+                    content.className = "explore-university-content";
+                    const kicker = document.createElement("p");
+                    kicker.className = "explore-university-kicker";
+                    kicker.textContent = "UNICOMPANION UNIVERSITY GUIDE";
+                    const heading = document.createElement("h2");
+                    heading.className = "explore-university-heading";
+                    heading.textContent = "Explore every possibility";
+                    const roster = makeUniversityRoster(universities);
+                    roster.classList.add("explore-university-roster");
+                    content.append(kicker, heading, roster);
+                    overlay.append(orbit, content);
+                    document.body.append(overlay);
+
+                    gsap.set(overlay, { clipPath: `circle(0% at ${originX} ${originY})` });
+                    const cards = [...roster.children];
+                    const entryFrom = index => {
+                        const directions = [
+                            { x: -170, y: -70, rotate: -9 },
+                            { x: 160, y: -90, rotate: 8 },
+                            { x: -120, y: 130, rotate: 7 },
+                            { x: 140, y: 120, rotate: -8 }
+                        ];
+                        return directions[index % directions.length];
+                    };
+                    gsap.timeline({ onComplete: () => { window.location.href = featureLink.href; } })
+                        .to(overlay, { clipPath: `circle(150% at ${originX} ${originY})`, duration: .72, ease: "power4.inOut" })
+                        .fromTo(orbit, { scale: .55, rotate: -30 }, { scale: 1, rotate: 0, duration: .85, ease: "power3.out" }, "-=.35")
+                        .fromTo([kicker, heading],
+                            { autoAlpha: 0, y: 26 },
+                            { autoAlpha: 1, y: 0, duration: .45, stagger: .08, ease: "power3.out" },
+                            "-=.28"
+                        )
+                        .fromTo(cards,
+                            {
+                                autoAlpha: 0,
+                                x: index => entryFrom(index).x,
+                                y: index => entryFrom(index).y,
+                                rotation: index => entryFrom(index).rotate,
+                                scale: .82
+                            },
+                            { autoAlpha: 1, x: 0, y: 0, rotation: 0, scale: 1, duration: .58, stagger: { each: .065, from: "random" }, ease: "back.out(1.45)" },
+                            "-=.48"
+                        );
+                    return;
+                }
+            }
             const bounds = featureLink.getBoundingClientRect();
             const originX = `${((bounds.left + bounds.width / 2) / window.innerWidth) * 100}%`;
             const originY = `${((bounds.top + bounds.height / 2) / window.innerHeight) * 100}%`;
@@ -135,15 +214,29 @@
             heading.className = "feature-transition-title";
             heading.textContent = title;
             portal.append(orbit, icon, brand, heading);
+            const universityRoster = featureLink.classList.contains("explore-card")
+                ? makeUniversityRoster(window.UniCompanionUniversityCatalog || [])
+                : null;
+            if (universityRoster) {
+                portal.classList.add("has-university-roster");
+                portal.append(universityRoster);
+            }
             overlay.append(portal);
             document.body.append(overlay);
 
             gsap.set(overlay, { clipPath: `circle(0% at ${originX} ${originY})` });
-            gsap.timeline({ onComplete: () => { window.location.href = featureLink.href; } })
+            const transition = gsap.timeline({ onComplete: () => { window.location.href = featureLink.href; } })
                 .to(overlay, { clipPath: `circle(150% at ${originX} ${originY})`, duration: 0.82, ease: "power4.inOut" })
                 .fromTo(orbit, { scale: 0.38, rotate: -48 }, { scale: 1, rotate: 0, duration: 0.72, ease: "power3.out" }, "-=0.5")
                 .fromTo(icon, { autoAlpha: 0, y: 30, scale: 0.45, rotate: -24 }, { autoAlpha: 1, y: 0, scale: 1, rotate: 0, duration: 0.55, ease: "back.out(2)" }, "-=0.44")
                 .fromTo([brand, heading], { autoAlpha: 0, y: 22 }, { autoAlpha: 1, y: 0, duration: 0.42, stagger: 0.09, ease: "power3.out" }, "-=0.28");
+            if (universityRoster) {
+                transition.fromTo([...universityRoster.children],
+                    { autoAlpha: 0, x: index => index % 2 ? 72 : -72, y: 18, rotateY: index => index % 2 ? 10 : -10 },
+                    { autoAlpha: 1, x: 0, y: 0, rotateY: 0, duration: .42, stagger: { each: .045, from: "random" }, ease: "power3.out" },
+                    "-=.18"
+                );
+            }
             return;
         }
 
@@ -263,11 +356,20 @@
         const label = overlay.querySelector(".page-transition-label");
         mark.textContent = link.querySelector("h3")?.textContent.trim() || "UniCompanion";
         label.textContent = "Opening course directory";
+        const universityRoster = makeUniversityRoster(window.UniCompanionUniversityCatalog || []);
+        if (universityRoster) overlay.append(universityRoster);
         gsap.set(overlay, { clipPath: "circle(0% at 50% 50%)" });
-        gsap.timeline({ onComplete: () => { window.location.href = link.href; } })
+        const transition = gsap.timeline({ onComplete: () => { window.location.href = link.href; } })
             .to(overlay, { clipPath: "circle(150% at 50% 50%)", duration: 0.88, ease: "power4.inOut" })
             .fromTo(mark, { autoAlpha: 0, y: 22, scale: 0.8 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.42, ease: "back.out(1.8)" }, "-=0.42")
             .fromTo(overlay.querySelector(".page-transition-orbit"), { scale: 0.4, rotate: -35 }, { scale: 1, rotate: 0, duration: 0.7, ease: "power3.out" }, "<");
+        if (universityRoster) {
+            transition.fromTo([...universityRoster.children],
+                { autoAlpha: 0, x: index => index % 2 ? 72 : -72, y: 18, rotateY: index => index % 2 ? 10 : -10 },
+                { autoAlpha: 1, x: 0, y: 0, rotateY: 0, duration: .42, stagger: { each: .045, from: "random" }, ease: "power3.out" },
+                "-=.2"
+            );
+        }
     });
 
     if (!motionEnabled) return;
