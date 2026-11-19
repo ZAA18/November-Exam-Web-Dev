@@ -511,7 +511,7 @@
 .programme-card small a, .programme-card details summary { color: #087e8b; cursor: pointer; }
 .programme-card details { margin-top: .7rem; color: #586865; font-size: .7rem; }
 .programme-card details p { overflow-wrap: anywhere; }
-.programme-card > strong { font-size: .65rem; letter-spacing: .04em; }
+.programme-card .programme-status-label { font-size: .65rem; letter-spacing: .04em; }
 .programme-card.status-eligible { border-left-color: #21875b; }
 .programme-card.status-not-eligible { border-left-color: #c55343; }
 .programme-card.status-incomplete { border-left-color: #d38b1f; }

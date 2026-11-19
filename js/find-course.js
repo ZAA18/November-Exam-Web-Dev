@@ -18,16 +18,35 @@ document.addEventListener("DOMContentLoaded", () => {
         output.replaceChildren();
         const paragraph = document.createElement("p");
         paragraph.textContent = message;
+        if (state === "loading") {
+            const dots = document.createElement("span");
+            dots.className = "typing-indicator recommendation-typing-indicator";
+            dots.setAttribute("aria-hidden", "true");
+            for (let dot = 0; dot < 3; dot += 1) {
+                const element = document.createElement("span");
+                element.className = "typing-dot";
+                dots.append(element);
+            }
+            paragraph.append(" ", dots);
+            output.setAttribute("aria-busy", "true");
+        } else {
+            output.setAttribute("aria-busy", "false");
+        }
         output.append(paragraph);
         if (state) output.dataset.state = state;
         else delete output.dataset.state;
+        if (state === "success") window.UniCompanionMotion?.revealResponse(paragraph);
     }
 
     function updateProgress() {
         const interests = checkedValues("interest");
         const hasInterest = interests.length > 0 || interestPrompt.value.trim().length > 0;
         const hasSubjects = checkedValues("subject").length > 0;
+        const wasSubjectSectionHidden = subjectSection.hidden;
         subjectSection.hidden = !hasInterest;
+        if (wasSubjectSectionHidden && hasInterest) {
+            window.UniCompanionMotion?.revealResponse(subjectSection);
+        }
 
         const complete = [hasInterest, hasInterest && hasSubjects, recommendationComplete];
         let current = complete.findIndex(done => !done);

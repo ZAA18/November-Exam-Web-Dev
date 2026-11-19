@@ -615,11 +615,23 @@ chatForm.addEventListener("submit", async event => {
         sendButton.disabled = true;
     }
 
-    // Display loading message.
-    const loadingMessage = addChatMessage(
-        "Thinking...",
-        "bot-message"
-    );
+    // Announce that the response is in progress and show animated typing dots.
+    const loadingMessage = document.createElement("div");
+    loadingMessage.className = "bot-message typing-indicator";
+    loadingMessage.setAttribute("role", "status");
+    const typingLabel = document.createElement("span");
+    typingLabel.className = "sr-only";
+    typingLabel.textContent = "UniCompanion is typing";
+    loadingMessage.append(typingLabel);
+    for (let dot = 0; dot < 3; dot += 1) {
+        const element = document.createElement("span");
+        element.className = "typing-dot";
+        element.setAttribute("aria-hidden", "true");
+        loadingMessage.append(element);
+    }
+    chatMessages.setAttribute("aria-busy", "true");
+    chatMessages.appendChild(loadingMessage);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
 
     try {
 
@@ -631,7 +643,9 @@ chatForm.addEventListener("submit", async event => {
 
         const answer = getAssistantResponseText(response);
 
+        loadingMessage.classList.remove("typing-indicator");
         loadingMessage.textContent = answer;
+        window.UniCompanionMotion?.revealResponse(loadingMessage);
 
         // Save both messages for follow-up questions.
         conversationHistory.push(
@@ -649,10 +663,14 @@ chatForm.addEventListener("submit", async event => {
 
         console.error("Gemini assistant error:", error);
 
+        loadingMessage.classList.remove("typing-indicator");
         loadingMessage.textContent =
             "I'm having trouble connecting right now. Please try again shortly.";
+        window.UniCompanionMotion?.revealResponse(loadingMessage);
 
     } finally {
+
+        chatMessages.setAttribute("aria-busy", "false");
 
         chatInput.disabled = false;
 

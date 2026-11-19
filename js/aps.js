@@ -48,23 +48,146 @@ document.addEventListener("DOMContentLoaded", () => {
         const uni = all[id], result = studentResults?.[id]; if (!uni || !result) return;
         selected=id; cards.forEach(c=>c.querySelector("button").classList.toggle("is-active", c.dataset.university===id));
         panel.hidden=false; list.replaceChildren();
+        window.UniCompanionMotion?.revealResponse(panel);
         $("university-results-heading").textContent = `${uni.name} programmes`;
         const assessed = result.assessments || [], counts = { eligible: 0, "not-eligible": 0, incomplete: 0 };
         assessed.forEach(a=>counts[a.status]++);
         const scoreText=result.score.value!==null&&result.score.value!==undefined?`${result.score.value}${result.score.available?"":" (base score)"}`:"Add marks to calculate";
         summary.textContent = `${uni.admissionYear ? `Prospectus ${uni.admissionYear}` : "Prospectus year unavailable"} · Admission score: ${scoreText}${result.score.unit?` ${result.score.unit}`:""} · ${counts.eligible} eligible · ${counts["not-eligible"]} below a confirmed minimum · ${counts.incomplete} with criteria still to assess. Meeting minimums does not guarantee admission.`;
         if (!assessed.length) { const empty=document.createElement("p"); empty.className="results-empty"; empty.textContent=!uni.prospectus?"No prospectus file is available for this university, so its course list cannot be loaded yet.":uni.extractionStatus==="error"?"This prospectus could not be loaded. Check that the site is running through a local web server and try again.":uni.extractionStatus==="processed"?"No course entries were detected in this prospectus yet.":"This prospectus is being processed. Its course list will appear here when extraction completes."; list.append(empty); }
-        assessed.forEach(a=>{
-            const item=document.createElement("article"); item.className=`programme-card status-${a.status}`;
-            const title=document.createElement("h3"); title.textContent=a.programme.name || "Unnamed programme"; item.append(title);
-            if(a.programme.faculty){const f=document.createElement("p");f.textContent=a.programme.faculty;item.append(f);}
-            const status=document.createElement("strong"); status.textContent=a.status==="incomplete"?"MORE REQUIREMENTS TO CHECK":a.status.replaceAll("-"," ").toUpperCase();item.append(status);
-            if(a.score?.available){const scoreLine=document.createElement("p");scoreLine.textContent=`Your programme-specific ${a.score.unit}: ${a.score.value}. ${a.score.details||""}`;item.append(scoreLine);}
-            [...a.reasons,...a.unknown].forEach(reason=>{const p=document.createElement("p");p.textContent=reason;item.append(p);});
-            if(a.programme.selectionRequirements?.length){const p=document.createElement("p");p.textContent="Additional criteria: "+a.programme.selectionRequirements.map(x=>x.description).join("; ");item.append(p);}
-            if(a.programme.sourcePages?.length){const p=document.createElement("small");p.append("Prospectus PDF page(s): ");a.programme.sourcePages.forEach((page,index)=>{if(index)p.append(", ");const link=document.createElement("a");link.href=`${uni.prospectus}#page=${page}`;link.target="_blank";link.rel="noopener noreferrer";link.textContent=String(page);p.append(link);});item.append(p);}
-            const sourceItems=[...(a.programme.aps||[]).map(x=>({label:`${x.type||"Admission score"} requirement`,text:x.sourceText,page:x.sourcePage})),...(a.programme.subjects||[]).map(x=>({label:`${x.subject} requirement`,text:x.sourceText,page:x.sourcePage})),...(a.programme.selectionRequirements||[]).map(x=>({label:"Selection criterion",text:x.sourceText||x.description,page:x.sourcePage}))].filter(x=>x.text);
-            if(sourceItems.length){const details=document.createElement("details"),caption=document.createElement("summary");caption.textContent="View extracted source text";details.append(caption);sourceItems.forEach(source=>{const p=document.createElement("p");p.textContent=`${source.label}${source.page?` (PDF p. ${source.page})`:""}: ${source.text}`;details.append(p);});item.append(details);}
+        assessed.forEach((a,index)=>{
+            const programmeName = a.programme.name || "Unnamed programme";
+            const item = document.createElement("article");
+            item.className = `programme-card status-${a.status}`;
+            item.dataset.motionFlipCard = "";
+            item.tabIndex = 0;
+            item.setAttribute("role", "group");
+            item.setAttribute("aria-label", `${programmeName} at ${uni.name}. Press Enter or Space to show admission details.`);
+
+            const inner = document.createElement("div");
+            inner.className = "programme-card-inner";
+            const front = document.createElement("div");
+            front.className = "programme-card-face programme-card-front";
+            front.id = `programme-front-${id}-${index}`;
+            const back = document.createElement("div");
+            back.className = "programme-card-face programme-card-back";
+            back.id = `programme-details-${id}-${index}`;
+            back.setAttribute("aria-hidden", "true");
+            back.inert = true;
+
+            const addFlipButton = (parent, label, controlsId) => {
+                const button = document.createElement("button");
+                button.type = "button";
+                button.className = "programme-flip-control";
+                button.textContent = label;
+                button.setAttribute("aria-controls", controlsId);
+                button.setAttribute("aria-expanded", "false");
+                parent.append(button);
+                return button;
+            };
+
+            const universityLabel = document.createElement("small");
+            universityLabel.className = "programme-university-name";
+            universityLabel.textContent = uni.name;
+            const title = document.createElement("h3");
+            title.textContent = programmeName;
+            front.append(universityLabel, title);
+            if (a.programme.faculty) {
+                const faculty = document.createElement("p");
+                faculty.className = "programme-faculty";
+                faculty.textContent = a.programme.faculty;
+                front.append(faculty);
+            }
+            const status = document.createElement("strong");
+            status.className = "programme-status-label";
+            status.textContent = a.status === "incomplete"
+                ? "MORE REQUIREMENTS TO CHECK"
+                : a.status.replaceAll("-", " ").toUpperCase();
+            front.append(status);
+            addFlipButton(front, "View Details", back.id);
+
+            const backTitle = document.createElement("h3");
+            backTitle.textContent = "Admission details";
+            back.append(backTitle);
+            if (a.score?.available) {
+                const scoreLine = document.createElement("p");
+                scoreLine.textContent = `Your programme-specific ${a.score.unit}: ${a.score.value}. ${a.score.details || ""}`;
+                back.append(scoreLine);
+            }
+            [...a.reasons, ...a.unknown].forEach(reason => {
+                const paragraph = document.createElement("p");
+                paragraph.textContent = reason;
+                back.append(paragraph);
+            });
+            if (a.programme.selectionRequirements?.length) {
+                const paragraph = document.createElement("p");
+                paragraph.textContent = "Additional criteria: " + a.programme.selectionRequirements.map(x => x.description).join("; ");
+                back.append(paragraph);
+            }
+            if (a.programme.sourcePages?.length) {
+                const pages = document.createElement("small");
+                pages.append("Prospectus PDF page(s): ");
+                a.programme.sourcePages.forEach((page, pageIndex) => {
+                    if (pageIndex) pages.append(", ");
+                    const link = document.createElement("a");
+                    link.href = `${uni.prospectus}#page=${page}`;
+                    link.target = "_blank";
+                    link.rel = "noopener noreferrer";
+                    link.textContent = String(page);
+                    pages.append(link);
+                });
+                back.append(pages);
+            }
+            const sourceItems = [
+                ...(a.programme.aps || []).map(x => ({ label: `${x.type || "Admission score"} requirement`, text: x.sourceText, page: x.sourcePage })),
+                ...(a.programme.subjects || []).map(x => ({ label: `${x.subject} requirement`, text: x.sourceText, page: x.sourcePage })),
+                ...(a.programme.selectionRequirements || []).map(x => ({ label: "Selection criterion", text: x.sourceText || x.description, page: x.sourcePage }))
+            ].filter(x => x.text);
+            if (sourceItems.length) {
+                const details = document.createElement("details");
+                const caption = document.createElement("summary");
+                caption.textContent = "View extracted source text";
+                details.append(caption);
+                sourceItems.forEach(source => {
+                    const paragraph = document.createElement("p");
+                    paragraph.textContent = `${source.label}${source.page ? ` (PDF p. ${source.page})` : ""}: ${source.text}`;
+                    details.append(paragraph);
+                });
+                back.append(details);
+            }
+            addFlipButton(back, "Back to programme", front.id);
+
+            const setFlipped = flipped => {
+                const moveFocus = document.activeElement?.classList.contains("programme-flip-control")
+                    && item.contains(document.activeElement);
+                item.classList.toggle("is-flipped", flipped);
+                front.setAttribute("aria-hidden", String(flipped));
+                front.inert = flipped;
+                back.setAttribute("aria-hidden", String(!flipped));
+                back.inert = !flipped;
+                item.querySelectorAll(".programme-flip-control").forEach(button => {
+                    button.setAttribute("aria-expanded", String(flipped));
+                });
+                window.UniCompanionMotion?.flipCard(item, flipped);
+                if (moveFocus) {
+                    requestAnimationFrame(() => {
+                        (flipped ? back : front).querySelector(".programme-flip-control")
+                            ?.focus({ preventScroll: true });
+                    });
+                }
+            };
+            item.addEventListener("click", event => {
+                if (event.target.closest("a, summary")) return;
+                setFlipped(!item.classList.contains("is-flipped"));
+            });
+            item.addEventListener("keydown", event => {
+                if (event.target !== item || (event.key !== "Enter" && event.key !== " ")) return;
+                event.preventDefault();
+                setFlipped(!item.classList.contains("is-flipped"));
+            });
+
+            inner.append(front, back);
+            item.append(inner);
             list.append(item);
         });
         panel.scrollIntoView({behavior:"smooth",block:"start"});
@@ -89,6 +212,7 @@ document.addEventListener("DOMContentLoaded", () => {
             let hint=card.querySelector(".score-hint");if(!hint){hint=document.createElement("small");hint.className="score-hint";card.querySelector(".result-item").append(hint);}hint.textContent=score.available?score.details||"":score.reason||"Enter your marks to calculate this score.";
             card.querySelector(".eligible-count").textContent=data.length?`${eligible} eligible`:(uni.prospectus?"Courses loading":"No prospectus");
             card.querySelector("button").disabled=!uni.prospectus;
+            window.UniCompanionMotion?.pulse(card, Object.keys(students).length * 0.045);
             students[id]={score,assessments};
         });
         studentResults=students; message.textContent="All university cards have been updated. Choose View Courses on a card to see that prospectus's programme list and your course-by-course results.";
