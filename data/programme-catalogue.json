@@ -1,0 +1,96 @@
+{
+  "wits": {
+    "faculties": [
+      {
+        "canonical": "Faculty of Engineering and the Built Environment",
+        "aliases": [
+          "Faculty of Engineering and the Built",
+          "Faculty of Engineering and Built Environment"
+        ]
+      }
+    ],
+    "programmes": [
+      {
+        "canonical": "Bachelor of Science in Engineering in Civil Engineering",
+        "aliases": [
+          "Bachelor of Science in Engineering in Civil",
+          "Bachelor of Science in Engineering in Civil English"
+        ]
+      },
+      {
+        "canonical": "Bachelor of Science in Engineering in Electrical Engineering",
+        "aliases": [
+          "Bachelor of Science in Engineering in Electrical",
+          "Bachelor of Science in Engineering in Electrical English"
+        ]
+      },
+      {
+        "canonical": "Bachelor of Engineering Science in Biomedical Engineering",
+        "aliases": [
+          "Bachelor of Engineering Science in Biomedical",
+          "Bachelor of Engineering Science in Biomedical English"
+        ]
+      },
+      {
+        "canonical": "Bachelor of Engineering Science in Digital Arts",
+        "aliases": [
+          "Bachelor of Engineering Science in Digital Arts English"
+        ]
+      },
+      {
+        "canonical": "Bachelor of Science in Engineering in Aeronautical Engineering",
+        "aliases": [
+          "Bachelor of Science in Engineering in Aeronautical",
+          "Bachelor of Science in Engineering in Aeronautical English"
+        ]
+      },
+      {
+        "canonical": "Bachelor of Science in Engineering in Industrial Engineering",
+        "aliases": [
+          "Bachelor of Science in Engineering in Industrial",
+          "Bachelor of Science in Engineering in Industrial English"
+        ]
+      },
+      {
+        "canonical": "Bachelor of Science in Engineering in Mechanical Engineering",
+        "aliases": [
+          "Bachelor of Science in Engineering in Mechanical",
+          "Bachelor of Science in Engineering in Mechanical English"
+        ]
+      },
+      {
+        "canonical": "Bachelor of Science in Engineering in Mining Engineering",
+        "aliases": [
+          "Bachelor of Science in Engineering in Mining",
+          "Bachelor of Science in Engineering in Mining English"
+        ]
+      },
+      {
+        "canonical": "Bachelor of Architectural Studies",
+        "aliases": [
+          "Bachelor of Architectural Studies BAS",
+          "Bachelor of Architectural Studies BAS 3 years"
+        ]
+      },
+      {
+        "canonical": "Bachelor of Science in Construction Studies",
+        "aliases": [
+          "Bachelor of Science in Construction Studies English"
+        ]
+      },
+      {
+        "canonical": "Bachelor of Science in Property Studies",
+        "aliases": [
+          "Bachelor of Science in Property Studies English"
+        ]
+      },
+      {
+        "canonical": "Bachelor of Science in Urban and Regional Planning",
+        "aliases": [
+          "Bachelor of Science in Urban and Regional Planning English"
+        ]
+      }
+    ],
+    "source": "https://www.wits.ac.za/ebe/undergraduate-programmes/"
+  }
+}

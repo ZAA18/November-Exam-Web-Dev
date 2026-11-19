@@ -9,6 +9,26 @@
 
     let running = false;
     let lastResult = null;
+    let cataloguePromise = null;
+
+    function loadProgrammeCatalogue() {
+        if (cataloguePromise) return cataloguePromise;
+        cataloguePromise = fetch("../data/programme-catalogue.json?v=20261119")
+            .then(response => {
+                if (!response.ok) throw new Error(`Catalogue request failed (${response.status}).`);
+                return response.json();
+            })
+            .then(catalogue => {
+                window.UniCompanionProgrammeCatalogue = catalogue;
+                return catalogue;
+            })
+            .catch(error => {
+                console.warn("Programme name catalogue unavailable; using prospectus text as extracted.", error);
+                window.UniCompanionProgrammeCatalogue = {};
+                return window.UniCompanionProgrammeCatalogue;
+            });
+        return cataloguePromise;
+    }
 
     function setStatus(message, type = "info") {
         const element = document.getElementById("prospectus-status");
@@ -72,6 +92,7 @@
         running = true;
 
         try {
+            await loadProgrammeCatalogue();
             checkDependencies();
 
             setStatus("Step 1/6: Loading prospectus...");

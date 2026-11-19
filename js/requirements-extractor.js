@@ -297,18 +297,18 @@
 
             apsResults: uniqueBy(
                 aps,
-                item => `${item.value}-${item.sourcePage}`
+                item => `${item.type}-${item.value}`
             ),
 
             subjectRequirements: uniqueBy(
                 subjects,
                 item =>
-                    `${item.subject}-${item.minimumLevel}-${item.sourcePage}`
+                    `${item.subject.toLowerCase()}-${item.minimumLevel}`
             ),
 
             selectionRequirements: uniqueBy(
                 selection,
-                item => `${item.description}-${item.sourcePage}`
+                item => item.description.toLowerCase().replace(/\s+/g, " ").trim()
             ),
 
             sourcePages: [...new Set(sourcePages)],

@@ -3,9 +3,77 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <meta name="description" content="Browse South African universities and open their undergraduate prospectuses.">
+    <title>UniCompanion | View Universities &amp; Courses</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/navigation.css">
+    <link rel="stylesheet" href="../css/courses.css">
+    <link rel="stylesheet" href="../css/assistant.css">
+
+    <script src="../js/navigation.js" defer></script>
+    <script src="../js/courses.js" defer></script>
+    <script src="../js/gemini-config.js" defer></script>
+    <script src="../js/gemini-service.js" defer></script>
+    <script src="../js/assistant.js" defer></script>
 </head>
 <body>
-    
+    <header class="header">
+        <a href="../index.html#home" class="logo">
+            <span class="logo-icon">&#127891;</span>
+            <span class="logo-text">
+                <strong>UniCompanion</strong>
+                <small>Your AI-Powered University Guide</small>
+            </span>
+        </a>
+
+        <button class="menu-toggle"
+                id="menu-toggle"
+                type="button"
+                aria-label="Open navigation"
+                aria-expanded="false"
+                aria-controls="navigation">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+
+        <nav class="navigation" id="navigation" aria-label="Main navigation">
+            <a href="../index.html#home" class="nav-link">
+                <span aria-hidden="true">&#8962;</span> Home
+            </a>
+            <a href="aps-calculator.html" class="nav-link">
+                <span aria-hidden="true">&#9638;</span> APS &amp; Average Calculator
+            </a>
+            <a href="view-courses.html" class="nav-link active" aria-current="page">
+                <span aria-hidden="true">&#9635;</span> View Courses
+            </a>
+            <a href="find-course.html" class="nav-link">
+                <span aria-hidden="true">&#9678;</span> Find My Course
+            </a>
+        </nav>
+
+        <form class="search-form" id="search-form" role="search">
+            <label for="site-search" class="sr-only">Search universities or courses</label>
+            <input type="search" id="site-search" placeholder="Search for universities or courses">
+            <button type="submit" aria-label="Search">&#9906;</button>
+        </form>
+    </header>
+
+    <main class="courses-page">
+        <h1>View Universities &amp; Courses</h1>
+        <section class="university-directory" id="university-directory" aria-label="Universities">
+            <!-- University cards are populated from the prospectus directory. -->
+        </section>
+    </main>
+
+    <footer class="courses-footer">
+        <p>&copy; 2026 UniCompanion. All rights reserved.</p>
+    </footer>
+
+    <div id="assistant-container"></div>
 </body>
 </html>
