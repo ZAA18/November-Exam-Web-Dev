@@ -11,7 +11,15 @@ document.addEventListener("DOMContentLoaded", () => {
     const catalog = window.UniCompanionUniversityCatalog || [];
     const searchForm = document.getElementById("search-form");
     const searchInput = document.getElementById("site-search");
-    if (!universityTrack || !catalog.length) return;
+    const searchStatus = document.getElementById("university-search-status");
+    if (!universityTrack) return;
+    if (!catalog.length) {
+        if (searchStatus) {
+            searchStatus.textContent = "The university list could not be loaded. Reload the page to try again.";
+            searchStatus.dataset.state = "error";
+        }
+        return;
+    }
 
     const cards = catalog.map(university => {
         const card = document.createElement("a");
@@ -72,14 +80,21 @@ document.addEventListener("DOMContentLoaded", () => {
             : cards;
         startIndex = 0;
         renderCarousel();
+        if (searchStatus) {
+            searchStatus.dataset.state = !normalized ? "idle" : activeCards.length ? "success" : "empty";
+            searchStatus.textContent = !normalized
+                ? "Browse popular universities or search by name."
+                : activeCards.length
+                    ? `Showing ${activeCards.length} matching ${activeCards.length === 1 ? "university" : "universities"}.`
+                    : `No universities match “${query.trim()}”. Try another spelling or a shorter search.`;
+        }
         return activeCards.length;
     }
 
     searchForm?.addEventListener("submit", event => {
         event.preventDefault();
-        const matches = searchUniversities(searchInput?.value || "");
+        searchUniversities(searchInput?.value || "");
         document.getElementById("universities")?.scrollIntoView({ behavior: "smooth", block: "start" });
-        if (!matches) window.alert("No matching universities found. Try another search.");
     });
     searchInput?.addEventListener("input", () => {
         if (!searchInput.value.trim()) searchUniversities("");

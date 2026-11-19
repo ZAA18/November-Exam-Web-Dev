@@ -491,9 +491,28 @@ main {
 
 .university-carousel {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
 
     gap: clamp(.5rem, 1vw, 1rem);
+}
+
+.university-search-status {
+    flex: 1 0 100%;
+    min-height: 1.25rem;
+    margin: .15rem 0 0;
+    color: #596b68;
+    font-size: .78rem;
+    text-align: center;
+}
+
+.university-search-status[data-state="success"] {
+    color: #167455;
+}
+
+.university-search-status[data-state="empty"],
+.university-search-status[data-state="error"] {
+    color: #a14736;
 }
 
 .university-track {

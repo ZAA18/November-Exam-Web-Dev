@@ -201,9 +201,44 @@
 .aps-message {
     min-height: 1.2rem;
     margin: 1rem 0 0;
-    color: #b14c38;
+    color: #566a67;
     font-size: .7rem;
     line-height: 1.5;
+}
+
+.aps-message[data-state="success"],
+.aps-message[data-status="success"] {
+    color: #167455;
+}
+
+.aps-message[data-state="error"],
+.aps-message[data-status="error"] {
+    color: #a14736;
+}
+
+.aps-message[data-status="warning"] {
+    color: #8a641c;
+}
+
+.aps-message[data-state="loading"] {
+    color: #087d8b;
+}
+
+.aps-message[data-state="loading"]::before {
+    display: inline-block;
+    width: .72rem;
+    height: .72rem;
+    margin-right: .4rem;
+    border: 2px solid #a8d4d2;
+    border-top-color: #087d8b;
+    border-radius: 50%;
+    content: "";
+    vertical-align: -.12rem;
+    animation: aps-loader-spin .75s linear infinite;
+}
+
+.aps-message[data-state="idle"] {
+    color: #566a67;
 }
 
 
@@ -516,6 +551,9 @@
 .programme-card.status-not-eligible { border-left-color: #c55343; }
 .programme-card.status-incomplete { border-left-color: #d38b1f; }
 .results-empty { grid-column: 1 / -1; padding: 1rem; border-radius: .4rem; background: #f3f6f3; color: #586865; }
+.results-empty[data-state="loading"] { border-left: 3px solid #008fa2; }
+.results-empty[data-state="empty"] { border-left: 3px solid #93a69f; }
+.results-empty[data-state="error"] { border-left: 3px solid #b14c38; background: #fff3ef; }
 
 #wits-eligible-programmes p {
     margin: .35rem 0 0;

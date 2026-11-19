@@ -211,6 +211,16 @@
     white-space: pre-line;
 }
 
+.bot-message[data-state="error"] {
+    border: 1px solid #e3b7ac;
+    background: #fff2ee;
+    color: #873e33;
+}
+
+.bot-message[data-state="loading"] {
+    color: #52615f;
+}
+
 .user-message {
     align-self: flex-end;
     background: #d9f3f3;
@@ -261,6 +271,12 @@
     color: #073c45;
 
     cursor: pointer;
+}
+
+.chat-input input:disabled,
+.chat-input button:disabled {
+    cursor: wait;
+    opacity: .68;
 }
 
 

@@ -13,6 +13,23 @@
     text-align: center;
 }
 
+.directory-status {
+    min-height: 1.4rem;
+    margin: .65rem 0 0;
+    color: #596b68;
+    font-size: .88rem;
+    text-align: center;
+}
+
+.directory-status[data-state="success"] {
+    color: #167455;
+}
+
+.directory-status[data-state="empty"],
+.directory-status[data-state="error"] {
+    color: #a14736;
+}
+
 .university-directory {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -34,6 +51,10 @@
     background: #f6e6d4;
     color: #27383b;
     text-align: center;
+}
+
+.directory-card[hidden] {
+    display: none;
 }
 
 .directory-crest {

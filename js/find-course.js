@@ -33,8 +33,7 @@ document.addEventListener("DOMContentLoaded", () => {
             output.setAttribute("aria-busy", "false");
         }
         output.append(paragraph);
-        if (state) output.dataset.state = state;
-        else delete output.dataset.state;
+        output.dataset.state = state || "idle";
         if (state === "success") window.UniCompanionMotion?.revealResponse(paragraph);
     }
 
@@ -114,6 +113,7 @@ Learner's message: ${personalMessage || "No extra message provided."}
 Write a clear, encouraging answer in plain language. Use short headings and a numbered list.`;
 
         submitButton.disabled = true;
+        submitButton.setAttribute("aria-busy", "true");
         submitButton.textContent = "Getting Recommendations…";
         recommendationComplete = false;
         const thisRequest = ++requestVersion;
@@ -123,14 +123,18 @@ Write a clear, encouraging answer in plain language. Use short headings and a nu
         try {
             const response = await window.UniCompanionGemini.generate(prompt, { temperature: 0.45 });
             if (thisRequest !== requestVersion) return;
+            if (!String(response || "").trim()) {
+                throw new Error("The AI returned an empty answer. Please try again.");
+            }
             showOutput(response, "success");
             recommendationComplete = true;
         } catch (error) {
             if (thisRequest === requestVersion) {
-                showOutput(`Recommendations could not be loaded: ${error.message}`, "error");
+                showOutput(`Recommendations could not be loaded: ${error.message} Check your connection and try again.`, "error");
             }
         } finally {
             submitButton.disabled = false;
+            submitButton.setAttribute("aria-busy", "false");
             submitButton.textContent = "Get Recommendations";
             updateProgress();
         }

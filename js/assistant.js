@@ -74,9 +74,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
             <div class="chat-messages"
                 id="chat-messages"
-                aria-live="polite">
+                aria-live="polite"
+                aria-busy="false"
+                data-state="idle">
 
-                <div class="bot-message">
+                <div class="bot-message" data-state="idle">
 
                     Hi! Welcome to UniCompanion.
 
@@ -586,11 +588,13 @@ function formatAssistantResponse(text, isFollowUp) {
     return formatted;
 }
 
-function addChatMessage(message, className) {
+function addChatMessage(message, className, state = "") {
 
     const element = document.createElement("div");
 
     element.className = className;
+    if (state) element.dataset.state = state;
+    if (state === "error") element.setAttribute("role", "alert");
 
     // textContent prevents AI output from being
     // interpreted as HTML.
@@ -610,16 +614,17 @@ chatForm.addEventListener("submit", async event => {
     const message = chatInput.value.trim();
 
     if (!message) {
+        chatMessages.dataset.state = "error";
+        addChatMessage("Type a question before sending, and I'll help you with it.", "bot-message", "error");
+        chatInput.focus();
         return;
     }
 
     // Check Gemini connection.
     if (!window.UniCompanionGemini?.chat) {
+        chatMessages.dataset.state = "error";
 
-        addChatMessage(
-            "The AI service is not connected yet. Please check the Gemini configuration.",
-            "bot-message"
-        );
+        addChatMessage("The AI service is unavailable right now. Please try again shortly.", "bot-message", "error");
 
         return;
     }
@@ -639,11 +644,13 @@ chatForm.addEventListener("submit", async event => {
 
     if (sendButton) {
         sendButton.disabled = true;
+        sendButton.setAttribute("aria-busy", "true");
     }
 
     // Announce that the response is in progress and show animated typing dots.
     const loadingMessage = document.createElement("div");
     loadingMessage.className = "bot-message typing-indicator";
+    loadingMessage.dataset.state = "loading";
     loadingMessage.setAttribute("role", "status");
     const typingLabel = document.createElement("span");
     typingLabel.className = "sr-only";
@@ -656,6 +663,7 @@ chatForm.addEventListener("submit", async event => {
         loadingMessage.append(element);
     }
     chatMessages.setAttribute("aria-busy", "true");
+    chatMessages.dataset.state = "loading";
     chatMessages.appendChild(loadingMessage);
     chatMessages.scrollTop = chatMessages.scrollHeight;
 
@@ -671,9 +679,14 @@ chatForm.addEventListener("submit", async event => {
             getAssistantResponseText(response),
             conversationHistory.length > 0
         );
+        if (!answer.trim()) {
+            throw new Error("The AI returned an empty reply.");
+        }
 
         loadingMessage.classList.remove("typing-indicator");
         loadingMessage.textContent = answer;
+        loadingMessage.dataset.state = "success";
+        chatMessages.dataset.state = "success";
         window.UniCompanionMotion?.revealResponse(loadingMessage);
 
         // Save both messages for follow-up questions.
@@ -694,7 +707,10 @@ chatForm.addEventListener("submit", async event => {
 
         loadingMessage.classList.remove("typing-indicator");
         loadingMessage.textContent =
-            "I'm having trouble connecting right now. Please try again shortly.";
+            "I couldn't get a response just now. Check your connection and send your question again to retry.";
+        loadingMessage.dataset.state = "error";
+        loadingMessage.setAttribute("role", "alert");
+        chatMessages.dataset.state = "error";
         window.UniCompanionMotion?.revealResponse(loadingMessage);
 
     } finally {
@@ -705,6 +721,7 @@ chatForm.addEventListener("submit", async event => {
 
         if (sendButton) {
             sendButton.disabled = false;
+            sendButton.setAttribute("aria-busy", "false");
         }
 
         chatInput.focus();

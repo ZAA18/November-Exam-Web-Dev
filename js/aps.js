@@ -6,6 +6,15 @@ document.addEventListener("DOMContentLoaded", () => {
     const panel = $("university-programme-results"), summary = $("university-results-summary"), list = $("university-programmes");
     const all = window.UniCompanionUniversities || {};
     const pageLoader = $("aps-page-loader");
+    const apsMessage = $("aps-message");
+    const calculateButton = $("calculate-aps");
+    const averageButton = $("calculate-average");
+    function setApsMessage(message, state = "idle") {
+        if (!apsMessage) return;
+        apsMessage.textContent = message;
+        apsMessage.dataset.state = state;
+        apsMessage.setAttribute("aria-busy", String(state === "loading"));
+    }
     window.addEventListener("unicomp:prospectus-batch-complete", () => {
         pageLoader?.classList.add("is-hidden");
         pageLoader?.setAttribute("aria-hidden", "true");
@@ -24,6 +33,7 @@ document.addEventListener("DOMContentLoaded", () => {
         selected = null; studentResults = null; panel.hidden = true;
         cards.forEach(card => { card.classList.remove("is-flipped"); card.querySelector(".university-aps").textContent = "--"; card.querySelector(".eligible-count").textContent = "Pending"; card.querySelector("button").disabled = true; card.querySelector("button").classList.remove("is-active"); });
         window.UniCompanionStudentResults = null;
+        setApsMessage("Marks changed. Calculate again to refresh your results.", "idle");
     }
     function collect() {
         const result = {}; let invalid = false;
@@ -39,7 +49,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     function refreshPicker() { const used = new Set([...marksList.querySelectorAll("[data-subject]")].map(x=>x.dataset.subject)); [...picker.options].forEach(o=>{ if(o.value) o.disabled=used.has(o.value); }); }
     add.addEventListener("click", () => {
-        const definition = subjects.get(picker.value); if (!definition) { $("aps-message").textContent = "Choose a subject first."; return; }
+        const definition = subjects.get(picker.value); if (!definition) { setApsMessage("Choose a subject first.", "error"); return; }
         const row = definition.row.cloneNode(true), input = row.querySelector("[data-subject]"); input.value = "";
         const remove = document.createElement("button"); remove.type="button"; remove.className="remove-subject"; remove.textContent="Remove"; remove.addEventListener("click",()=>{row.remove();refreshPicker();reset();});
         row.append(remove); marksList.append(row); picker.value=""; refreshPicker(); input.addEventListener("input",reset); input.focus(); reset();
@@ -54,7 +64,24 @@ document.addEventListener("DOMContentLoaded", () => {
         assessed.forEach(a=>counts[a.status]++);
         const scoreText=result.score.value!==null&&result.score.value!==undefined?`${result.score.value}${result.score.available?"":" (base score)"}`:"Add marks to calculate";
         summary.textContent = `${uni.admissionYear ? `Prospectus ${uni.admissionYear}` : "Prospectus year unavailable"} · Admission score: ${scoreText}${result.score.unit?` ${result.score.unit}`:""} · ${counts.eligible} eligible · ${counts["not-eligible"]} below a confirmed minimum · ${counts.incomplete} with criteria still to assess. Meeting minimums does not guarantee admission.`;
-        if (!assessed.length) { const empty=document.createElement("p"); empty.className="results-empty"; empty.textContent=!uni.prospectus?"No prospectus file is available for this university, so its course list cannot be loaded yet.":uni.extractionStatus==="error"?"This prospectus could not be loaded. Check that the site is running through a local web server and try again.":uni.extractionStatus==="processed"?"No course entries were detected in this prospectus yet.":"This prospectus is being processed. Its course list will appear here when extraction completes."; list.append(empty); }
+        if (!assessed.length) {
+            const empty=document.createElement("p");
+            empty.className="results-empty";
+            empty.setAttribute("role", "status");
+            const extractionState = !uni.prospectus || uni.extractionStatus === "error"
+                ? "error"
+                : uni.extractionStatus === "processed" ? "empty" : "loading";
+            empty.dataset.state = extractionState;
+            empty.setAttribute("aria-busy", String(extractionState === "loading"));
+            empty.textContent=!uni.prospectus
+                ? "No prospectus is available for this university yet. Choose another university to view its programmes."
+                : uni.extractionStatus==="error"
+                    ? "This prospectus could not be loaded. Check that the site is running through a local web server, then reload the page to retry."
+                    : uni.extractionStatus==="processed"
+                        ? "No programme entries were detected in this prospectus. Try another university or open its prospectus directly."
+                        : "This prospectus is still being processed. Its programme list will appear here when extraction finishes.";
+            list.append(empty);
+        }
         assessed.forEach((a,index)=>{
             const programmeName = a.programme.name || "Unnamed programme";
             const item = document.createElement("article");
@@ -192,36 +219,74 @@ document.addEventListener("DOMContentLoaded", () => {
         });
         panel.scrollIntoView({behavior:"smooth",block:"start"});
     }
+    let calculating = false;
+    let calculationRefreshQueued = false;
     function calculate() {
-        const marks=collect(), message=$("aps-message");
-        if(!marks){message.textContent="Add subjects and enter valid whole-number marks from 0 to 100.";return;}
+        if (calculating) return;
+        const marks=collect();
+        if(!marks){setApsMessage("Add subjects and enter valid whole-number marks from 0 to 100.", "error");return;}
         const hasEnglish=marks.englishHome!==undefined||marks.englishFAL!==undefined;
-        if(!hasEnglish){message.textContent="Enter English Home Language or English First Additional Language.";return;}
+        if(!hasEnglish){setApsMessage("Enter English Home Language or English First Additional Language.", "error");return;}
         const priorSelection=selected;
-        reset(); const students={};
-        cards.forEach(card=>{
-            const id=card.dataset.university, uni=all[id]; if(!uni) return;
-            const score=window.UniCompanionEligibilityEngine.score(uni,marks);
-            const data=uni.programmes||[];
-            const assessments=data.map(programme=>window.UniCompanionEligibilityEngine.assess(uni,marks,programme,score));
-            const eligible=assessments.filter(a=>a.status==="eligible").length;
-            card.classList.add("is-flipped");
-            card.querySelector(".university-aps").textContent=score.value!==null&&score.value!==undefined?String(score.value):"Add marks";
-            const scoreLabel=card.querySelector(".result-item span");
-            if(scoreLabel) scoreLabel.textContent=score.available?`${score.unit||"Admission score"}${id==="uct"?" (base)":""}`:`${uni.name} score`;
-            let hint=card.querySelector(".score-hint");if(!hint){hint=document.createElement("small");hint.className="score-hint";card.querySelector(".result-item").append(hint);}hint.textContent=score.available?score.details||"":score.reason||"Enter your marks to calculate this score.";
-            card.querySelector(".eligible-count").textContent=data.length?`${eligible} eligible`:(uni.prospectus?"Courses loading":"No prospectus");
-            card.querySelector("button").disabled=!uni.prospectus;
-            window.UniCompanionMotion?.pulse(card, Object.keys(students).length * 0.045);
-            students[id]={score,assessments};
+        calculating = true;
+        reset();
+        const markInputs = [...marksList.querySelectorAll("input[data-subject]")];
+        const originalCalculateLabel = calculateButton.textContent;
+        calculateButton.disabled = true;
+        calculateButton.setAttribute("aria-busy", "true");
+        averageButton.disabled = true;
+        add.disabled = true;
+        picker.disabled = true;
+        markInputs.forEach(input => { input.disabled = true; });
+        calculateButton.textContent = "Calculating...";
+        setApsMessage("Calculating your APS and checking programme requirements...", "loading");
+
+        requestAnimationFrame(() => {
+            try {
+                const students={};
+                cards.forEach(card=>{
+                    const id=card.dataset.university, uni=all[id]; if(!uni) return;
+                    const score=window.UniCompanionEligibilityEngine.score(uni,marks);
+                    const data=uni.programmes||[];
+                    const assessments=data.map(programme=>window.UniCompanionEligibilityEngine.assess(uni,marks,programme,score));
+                    const eligible=assessments.filter(a=>a.status==="eligible").length;
+                    card.classList.add("is-flipped");
+                    card.querySelector(".university-aps").textContent=score.value!==null&&score.value!==undefined?String(score.value):"Add marks";
+                    const scoreLabel=card.querySelector(".result-item span");
+                    if(scoreLabel) scoreLabel.textContent=score.available?`${score.unit||"Admission score"}${id==="uct"?" (base)":""}`:`${uni.name} score`;
+                    let hint=card.querySelector(".score-hint");if(!hint){hint=document.createElement("small");hint.className="score-hint";card.querySelector(".result-item").append(hint);}hint.textContent=score.available?score.details||"":score.reason||"Enter your marks to calculate this score.";
+                    card.querySelector(".eligible-count").textContent=data.length?`${eligible} eligible`:uni.extractionStatus==="error"?"Unavailable":(uni.prospectus?"Programmes loading":"No prospectus");
+                    card.querySelector("button").disabled=!uni.prospectus;
+                    window.UniCompanionMotion?.pulse(card, Object.keys(students).length * 0.045);
+                    students[id]={score,assessments};
+                });
+                studentResults=students;
+                setApsMessage("APS results are ready. Select View Courses on a university card to review the programme assessments.", "success");
+                window.UniCompanionStudentResults={subjects:marks,universities:students,calculatedAt:new Date().toISOString()};
+                if(priorSelection&&students[priorSelection]?.assessments.length) renderUniversity(priorSelection);
+            } catch (error) {
+                console.error("APS calculation failed:", error);
+                reset();
+                setApsMessage("APS results could not be calculated. Check your marks and try again.", "error");
+            } finally {
+                calculateButton.disabled = false;
+                calculateButton.setAttribute("aria-busy", "false");
+                averageButton.disabled = false;
+                add.disabled = false;
+                picker.disabled = false;
+                calculating = false;
+                markInputs.forEach(input => { input.disabled = false; });
+                calculateButton.textContent = originalCalculateLabel;
+                if (calculationRefreshQueued) {
+                    calculationRefreshQueued = false;
+                    calculate();
+                }
+            }
         });
-        studentResults=students; message.textContent="All university cards have been updated. Choose View Courses on a card to see that prospectus's programme list and your course-by-course results.";
-        window.UniCompanionStudentResults={subjects:marks,universities:students,calculatedAt:new Date().toISOString()};
-        if(priorSelection&&students[priorSelection]?.assessments.length) renderUniversity(priorSelection);
     }
     cards.forEach(card=>card.querySelector("button").addEventListener("click",()=>renderUniversity(card.dataset.university)));
     $("calculate-aps").addEventListener("click",calculate);
-    $("calculate-average").addEventListener("click",()=>{const marks=collect(); if(!marks){$("aps-message").textContent="Enter valid marks first.";return;} const values=Object.values(marks);$("aps-message").textContent=`Your average is ${(values.reduce((a,b)=>a+b,0)/values.length).toFixed(1)}%.`;
+    averageButton.addEventListener("click",()=>{const marks=collect(); if(!marks){setApsMessage("Enter valid marks before calculating your average.", "error");return;} const values=Object.values(marks);setApsMessage(`Your average is ${(values.reduce((a,b)=>a+b,0)/values.length).toFixed(1)}%.`, "success");
     });
     marksList.addEventListener("input",reset);
     cards.forEach(card=>card.querySelector("button").classList.remove("is-active"));
@@ -229,9 +294,9 @@ document.addEventListener("DOMContentLoaded", () => {
         const data=event.detail, id=String(data?.university||"").toLowerCase();
         const uni=all[id]; if(!uni||!Array.isArray(data.programmes)) return;
         uni.programmes=data.programmes; uni.admissionYear=data.admissionYear||uni.admissionYear; uni.extractionStatus="processed";
-        const status=$("prospectus-status"); if(status) status.textContent=`${uni.name} (${uni.admissionYear||"year unknown"}): loaded ${data.programmes.length} programme entries from its prospectus.`;
-        if(window.UniCompanionStudentResults) calculate();
+        const status=$("prospectus-status"); if(status) { status.textContent=`${uni.name} (${uni.admissionYear||"year unknown"}): loaded ${data.programmes.length} programme entries from its prospectus.`; status.dataset.status="success"; }
+        if(window.UniCompanionStudentResults) { if(calculating) calculationRefreshQueued=true; else calculate(); }
     });
-    window.addEventListener("unicomp:prospectus-error",event=>{const id=event.detail?.university;if(id&&all[id])all[id].extractionStatus="error";const status=$("prospectus-status");if(status)status.textContent=`${event.detail?.university||"Prospectus"} could not be loaded. The other university cards remain available.`;if(window.UniCompanionStudentResults)calculate();});
+    window.addEventListener("unicomp:prospectus-error",event=>{const id=event.detail?.university;if(id&&all[id])all[id].extractionStatus="error";const status=$("prospectus-status");if(status){status.textContent=`${event.detail?.university||"Prospectus"} could not be loaded. The other university cards remain available.`;status.dataset.status="error";}if(window.UniCompanionStudentResults){if(calculating)calculationRefreshQueued=true;else calculate();}});
     refreshPicker();
 });

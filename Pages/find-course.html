@@ -134,9 +134,9 @@
                           maxlength="1200"
                           placeholder="For example: I enjoy solving problems and want to work in software development or business."></textarea>
                 <p class="prompt-help">Your selections and message are sent to Gemini to create your recommendations.</p>
-                <button class="recommend-button" id="get-recommendations" type="submit">Get Recommendations</button>
+                <button class="recommend-button" id="get-recommendations" type="submit" aria-busy="false">Get Recommendations</button>
                 <p class="recommendation-label" id="recommendation-output-label">AI Recommendations</p>
-                <div class="recommendation-output" id="recommendation-output" role="status" aria-labelledby="recommendation-output-label" aria-live="polite" aria-atomic="true">
+                <div class="recommendation-output" id="recommendation-output" role="status" aria-labelledby="recommendation-output-label" aria-live="polite" aria-atomic="true" aria-busy="false" data-state="idle">
                     <p class="output-placeholder">Your personalized course ideas will appear here.</p>
                 </div>
             </section>

@@ -248,6 +248,10 @@
     color: #52615f;
 }
 
+.recommendation-output[data-state="success"] {
+    border-left: 3px solid #a9d8c0;
+}
+
 .find-course-footer {
     width: 100%;
     padding: .8rem 1rem;

@@ -2,7 +2,15 @@ document.addEventListener("DOMContentLoaded", () => {
     const directory = document.getElementById("university-directory");
     if (!directory) return;
 
+    const status = document.getElementById("directory-status");
     const universities = window.UniCompanionUniversityCatalog || [];
+    if (!universities.length) {
+        if (status) {
+            status.textContent = "The university list could not be loaded. Reload the page to try again.";
+            status.dataset.state = "error";
+        }
+        return;
+    }
 
     const makeStat = (icon, label, count) => {
         const row = document.createElement("div");
@@ -68,6 +76,34 @@ document.addEventListener("DOMContentLoaded", () => {
         card.append(crest, stats, link, name);
         directory.append(card);
     });
+
+    const cards = [...directory.querySelectorAll(".directory-card")];
+    const searchForm = document.getElementById("search-form");
+    const searchInput = document.getElementById("site-search");
+    const filterUniversities = query => {
+        const normalized = query.trim().toLocaleLowerCase();
+        let visible = 0;
+        cards.forEach(card => {
+            const matches = !normalized || card.querySelector(".directory-card-name")?.textContent.toLocaleLowerCase().includes(normalized);
+            card.hidden = !matches;
+            if (matches) visible += 1;
+        });
+        if (status) {
+            status.dataset.state = !normalized ? "idle" : visible ? "success" : "empty";
+            status.textContent = !normalized
+                ? `Browse all ${universities.length} universities or search by name.`
+                : visible
+                    ? `Showing ${visible} matching ${visible === 1 ? "university" : "universities"}.`
+                    : `No universities match “${query.trim()}”. Try another spelling or clear your search.`;
+        }
+        return visible;
+    };
+    searchForm?.addEventListener("submit", event => {
+        event.preventDefault();
+        filterUniversities(searchInput?.value || "");
+    });
+    searchInput?.addEventListener("input", () => filterUniversities(searchInput.value));
+    filterUniversities("");
 
     // A university selected on the homepage gets brought into view and called out.
     const selectedCard = document.getElementById(decodeURIComponent(location.hash.slice(1)));
