@@ -307,7 +307,35 @@
     }
 
     .chat-launcher {
-        max-width: calc(100vw - 1.5rem);
+        width: 3.75rem;
+        height: 3.75rem;
+        min-width: 3.75rem;
+        max-width: none;
+        padding: 0;
+        display: grid;
+        place-items: center;
+        gap: 0;
+        border-radius: 50%;
+        box-shadow: 0 .4rem 1rem #0003;
+    }
+
+    .chat-launcher-icon {
+        display: grid;
+        place-items: center;
+        font-size: 1.75rem;
+        line-height: 1;
+    }
+
+    .chat-launcher-text {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
     }
 
 }
@@ -320,16 +348,11 @@
 @media (max-width: 380px) {
 
     .chat-launcher {
-        padding: .6rem .75rem;
-        gap: .45rem;
-    }
-
-    .chat-launcher-text strong {
-        font-size: .7rem;
-    }
-
-    .chat-launcher-text small {
-        font-size: .65rem;
+        width: 3.75rem;
+        height: 3.75rem;
+        min-width: 3.75rem;
+        padding: 0;
+        gap: 0;
     }
 
 }
