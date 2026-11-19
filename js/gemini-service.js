@@ -1,46 +1,40 @@
-﻿/* Shared browser-side Gemini client for this static HTML/CSS/JavaScript site. */
+/* Browser client for the private UniCompanion Gemini proxy. */
 (() => {
     const config = window.UNICOMPANION_GEMINI_CONFIG;
-    if (!config?.apiKey || !config?.models) {
-        console.error("Gemini configuration is missing.");
+    if (!config?.models) {
+        console.error("Gemini proxy configuration is missing.");
         return;
     }
 
     async function generate(prompt, options = {}) {
         const model = options.model || config.models.assistant;
         if (!model) throw new Error("No Gemini model has been configured.");
+        if (!config.apiBase || config.apiBase.includes("YOUR-WORKER-SUBDOMAIN")) {
+            throw new Error("The Gemini proxy URL has not been configured yet.");
+        }
 
         const controller = new AbortController();
         const timeout = setTimeout(() => controller.abort(), 120000);
         try {
-            const response = await fetch(
-                `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`,
-                {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "x-goog-api-key": config.apiKey
-                    },
-                    body: JSON.stringify({
-                        contents: [{ role: "user", parts: [{ text: String(prompt || "") }] }],
-                        generationConfig: {
-                            temperature: options.temperature ?? 0.3,
-                            ...(options.json === true ? { responseMimeType: "application/json" } : {})
-                        }
-                    }),
-                    signal: controller.signal
-                }
-            );
+            const response = await fetch(`${config.apiBase.replace(/\/$/, "")}/generate`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    prompt: String(prompt || ""),
+                    model,
+                    temperature: options.temperature ?? 0.3,
+                    json: options.json === true
+                }),
+                signal: controller.signal
+            });
             const result = await response.json().catch(() => ({}));
             if (!response.ok) {
-                throw new Error(result.error?.message || `Gemini request failed (${response.status}).`);
+                throw new Error(result.error || `Gemini request failed (${response.status}).`);
             }
-            const text = result.candidates?.[0]?.content?.parts
-                ?.map(part => part.text || "")
-                .join("")
-                .trim();
-            if (!text) throw new Error("Gemini returned an empty response.");
-            return text;
+            if (typeof result.text !== "string" || !result.text.trim()) {
+                throw new Error("Gemini returned an empty response.");
+            }
+            return result.text.trim();
         } catch (error) {
             if (error.name === "AbortError") throw new Error("Gemini request timed out.");
             throw error;
@@ -82,5 +76,5 @@ Give a helpful, clear answer in plain English.
     }
 
     window.UniCompanionGemini = { generate, chat };
-    console.log("UniCompanion Gemini client loaded.");
+    console.log("UniCompanion Gemini proxy client loaded.");
 })();
