@@ -3,6 +3,58 @@
    UNICOMPANION — APS & AVERAGE CALCULATOR
 ========================================= */
 
+.aps-page-loader {
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: .75rem;
+    padding: 1.5rem;
+    background: #eef1e8;
+    color: #27383b;
+    text-align: center;
+    transition: opacity .35s ease, visibility .35s ease;
+}
+
+.aps-page-loader.is-hidden {
+    visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.aps-page-loader h2 {
+    margin: 0;
+    font-size: 1.2rem;
+}
+
+.aps-page-loader p {
+    max-width: 28rem;
+    margin: 0;
+    color: #5c6b69;
+    font-size: .85rem;
+    line-height: 1.5;
+}
+
+.aps-loader-spinner {
+    width: 2.5rem;
+    height: 2.5rem;
+    border: .25rem solid #cddbd6;
+    border-top-color: #008fa2;
+    border-radius: 50%;
+    animation: aps-loader-spin .8s linear infinite;
+}
+
+@keyframes aps-loader-spin {
+    to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .aps-loader-spinner { animation-duration: 2s; }
+}
+
 .aps-page {
     width: min(94%, 78rem);
     margin: 0 auto;

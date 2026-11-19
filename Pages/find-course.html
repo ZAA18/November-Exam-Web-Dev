@@ -3,9 +3,146 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <meta name="description" content="Get South African course and study-field ideas matched to your interests and subjects.">
+    <title>UniCompanion | Find My Course</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/navigation.css">
+    <link rel="stylesheet" href="../css/find-course.css">
+    <link rel="stylesheet" href="../css/assistant.css">
+
+    <script src="../js/navigation.js" defer></script>
+    <script src="../js/gemini-config.js" defer></script>
+    <script src="../js/gemini-service.js" defer></script>
+    <script src="../js/find-course.js" defer></script>
+    <script src="../js/assistant.js" defer></script>
 </head>
 <body>
-    
+    <header class="header">
+        <a href="../index.html#home" class="logo">
+            <span class="logo-icon">&#127891;</span>
+            <span class="logo-text">
+                <strong>UniCompanion</strong>
+                <small>Your AI-Powered University Guide</small>
+            </span>
+        </a>
+
+        <button class="menu-toggle"
+                id="menu-toggle"
+                type="button"
+                aria-label="Open navigation"
+                aria-expanded="false"
+                aria-controls="navigation">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+
+        <nav class="navigation" id="navigation" aria-label="Main navigation">
+            <a href="../index.html#home" class="nav-link">
+                <span aria-hidden="true">&#8962;</span> Home
+            </a>
+            <a href="aps-calculator.html" class="nav-link">
+                <span aria-hidden="true">&#9638;</span> APS &amp; Average Calculator
+            </a>
+            <a href="view-courses.html" class="nav-link">
+                <span aria-hidden="true">&#9635;</span> View Courses
+            </a>
+            <a href="find-course.html" class="nav-link active" aria-current="page">
+                <span aria-hidden="true">&#9678;</span> Find My Course
+            </a>
+        </nav>
+
+        <form class="search-form" id="search-form" role="search">
+            <label for="site-search" class="sr-only">Search universities or courses</label>
+            <input type="search" id="site-search" placeholder="Search for universities or courses">
+            <button type="submit" aria-label="Search">&#9906;</button>
+        </form>
+    </header>
+
+    <main class="find-course-page">
+        <header class="find-course-heading">
+            <h1>Find My Course</h1>
+            <p>Tell us about your interests, subjects and career goals, and our AI will suggest course directions for you.</p>
+        </header>
+
+        <ol class="recommendation-progress" aria-label="Recommendation progress">
+            <li class="progress-step is-current" data-progress-step="1" aria-current="step">
+                <span class="progress-number">1</span>
+                <span class="progress-label">Your Interests</span>
+            </li>
+            <li class="progress-connector" aria-hidden="true"></li>
+            <li class="progress-step" data-progress-step="2">
+                <span class="progress-number">2</span>
+                <span class="progress-label">Your Subjects</span>
+            </li>
+            <li class="progress-connector" aria-hidden="true"></li>
+            <li class="progress-step" data-progress-step="3">
+                <span class="progress-number">3</span>
+                <span class="progress-label">Get Recommendations</span>
+            </li>
+        </ol>
+
+        <form class="recommendation-layout" id="recommendation-form">
+            <section class="interest-panel" aria-labelledby="interest-title">
+                <fieldset class="choice-section">
+                    <legend id="interest-title">What are you interested in?</legend>
+                    <div class="interest-options">
+                        <label class="choice-row"><input type="checkbox" name="interest" value="Technology & Computing"><span>Technology &amp; Computing</span></label>
+                        <label class="choice-row"><input type="checkbox" name="interest" value="Engineering"><span>Engineering</span></label>
+                        <label class="choice-row"><input type="checkbox" name="interest" value="Business & Management"><span>Business &amp; Management</span></label>
+                        <label class="choice-row"><input type="checkbox" name="interest" value="Health & Medicine"><span>Health &amp; Medicine</span></label>
+                        <label class="choice-row"><input type="checkbox" name="interest" value="Education"><span>Education</span></label>
+                        <label class="choice-row"><input type="checkbox" name="interest" value="Art & Design"><span>Art &amp; Design</span></label>
+                    </div>
+                </fieldset>
+
+                <fieldset class="choice-section subject-section" id="subject-section" hidden>
+                    <legend id="subject-title">Which subjects are you taking or enjoy?</legend>
+                    <div class="subject-options">
+                        <label class="choice-row"><input type="checkbox" name="subject" value="Mathematics"><span>Mathematics</span></label>
+                        <label class="choice-row"><input type="checkbox" name="subject" value="Mathematical Literacy"><span>Mathematical Literacy</span></label>
+                        <label class="choice-row"><input type="checkbox" name="subject" value="Physical Sciences"><span>Physical Sciences</span></label>
+                        <label class="choice-row"><input type="checkbox" name="subject" value="Life Sciences"><span>Life Sciences</span></label>
+                        <label class="choice-row"><input type="checkbox" name="subject" value="Accounting"><span>Accounting</span></label>
+                        <label class="choice-row"><input type="checkbox" name="subject" value="Business Studies"><span>Business Studies</span></label>
+                        <label class="choice-row"><input type="checkbox" name="subject" value="Economics"><span>Economics</span></label>
+                        <label class="choice-row"><input type="checkbox" name="subject" value="Geography"><span>Geography</span></label>
+                        <label class="choice-row"><input type="checkbox" name="subject" value="History"><span>History</span></label>
+                        <label class="choice-row"><input type="checkbox" name="subject" value="Information Technology"><span>Information Technology</span></label>
+                        <label class="choice-row"><input type="checkbox" name="subject" value="Computer Applications Technology"><span>Computer Applications Technology</span></label>
+                        <label class="choice-row"><input type="checkbox" name="subject" value="Visual Arts"><span>Visual Arts</span></label>
+                        <label class="choice-row"><input type="checkbox" name="subject" value="English"><span>English</span></label>
+                        <label class="choice-row"><input type="checkbox" name="subject" value="Other subjects"><span>Other subjects</span></label>
+                        <label class="choice-row"><input type="checkbox" name="subject" value="I am not sure about my subjects yet"><span>I am not sure yet</span></label>
+                    </div>
+                </fieldset>
+            </section>
+
+            <section class="ai-panel" aria-labelledby="interest-prompt-label">
+                <label class="prompt-label" id="interest-prompt-label" for="interest-prompt">Tell us what you are interested in</label>
+                <textarea id="interest-prompt"
+                          name="interestPrompt"
+                          rows="4"
+                          maxlength="1200"
+                          placeholder="For example: I enjoy solving problems and want to work in software development or business."></textarea>
+                <p class="prompt-help">Your selections and message are sent to Gemini to create your recommendations.</p>
+                <button class="recommend-button" id="get-recommendations" type="submit">Get Recommendations</button>
+                <p class="recommendation-label" id="recommendation-output-label">AI Recommendations</p>
+                <div class="recommendation-output" id="recommendation-output" role="status" aria-labelledby="recommendation-output-label" aria-live="polite" aria-atomic="true">
+                    <p class="output-placeholder">Your personalized course ideas will appear here.</p>
+                </div>
+            </section>
+        </form>
+    </main>
+
+    <footer class="find-course-footer">
+        <p>&copy; 2026 UniCompanion. All rights reserved.</p>
+    </footer>
+
+    <div id="assistant-container"></div>
 </body>
 </html>

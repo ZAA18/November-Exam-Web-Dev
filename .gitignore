@@ -1,6 +1,3 @@
-# Private Gemini API configuration
-js/gemini-config.js
-
 # Dependencies
 node_modules/
 
@@ -8,6 +5,7 @@ node_modules/
 .env
 .env.local
 .env.*
+.dev.vars*
 
 # Temporary files
 *.log

@@ -231,12 +231,14 @@
 ===================================================== */
 
 async function startAutomatically() {
+    let results = [];
     try {
         setStatus("Preparing automatic prospectus extraction...");
 
-        await runAll();
+        results = await runAll();
 
     } catch (error) {
+        results = [{ error: error.message }];
         console.error(
             "[UniCompanion] Automatic extraction failed:",
             error
@@ -247,6 +249,18 @@ async function startAutomatically() {
                 detail: { message: error.message }
             })
         );
+    } finally {
+        const failed = results.filter(result => result.error).length;
+        const loaded = results.length - failed;
+        setStatus(
+            failed
+                ? `Preparation complete. ${loaded} prospectuses loaded; ${failed} could not be read.`
+                : `Preparation complete. ${loaded} prospectuses loaded.`,
+            failed ? "warning" : "success"
+        );
+        window.dispatchEvent(new CustomEvent("unicomp:prospectus-batch-complete", {
+            detail: { loaded, failed }
+        }));
     }
 }
 

@@ -28,7 +28,8 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
 
-    window.setTimeout(hideLoader, 2500);
+    // Keep the startup state brief so it never traps users away from the nav.
+    window.setTimeout(hideLoader, 700);
 
 
 

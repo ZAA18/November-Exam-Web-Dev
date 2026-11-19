@@ -5,6 +5,12 @@ document.addEventListener("DOMContentLoaded", () => {
     const cards = [...document.querySelectorAll(".aps-university-card")];
     const panel = $("university-programme-results"), summary = $("university-results-summary"), list = $("university-programmes");
     const all = window.UniCompanionUniversities || {};
+    const pageLoader = $("aps-page-loader");
+    window.addEventListener("unicomp:prospectus-batch-complete", () => {
+        pageLoader?.classList.add("is-hidden");
+        pageLoader?.setAttribute("aria-hidden", "true");
+        $("aps-main-content")?.setAttribute("aria-busy", "false");
+    }, { once: true });
     if (!marksList || !picker || !template || !panel || !cards.length) { console.error("APS calculator markup is incomplete."); return; }
     const subjects = new Map();
     template.content.querySelectorAll(".mark-row").forEach(row => {

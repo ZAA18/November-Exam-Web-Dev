@@ -1,146 +1,71 @@
-/* =========================================
-   UNICOMPANION - SHARED GEMINI SERVICE
-========================================= */
-
+﻿/* Shared browser-side Gemini client for this static HTML/CSS/JavaScript site. */
 (() => {
-
     const config = window.UNICOMPANION_GEMINI_CONFIG;
-
-    if (!config || !config.apiKey) {
-        console.error("Gemini API key is missing.");
+    if (!config?.apiKey || !config?.models) {
+        console.error("Gemini configuration is missing.");
         return;
     }
 
-    const API_BASE =
-        "https://generativelanguage.googleapis.com/v1beta/models/";
-
     async function generate(prompt, options = {}) {
-
-        const model =
-            options.model || config.models.assistant;
-
-        if (!model) {
-            throw new Error("No Gemini model has been configured.");
-        }
-
-        const endpoint =
-            `${API_BASE}${model}:generateContent`;
-
-        const generationConfig = {};
-
-        // Gemini 3.8 Flash does not use temperature.
-        if (model !== "gemini-3.8-flash") {
-            generationConfig.temperature =
-                options.temperature ?? 0.3;
-        }
-
-        if (options.json === true) {
-            generationConfig.responseMimeType =
-                "application/json";
-        }
-
-        const requestBody = {
-            contents: [
-                {
-                    role: "user",
-                    parts: [
-                        { text: prompt }
-                    ]
-                }
-            ],
-            generationConfig
-        };
+        const model = options.model || config.models.assistant;
+        if (!model) throw new Error("No Gemini model has been configured.");
 
         const controller = new AbortController();
-
-        const timeout = setTimeout(
-            () => controller.abort(),
-            120000
-        );
-
+        const timeout = setTimeout(() => controller.abort(), 120000);
         try {
-
             const response = await fetch(
-                `${endpoint}?key=${encodeURIComponent(config.apiKey)}`,
+                `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`,
                 {
                     method: "POST",
                     headers: {
-                        "Content-Type": "application/json"
+                        "Content-Type": "application/json",
+                        "x-goog-api-key": config.apiKey
                     },
-                    body: JSON.stringify(requestBody),
+                    body: JSON.stringify({
+                        contents: [{ role: "user", parts: [{ text: String(prompt || "") }] }],
+                        generationConfig: {
+                            temperature: options.temperature ?? 0.3,
+                            ...(options.json === true ? { responseMimeType: "application/json" } : {})
+                        }
+                    }),
                     signal: controller.signal
                 }
             );
-
-            const result = await response.json();
-
+            const result = await response.json().catch(() => ({}));
             if (!response.ok) {
-
-                const message =
-                    result.error?.message ||
-                    `Gemini request failed: ${response.status}`;
-
-                throw new Error(message);
+                throw new Error(result.error?.message || `Gemini request failed (${response.status}).`);
             }
-
-            const text =
-                result.candidates?.[0]?.content?.parts
-                    ?.map(part => part.text || "")
-                    .join("")
-                    .trim();
-
-            if (!text) {
-                throw new Error(
-                    "Gemini returned an empty response."
-                );
-            }
-
+            const text = result.candidates?.[0]?.content?.parts
+                ?.map(part => part.text || "")
+                .join("")
+                .trim();
+            if (!text) throw new Error("Gemini returned an empty response.");
             return text;
-
         } catch (error) {
-
-            if (error.name === "AbortError") {
-                throw new Error("Gemini request timed out.");
-            }
-
+            if (error.name === "AbortError") throw new Error("Gemini request timed out.");
             throw error;
-
         } finally {
-
             clearTimeout(timeout);
-
         }
     }
 
-
-    /* =====================================
-       CHATBOT FUNCTION
-    ===================================== */
-
     async function chat(message, history = [], context = "") {
-
-        const conversation = history
-            .slice(-8)
+        const conversation = history.slice(-8)
             .map(item => `${item.role}: ${item.text}`)
             .join("\n");
-
         const prompt = `
-You are UniCompanion AI, a helpful South African
-university and study guidance assistant.
+You are UniCompanion AI, a helpful South African university and study guidance assistant.
 
 Your responsibilities:
-- Explain university applications.
-- Explain APS calculations.
+- Explain university applications and APS calculations.
 - Help students understand admission requirements.
 - Explain information available on the UniCompanion website.
 
 Rules:
-- Never invent university admission requirements.
-- Never guarantee that someone will be accepted.
+- Never invent university admission requirements or guarantee admission.
 - Distinguish minimum requirements from actual admission.
-- If verified information is unavailable, say so.
-- Encourage students to check official university sources.
-- Do not pretend to have checked information that you have not received.
+- If verified information is unavailable, say so and direct the student to the official university source.
+- Do not pretend to have checked information you were not given.
 
 AVAILABLE UNIVERSITY INFORMATION:
 ${context || "No extracted university programme information is currently available."}
@@ -153,23 +78,9 @@ ${message}
 
 Give a helpful, clear answer in plain English.
 `;
-
-        return generate(prompt, {
-            model: config.models.assistant,
-            temperature: 0.5
-        });
+        return generate(prompt, { model: config.models.assistant, temperature: 0.5 });
     }
 
-
-    /* =====================================
-       PUBLIC API
-    ===================================== */
-
-    window.UniCompanionGemini = {
-        generate,
-        chat
-    };
-
-    console.log("UniCompanion Gemini service loaded.");
-
-})();   
+    window.UniCompanionGemini = { generate, chat };
+    console.log("UniCompanion Gemini client loaded.");
+})();

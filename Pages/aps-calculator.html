@@ -69,6 +69,12 @@ window.UniCompanionPDFJSReady = new Promise((resolve, reject) => {
 
 <body>
 
+    <div class="aps-page-loader" id="aps-page-loader" role="status" aria-live="polite">
+        <span class="aps-loader-spinner" aria-hidden="true"></span>
+        <h2>Preparing your university guide</h2>
+        <p>We’re getting your course information ready. This may take a little while the first time.</p>
+    </div>
+
     <!-- HEADER / NAVIGATION (shared with the home page) -->
     <header class="header">
         <a href="../index.html#home" class="logo">
@@ -117,7 +123,7 @@ window.UniCompanionPDFJSReady = new Promise((resolve, reject) => {
 
     <!-- MAIN APS PAGE -->
 
-    <main class="aps-page">
+    <main class="aps-page" id="aps-main-content" aria-busy="true">
 
         <h1 class="aps-page-title">
             APS & AVERAGE CALCULATOR
