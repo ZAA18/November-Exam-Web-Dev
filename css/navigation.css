@@ -35,7 +35,11 @@
 }
 
 .logo-icon {
-    font-size: 2rem;
+    display: block;
+    width: 2rem;
+    height: 2rem;
+    flex: 0 0 2rem;
+    object-fit: contain;
 }
 
 .logo-text {
@@ -86,8 +90,12 @@
     transition: color .2s ease;
 }
 
-.nav-link span {
-    font-size: 1.15rem;
+.nav-icon {
+    display: block;
+    width: 1.2rem;
+    height: 1.2rem;
+    flex: 0 0 1.2rem;
+    object-fit: contain;
 }
 
 .nav-link:hover,
@@ -231,7 +239,9 @@
     }
 
     .logo-icon {
-        font-size: 1.65rem;
+        width: 1.65rem;
+        height: 1.65rem;
+        flex-basis: 1.65rem;
     }
 
     .logo-text strong {
