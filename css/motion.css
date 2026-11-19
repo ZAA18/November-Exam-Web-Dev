@@ -173,6 +173,119 @@
     letter-spacing: -.045em;
 }
 
+.university-launch-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 2200;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    padding: clamp(1rem, 4vw, 3rem);
+    color: #173c49;
+    background:
+        radial-gradient(ellipse at 50% 0%, #fffdf2 0, #d5efeb 38%, transparent 72%),
+        linear-gradient(145deg, #f0f2e8, #c5e6e2 58%, #f0b356);
+    pointer-events: all;
+}
+
+.university-launch-orbit {
+    position: absolute;
+    width: min(78vw, 68rem);
+    aspect-ratio: 1;
+    border: 1px solid #0c7d8c4d;
+    border-radius: 50%;
+    box-shadow: 0 0 0 2rem #ffffff20, 0 0 0 5rem #ffffff12, inset 0 0 5rem #ffffff55;
+    pointer-events: none;
+}
+
+.university-launch-content {
+    position: relative;
+    z-index: 1;
+    width: min(76rem, 94vw);
+    text-align: center;
+}
+
+.university-launch-kicker {
+    margin: 0 0 .4rem;
+    color: #087d8b;
+    font-size: .72rem;
+    font-weight: 800;
+    letter-spacing: .2em;
+}
+
+.university-launch-heading {
+    margin: 0 0 clamp(.9rem, 2.5vh, 1.6rem);
+    color: #153b47;
+    font-size: clamp(1.45rem, 3.2vw, 2.7rem);
+    letter-spacing: -.045em;
+}
+
+.university-launch-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: clamp(.45rem, 1.2vw, .9rem);
+    perspective: 1000px;
+}
+
+.university-launch-card {
+    display: flex;
+    min-width: 0;
+    min-height: clamp(3.5rem, 7vh, 5.1rem);
+    align-items: center;
+    justify-content: flex-start;
+    gap: .7rem;
+    padding: .55rem .85rem;
+    border: 1px solid #799b984a;
+    border-radius: .85rem;
+    background: #fffdf1c9;
+    box-shadow: 0 .55rem 1.5rem #173b4714;
+    text-align: left;
+    font-size: clamp(.72rem, 1vw, .92rem);
+    font-weight: 700;
+}
+
+.university-launch-card img {
+    flex: 0 0 2.6rem;
+    width: 2.6rem;
+    height: 2.6rem;
+    padding: .35rem;
+    border: 1px solid #b8cbc5;
+    border-radius: 50%;
+    background: #fff;
+    object-fit: contain;
+}
+
+.university-launch-caption {
+    margin: .9rem 0 0;
+    color: #526e70;
+    font-size: .82rem;
+}
+
+@media (max-width: 600px) {
+    .university-launch-content {
+        width: 100%;
+    }
+
+    .university-launch-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: .45rem;
+    }
+
+    .university-launch-card {
+        min-height: 3.2rem;
+        gap: .45rem;
+        padding: .4rem .5rem;
+        font-size: .68rem;
+    }
+
+    .university-launch-card img {
+        flex-basis: 2rem;
+        width: 2rem;
+        height: 2rem;
+        padding: .25rem;
+    }
+}
+
 .gsap-motion .nav-link {
     position: relative;
 }

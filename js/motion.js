@@ -184,6 +184,75 @@
             return;
         }
 
+        const allUniversitiesLink = event.target instanceof Element
+            ? event.target.closest(".section-heading a[href*='view-courses']")
+            : null;
+        const universityCatalog = window.UniCompanionUniversityCatalog || [];
+        if (allUniversitiesLink && universityCatalog.length && motionEnabled
+            && !event.defaultPrevented && event.button === 0
+            && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey
+            && !allUniversitiesLink.target && !allUniversitiesLink.hasAttribute("download")) {
+            event.preventDefault();
+            try { sessionStorage.setItem("unicomp:university-transition", "1"); } catch (_) { /* Navigation still works without transition state. */ }
+
+            const overlay = document.createElement("div");
+            overlay.className = "university-launch-overlay";
+            overlay.setAttribute("aria-hidden", "true");
+
+            const orbit = document.createElement("span");
+            orbit.className = "university-launch-orbit";
+            const content = document.createElement("div");
+            content.className = "university-launch-content";
+            const kicker = document.createElement("p");
+            kicker.className = "university-launch-kicker";
+            kicker.textContent = "UNICOMPANION UNIVERSITY GUIDE";
+            const heading = document.createElement("h2");
+            heading.className = "university-launch-heading";
+            heading.textContent = "Every university. One next step.";
+            const grid = document.createElement("div");
+            grid.className = "university-launch-grid";
+
+            universityCatalog.forEach(university => {
+                const tile = document.createElement("div");
+                tile.className = "university-launch-card";
+                const logo = document.createElement("img");
+                logo.src = `assets/University%20Icons/${encodeURIComponent(university.icon)}`;
+                logo.alt = "";
+                logo.setAttribute("aria-hidden", "true");
+                const name = document.createElement("span");
+                name.textContent = university.name;
+                tile.append(logo, name);
+                grid.append(tile);
+            });
+
+            const caption = document.createElement("p");
+            caption.className = "university-launch-caption";
+            caption.textContent = "Opening all universities and undergraduate courses";
+            content.append(kicker, heading, grid, caption);
+            overlay.append(orbit, content);
+            document.body.append(overlay);
+
+            const bounds = allUniversitiesLink.getBoundingClientRect();
+            const originX = `${((bounds.left + bounds.width / 2) / window.innerWidth) * 100}%`;
+            const originY = `${((bounds.top + bounds.height / 2) / window.innerHeight) * 100}%`;
+            gsap.set(overlay, { clipPath: `circle(0% at ${originX} ${originY})` });
+            gsap.timeline({ onComplete: () => { window.location.href = allUniversitiesLink.href; } })
+                .to(overlay, { clipPath: `circle(150% at ${originX} ${originY})`, duration: .72, ease: "power4.inOut" })
+                .fromTo([kicker, heading],
+                    { autoAlpha: 0, y: 28 },
+                    { autoAlpha: 1, y: 0, duration: .42, stagger: .08, ease: "power3.out" },
+                    "-=.28"
+                )
+                .fromTo([...grid.children],
+                    { autoAlpha: 0, x: index => index % 2 ? 90 : -90, y: 26, rotateY: index => index % 2 ? 12 : -12, scale: .84 },
+                    { autoAlpha: 1, x: 0, y: 0, rotateY: 0, scale: 1, duration: .5, stagger: { each: .075, from: "random" }, ease: "back.out(1.35)" },
+                    "-=.16"
+                )
+                .fromTo(caption, { autoAlpha: 0, y: 12 }, { autoAlpha: 1, y: 0, duration: .3, ease: "power2.out" }, "-=.22")
+                .to(orbit, { rotate: 300, scale: 1.08, duration: 1.2, ease: "power2.inOut" }, 0);
+            return;
+        }
+
         const link = event.target instanceof Element ? event.target.closest("a[data-university-link]") : null;
         if (!link || event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
         if (!motionEnabled) return;
