@@ -31,9 +31,10 @@
 <script src="../js/requirements-extractor.js"></script>
 <script src="../js/data-normaliser.js"></script>
 <script src="../js/validation-engine.js"></script>
-<script src="../js/prospectus-manager.js"></script>
+<script src="../js/Prospectus-manager.js"></script>
 
 <!-- APS calculator -->
+<script src="../js/university-admission-config.js"></script>
 <script src="../js/aps.js"></script>
 
 <!-- AI assistant -->
@@ -124,7 +125,7 @@
         role="status"
         aria-live="polite"
     >
-        Preparing Wits prospectus...
+        Preparing university prospectuses...
     </p>
 </div>
 
@@ -423,407 +424,26 @@
 
 
             <!-- RIGHT SIDE: UNIVERSITIES -->
-
             <section class="aps-universities"
-                     aria-label="University APS results">
-
-
-                <!-- WITS -->
-
-                <article class="aps-university-card"
-                         data-university="wits">
-
-                    <div class="card-inner">
-
-                        <div class="card-front">
-                            <span class="university-logo">W</span>
-                            <span>Wits University</span>
-                        </div>
-
-                        <div class="card-back">
-
-                            <h3>Wits University</h3>
-
-                            <div class="result-item">
-                                <span>Your Wits APS</span>
-                                <strong class="university-aps">--</strong>
-                            </div>
-
-                            <div class="result-item">
-                                <span>Meets minimums</span>
-                                <strong class="eligible-count">Pending</strong>
-                            </div>
-
-                            <button class="view-university-courses"
-                                    type="button"
-                                    disabled
-                                    aria-controls="wits-programme-results">
-                                View Courses
-                            </button>
-
-                        </div>
-
-                    </div>
-
-                </article>
-
-
-                <!-- UCT -->
-
-                <article class="aps-university-card"
-                         data-university="uct">
-
-                    <div class="card-inner">
-
-                        <div class="card-front">
-                            <span class="university-logo">UCT</span>
-                            <span>University Of Cape Town</span>
-                        </div>
-
-                        <div class="card-back">
-
-                            <h3>University Of Cape Town</h3>
-
-                            <div class="result-item">
-                                <span>Your UCT APS</span>
-                                <strong class="university-aps">--</strong>
-                            </div>
-
-                            <div class="result-item">
-                                <span>Eligible programmes</span>
-                                <strong class="eligible-count">Pending</strong>
-                            </div>
-
-                            <button class="view-university-courses"
-                                    type="button" disabled>
-                                View Courses
-                            </button>
-
-                        </div>
-
-                    </div>
-
-                </article>
-
-
-                <!-- UP -->
-
-                <article class="aps-university-card"
-                         data-university="up">
-
-                    <div class="card-inner">
-
-                        <div class="card-front">
-                            <span class="university-logo">UP</span>
-                            <span>University Of Pretoria</span>
-                        </div>
-
-                        <div class="card-back">
-
-                            <h3>University Of Pretoria</h3>
-
-                            <div class="result-item">
-                                <span>Your UP APS</span>
-                                <strong class="university-aps">--</strong>
-                            </div>
-
-                            <div class="result-item">
-                                <span>Eligible programmes</span>
-                                <strong class="eligible-count">Pending</strong>
-                            </div>
-
-                            <button class="view-university-courses"
-                                    type="button" disabled>
-                                View Courses
-                            </button>
-
-                        </div>
-
-                    </div>
-
-                </article>
-
-
-                <!-- UJ -->
-
-                <article class="aps-university-card"
-                         data-university="uj">
-
-                    <div class="card-inner">
-
-                        <div class="card-front">
-                            <span class="university-logo">UJ</span>
-                            <span>University Of Johannesburg</span>
-                        </div>
-
-                        <div class="card-back">
-
-                            <h3>University Of Johannesburg</h3>
-
-                            <div class="result-item">
-                                <span>Your UJ APS</span>
-                                <strong class="university-aps">--</strong>
-                            </div>
-
-                            <div class="result-item">
-                                <span>Eligible programmes</span>
-                                <strong class="eligible-count">Pending</strong>
-                            </div>
-
-                            <button class="view-university-courses"
-                                    type="button" disabled>
-                                View Courses
-                            </button>
-
-                        </div>
-
-                    </div>
-
-                </article>
-
-
-                <!-- UFH -->
-
-                <article class="aps-university-card"
-                         data-university="ufh">
-
-                    <div class="card-inner">
-
-                        <div class="card-front">
-                            <span class="university-logo">UFH</span>
-                            <span>University Of Fort Hare</span>
-                        </div>
-
-                        <div class="card-back">
-
-                            <h3>University Of Fort Hare</h3>
-
-                            <div class="result-item">
-                                <span>Your UFH APS</span>
-                                <strong class="university-aps">--</strong>
-                            </div>
-
-                            <div class="result-item">
-                                <span>Eligible programmes</span>
-                                <strong class="eligible-count">Pending</strong>
-                            </div>
-
-                            <button class="view-university-courses"
-                                    type="button" disabled>
-                                View Courses
-                            </button>
-
-                        </div>
-
-                    </div>
-
-                </article>
-
-
-                <!-- RHODES -->
-
-                <article class="aps-university-card"
-                         data-university="rhodes">
-
-                    <div class="card-inner">
-
-                        <div class="card-front">
-                            <span class="university-logo">RU</span>
-                            <span>Rhodes University</span>
-                        </div>
-
-                        <div class="card-back">
-
-                            <h3>Rhodes University</h3>
-
-                            <div class="result-item">
-                                <span>Your Rhodes APS</span>
-                                <strong class="university-aps">--</strong>
-                            </div>
-
-                            <div class="result-item">
-                                <span>Eligible programmes</span>
-                                <strong class="eligible-count">Pending</strong>
-                            </div>
-
-                            <button class="view-university-courses"
-                                    type="button" disabled>
-                                View Courses
-                            </button>
-
-                        </div>
-
-                    </div>
-
-                </article>
-
-
-                <!-- WSU -->
-
-                <article class="aps-university-card"
-                         data-university="wsu">
-
-                    <div class="card-inner">
-
-                        <div class="card-front">
-                            <span class="university-logo">WSU</span>
-                            <span>Walter Sisulu University</span>
-                        </div>
-
-                        <div class="card-back">
-
-                            <h3>Walter Sisulu University</h3>
-
-                            <div class="result-item">
-                                <span>Your WSU APS</span>
-                                <strong class="university-aps">--</strong>
-                            </div>
-
-                            <div class="result-item">
-                                <span>Eligible programmes</span>
-                                <strong class="eligible-count">Pending</strong>
-                            </div>
-
-                            <button class="view-university-courses"
-                                    type="button" disabled>
-                                View Courses
-                            </button>
-
-                        </div>
-
-                    </div>
-
-                </article>
-
-
-                <!-- STELLENBOSCH -->
-
-                <article class="aps-university-card"
-                         data-university="stellenbosch">
-
-                    <div class="card-inner">
-
-                        <div class="card-front">
-                            <span class="university-logo">SU</span>
-                            <span>Stellenbosch University</span>
-                        </div>
-
-                        <div class="card-back">
-
-                            <h3>Stellenbosch University</h3>
-
-                            <div class="result-item">
-                                <span>Your SU APS</span>
-                                <strong class="university-aps">--</strong>
-                            </div>
-
-                            <div class="result-item">
-                                <span>Eligible programmes</span>
-                                <strong class="eligible-count">Pending</strong>
-                            </div>
-
-                            <button class="view-university-courses"
-                                    type="button" disabled>
-                                View Courses
-                            </button>
-
-                        </div>
-
-                    </div>
-
-                </article>
-
-
-                <!-- UFS -->
-
-                <article class="aps-university-card"
-                         data-university="ufs">
-
-                    <div class="card-inner">
-
-                        <div class="card-front">
-                            <span class="university-logo">UFS</span>
-                            <span>University Of The Free State</span>
-                        </div>
-
-                        <div class="card-back">
-
-                            <h3>University Of The Free State</h3>
-
-                            <div class="result-item">
-                                <span>Your UFS APS</span>
-                                <strong class="university-aps">--</strong>
-                            </div>
-
-                            <div class="result-item">
-                                <span>Eligible programmes</span>
-                                <strong class="eligible-count">Pending</strong>
-                            </div>
-
-                            <button class="view-university-courses"
-                                    type="button" disabled>
-                                View Courses
-                            </button>
-
-                        </div>
-
-                    </div>
-
-                </article>
-
-
+                     id="aps-universities"
+                     aria-label="University eligibility results">
             </section>
 
         </div>
 
-        <!-- <section class="prospectus-extraction">
-
-    <h2>Wits Prospectus Data Extraction</h2>
-
-    <p>
-        Extract university programme requirements
-        from the Wits 2027 prospectus using Gemini AI.
-    </p>
-
-    <button
-        type="button"
-        id="extract-wits-button">
-
-        Extract Wits Requirements
-
-    </button>
-
-    <p
-        id="extraction-status"
-        aria-live="polite">
-
-        Ready to extract prospectus information.
-
-    </p>
-
-</section> -->
-
-        <section class="wits-programme-results"
-                 id="wits-programme-results"
-                 aria-labelledby="wits-programme-heading"
+        <section class="university-programme-results"
+                 id="university-programme-results"
+                 aria-live="polite"
                  hidden>
-            <h2 id="wits-programme-heading">Wits programme matches</h2>
-            <p class="wits-results-note">
-                These are estimates against Wits' published minimum NSC requirements, not admission offers.
-                Selection criteria and available places may affect admission. Health Sciences programmes
-                use a Composite Index and have no APS minimum listed here.
-            </p>
-            <p id="wits-results-summary" role="status" aria-live="polite"></p>
-            <ul id="wits-eligible-programmes"></ul>
-            <p class="wits-source">
-                School-leaver NSC thresholds are from the current official Wits programme pages
-                (which do not consistently state an admission year).                 the full 2027 guide could not
-                be independently cross-checked, and this list may not include every Wits programme.
-                Requirements can change. Wits' guide:
-                <a href="https://www.wits.ac.za/undergraduate/entry-requirements/admission-requirements-nsc/"
-                   target="_blank"
-                   rel="noopener noreferrer"><span id="wits-requirements-year"></span> admission requirements</a>.
-            </p>
+            <header class="active-results-header">
+                <div>
+                    <p class="results-kicker">Active university</p>
+                    <h2 id="active-university-name">University programme matches</h2>
+                </div>
+                <span id="active-university-year" class="prospectus-year"></span>
+            </header>
+            <p id="active-results-summary" class="active-results-summary"></p>
+            <ul id="active-eligible-programmes" class="programme-results-list"></ul>
         </section>
 
     </main>

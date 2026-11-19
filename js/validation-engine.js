@@ -39,7 +39,7 @@
             if (
                 !Number.isInteger(item.score) ||
                 item.score < 1 ||
-                item.score > 60
+                item.score > 600
             ) {
                 issues.push(
                     `Suspicious APS score: ${item.score}.`

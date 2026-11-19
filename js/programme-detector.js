@@ -14,7 +14,7 @@
     };
 
     const HEADING_PATTERN =
-        /^(Bachelor(?:'s)?\s+(?:of|in)\s+.+|B(?:A|Sc|Com|Eng|Ed|Acc|Mus|SocSci|Admin|Dent|Pharm|Nurs|Arch|Theatre|FineArt)\b.*|LLB\b.*|(?:National\s+)?Diploma\s+(?:in|of)\s+.+|Advanced\s+Diploma\s+(?:in|of)\s+.+|Higher\s+Certificate\s+(?:in|of)\s+.+|Certificate\s+(?:in|of)\s+.+)$/i;
+        /^(Bachelor(?:'s)?\s+(?:of|in)\s+.+|B(?:A|Sc|Com|Eng|Ed|Acc|Mus|SocSci|Admin|Dent|Pharm|Nurs|Arch|Theatre|FineArt)\b.*|LLB\b.*|(?:National\s+)?Diploma\s+(?:in|of)\s+.+|Advanced\s+Diploma\s+(?:in|of)\s+.+|Higher\s+Certificate\s+(?:in|of)\s+.+|Certificate\s+(?:in|of)\s+.+|[A-Z]{2,}(?:\s+\([^)]+\))?(?:\s+[-:]\s+.+)?$)/i;
 
     const STOP_PHRASES = [
         /\bminimum\s+APS\b/i,

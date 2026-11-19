@@ -135,6 +135,10 @@
 
         const patterns = [
             /\bAPS\b\s*(?:score|of|:|=)?\s*(?:is|of|:|=)?\s*(\d{1,2})\b/gi,
+            /\b(?:minimum|at least)\s*(\d{1,3})\s*(?:APS|admission points?|admission score|aggregate|points?)\b/gi,
+            /\b(?:APS|admission points?|admission score|aggregate)\s*(?:of|:|=|minimum|at least)?\s*(\d{1,3})\b/gi,
+            /\b(?:minimum|at least)\s*(\d{1,3})%\b/gi,
+            /\b(\d{1,3})\s*(?:%|percent)\s*(?:aggregate|average|admission)\b/gi,
             /\bAdmission\s+Points?\s+Score\b\s*(?:of|:|=)?\s*(\d{1,2})\b/gi,
             /\bminimum\s+APS\b\s*(?:of|:|=)?\s*(\d{1,2})\b/gi,
             /\bminimum\s+admission\s+points?\b\s*(?:of|:|=)?\s*(\d{1,2})\b/gi
@@ -146,7 +150,7 @@
             while ((match = pattern.exec(text)) !== null) {
                 const score = Number(match[1]);
 
-                if (score >= 1 && score <= 60) {
+                if (score >= 1 && score <= 600) {
                     results.push({
                         value: score,
                         sourcePage: pageNumber,

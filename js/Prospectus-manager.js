@@ -1,24 +1,19 @@
-
 /* =========================================================
-   UNICOMPANION — PROSPECTUS MANAGER
-   Controls the complete prospectus extraction pipeline.
+   UNICOMPANION - MULTI-PROSPECTUS EXTRACTION MANAGER
 ========================================================= */
 
 (() => {
     "use strict";
 
     let running = false;
-    let lastResult = null;
+    let lastResults = [];
 
     function setStatus(message, type = "info") {
         const element = document.getElementById("prospectus-status");
-
         if (element) {
             element.textContent = message;
             element.dataset.status = type;
         }
-
-        console.log(`[Prospectus Manager] ${message}`);
     }
 
     function checkDependencies() {
@@ -30,204 +25,85 @@
             "UniCompanionDataNormaliser",
             "UniCompanionValidationEngine"
         ];
+        const missing = required.filter(name => !window[name]);
+        if (missing.length) throw new Error(`Missing scripts: ${missing.join(", ")}`);
+    }
 
-        const missing = required.filter(name => {
-            switch (name) {
-                case "UniCompanionPDF":
-                    return !window.UniCompanionPDF;
-
-                case "UniCompanionDocumentAnalyser":
-                    return !window.UniCompanionDocumentAnalyser;
-
-                case "UniCompanionProgrammeDetector":
-                    return !window.UniCompanionProgrammeDetector;
-
-                case "UniCompanionRequirementsExtractor":
-                    return !window.UniCompanionRequirementsExtractor;
-
-                case "UniCompanionDataNormaliser":
-                    return !window.UniCompanionDataNormaliser;
-
-                case "UniCompanionValidationEngine":
-                    return !window.UniCompanionValidationEngine;
-
-                default:
-                    return true;
-            }
-        });
-
-        if (missing.length) {
-            throw new Error(
-                `Missing scripts or dependencies: ${missing.join(", ")}`
-            );
+    function processProspectus(prospectus) {
+        if (!prospectus.pages || !prospectus.pages.length) {
+            throw new Error(prospectus.error || "The prospectus could not be loaded.");
         }
+
+        const analysis = window.UniCompanionDocumentAnalyser.analyse(prospectus);
+        const detection = window.UniCompanionProgrammeDetector.detect(prospectus, analysis);
+        const requirements = window.UniCompanionRequirementsExtractor.extract(prospectus, detection);
+        const normalised = window.UniCompanionDataNormaliser.normalise(requirements);
+        return window.UniCompanionValidationEngine.validate(normalised);
     }
 
     async function run() {
-        if (running) {
-            console.warn("Prospectus extraction is already running.");
-            return lastResult;
-        }
-
+        if (running) return lastResults;
         running = true;
 
         try {
             checkDependencies();
+            setStatus("Loading university prospectuses...");
+            const prospectuses = await window.UniCompanionPDF.readAll();
+            lastResults = [];
 
-            setStatus("Step 1/6: Loading prospectus...");
-            const prospectus = await window.UniCompanionPDF.read();
+            for (let index = 0; index < prospectuses.length; index++) {
+                const prospectus = prospectuses[index];
+                setStatus(`Processing ${prospectus.universityName || prospectus.university} (${index + 1}/${prospectuses.length})...`);
 
-            setStatus("Step 2/6: Analysing document...");
-            const documentAnalysis =
-                window.UniCompanionDocumentAnalyser.analyse(prospectus);
+                try {
+                    const validated = processProspectus(prospectus);
+                    lastResults.push(validated);
+                } catch (error) {
+                    console.error(`[Prospectus Manager] ${prospectus.university}:`, error);
+                    lastResults.push({
+                        university: prospectus.university,
+                        universityName: prospectus.universityName,
+                        admissionYear: prospectus.admissionYear,
+                        programmes: [],
+                        extractionError: error.message
+                    });
+                }
+            }
 
-            window.UniCompanionDocumentAnalysis = documentAnalysis;
-
-            setStatus("Step 3/6: Detecting programmes...");
-            const detection =
-                window.UniCompanionProgrammeDetector.detect(
-                    prospectus,
-                    documentAnalysis
-                );
-
-            window.UniCompanionProgrammeDetection = detection;
-
-            setStatus("Step 4/6: Extracting requirements...");
-            const requirements =
-                window.UniCompanionRequirementsExtractor.extract(
-                    prospectus,
-                    detection
-                );
-
-            window.UniCompanionRequirements = requirements;
-
-            setStatus("Step 5/6: Normalising data...");
-            const normalised =
-                window.UniCompanionDataNormaliser.normalise(
-                    requirements
-                );
-
-            setStatus("Step 6/6: Validating extracted data...");
-            const validated =
-                window.UniCompanionValidationEngine.validate(
-                    normalised
-                );
-
-            lastResult = validated;
-
-            window.UniCompanionExtractedData = validated;
-
-            setStatus(
-                `Extraction complete. ${validated.programmes.length} programme candidates processed.`,
-                "success"
-            );
-
-            console.log(
-                "[UniCompanion] Final extraction result:",
-                validated
-            );
-
-            console.table(
-                validated.programmes.map(programme => ({
-                    programme: programme.name,
-                    APS: programme.aps.map(item => item.score).join(", ") || "Not found",
-                    subjects: programme.subjects.length,
-                    status: programme.reviewStatus,
-                    pages: programme.sourcePages.join(", ")
-                }))
-            );
-
-            return validated;
-
-        } catch (error) {
-            console.error("[UniCompanion] Extraction failed:", error);
-
-            setStatus(
-                `Extraction failed: ${error.message}`,
-                "error"
-            );
-
-            throw error;
-
+            window.UniCompanionExtractedUniversities = lastResults;
+            window.UniCompanionExtractedData = lastResults.find(item => item.university === "wits") || null;
+            setStatus(`Extraction complete. ${lastResults.length} university prospectuses processed.`, "success");
+            window.dispatchEvent(new CustomEvent("unicomp:prospectus-ready", {
+                detail: window.UniCompanionExtractedData
+            }));
+            window.dispatchEvent(new CustomEvent("unicomp:all-prospectuses-ready", {
+                detail: lastResults
+            }));
+            return lastResults;
         } finally {
             running = false;
         }
     }
 
-    function getResults() {
-        return lastResult;
-    }
+    window.UniCompanionProspectusManager = {
+        run,
+        getResults: () => lastResults
+    };
 
-    function downloadJSON() {
-        if (!lastResult) {
-            throw new Error("Run extraction before downloading results.");
-        }
-
-        const json = JSON.stringify(lastResult, null, 2);
-        const blob = new Blob([json], {
-            type: "application/json"
-        });
-
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement("a");
-
-        link.href = url;
-        link.download =
-            `${lastResult.university}-${lastResult.admissionYear}-extracted.json`;
-
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
-
-        URL.revokeObjectURL(url);
-    }
-
-   window.UniCompanionProspectusManager = {
-    run,
-    getResults,
-    downloadJSON
-};
-
-/* =====================================================
-   AUTOMATIC EXTRACTION
-===================================================== */
-
-async function startAutomatically() {
-    try {
-        setStatus("Preparing automatic prospectus extraction...");
-
-        const result = await run();
-
-        window.dispatchEvent(
-            new CustomEvent("unicomp:prospectus-ready", {
-                detail: result
-            })
-        );
-
-    } catch (error) {
-        console.error(
-            "[UniCompanion] Automatic extraction failed:",
-            error
-        );
-
-        window.dispatchEvent(
-            new CustomEvent("unicomp:prospectus-error", {
+    async function startAutomatically() {
+        try {
+            await run();
+        } catch (error) {
+            setStatus(`Extraction failed: ${error.message}`, "error");
+            window.dispatchEvent(new CustomEvent("unicomp:prospectuses-error", {
                 detail: { message: error.message }
-            })
-        );
+            }));
+        }
     }
-}
 
-if (document.readyState === "loading") {
-    document.addEventListener(
-        "DOMContentLoaded",
-        startAutomatically,
-        { once: true }
-    );
-} else {
-    startAutomatically();
-}
-
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", startAutomatically, { once: true });
+    } else {
+        startAutomatically();
+    }
 })();
-
-

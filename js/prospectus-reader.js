@@ -1,295 +1,176 @@
-
-/* =====================================================
-   UNICOMPANION — PROSPECTUS READER
-   Front-end PDF extraction using PDF.js
-===================================================== */
+/* =========================================================
+   UNICOMPANION - MULTI-UNIVERSITY PROSPECTUS READER
+========================================================= */
 
 (() => {
     "use strict";
 
-    const CONFIG = {
-        university: "wits",
-        admissionYear: 2027,
+    const PROSPECTUSES = [
+        { key: "wits", name: "Wits University", shortName: "Wits", year: 2027, path: "../prospectuses/wits/wits-2027.pdf" },
+        { key: "uct", name: "University of Cape Town", shortName: "UCT", year: 2027, path: "../prospectuses/UCT/2027-uct-undergraduate-prospectus-1-april-2026.pdf" },
+        { key: "up", name: "University of Pretoria", shortName: "UP", year: 2027, path: "../prospectuses/UP/UP_UG Prospectus 2027_NSC-IEB_DevV5_web_0.pdf" },
+        { key: "uj", name: "University of Johannesburg", shortName: "UJ", year: 2027, path: "../prospectuses/UJ/uj_undergrad_prospectus2027_online_25jun2026.pdf" },
+        { key: "ufh", name: "University of Fort Hare", shortName: "UFH", year: 2027, path: "../prospectuses/UFH/Study-Guide-2027.pdf" },
+        { key: "rhodes", name: "Rhodes University", shortName: "RU", year: 2026, path: "../prospectuses/Rhodes/RU_READY_Undergraduate_Prospectus_2026_DIGITAL_A5_Landscape_24pp_18Mar2026.pdf" },
+        { key: "wsu", name: "Walter Sisulu University", shortName: "WSU", year: 2027, path: "../prospectuses/WSU/2027-information-brochure-admission-requirements walter sisulu.pdf" },
+        { key: "stellenbosch", name: "Stellenbosch University", shortName: "SU", year: 2027, path: "../prospectuses/SU/stellenbosch university prospectus 2027.pdf" }
+    ];
 
-        // This path is relative to aps-calculator.html.
-        pdfPath: "../prospectuses/wits/wits-2027.pdf",
+    const workerUrl =
+        "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
 
-        pdfJsWorker:
-            "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js"
-    };
-
-    let loadedProspectus = null;
-    let loadingPromise = null;
+    const loaded = new Map();
+    const promises = new Map();
 
     function setStatus(message, type = "info") {
         const element = document.getElementById("prospectus-status");
-
         if (element) {
             element.textContent = message;
             element.dataset.status = type;
         }
-
-        console.log(`[Prospectus] ${message}`);
     }
 
     function ensurePDFLibrary() {
         if (!window.pdfjsLib) {
-            throw new Error(
-                "PDF.js was not loaded. Check your internet connection and HTML script imports."
-            );
+            throw new Error("PDF.js was not loaded. Check your internet connection.");
         }
-
-        window.pdfjsLib.GlobalWorkerOptions.workerSrc =
-            CONFIG.pdfJsWorker;
+        window.pdfjsLib.GlobalWorkerOptions.workerSrc = workerUrl;
     }
 
-   function extractPageContent(textContent) {
-    const items = (textContent.items || [])
-        .filter(item =>
-            typeof item.str === "string" &&
-            item.str.trim()
-        );
+    function extractPageContent(textContent) {
+        const positionedItems = (textContent.items || [])
+            .filter(item => typeof item.str === "string" && item.str.trim())
+            .map(item => ({
+                text: item.str.trim(),
+                x: item.transform?.[4] ?? 0,
+                y: item.transform?.[5] ?? 0,
+                width: item.width || 0,
+                height: item.height || 0
+            }))
+            .sort((a, b) => Math.abs(a.y - b.y) > 3 ? b.y - a.y : a.x - b.x);
 
-    // Preserve the position of every text item.
-    const positionedItems = items.map(item => ({
-        text: item.str.trim(),
-        x: item.transform?.[4] ?? 0,
-        y: item.transform?.[5] ?? 0,
-        width: item.width || 0,
-        height: item.height || 0
-    }));
-
-    // Sort from top to bottom, then left to right.
-    positionedItems.sort((a, b) => {
-        if (Math.abs(a.y - b.y) > 3) {
-            return b.y - a.y;
-        }
-
-        return a.x - b.x;
-    });
-
-    // Group text items that appear on approximately the same line.
-    const lines = [];
-
-    positionedItems.forEach(item => {
-        let existingLine = lines.find(line =>
-            Math.abs(line.y - item.y) <= 3
-        );
-
-        if (!existingLine) {
-            existingLine = {
-                y: item.y,
-                items: []
-            };
-
-            lines.push(existingLine);
-        }
-
-        existingLine.items.push(item);
-    });
-
-    // Reconstruct each line from its left-to-right text items.
-    const structuredLines = lines
-        .sort((a, b) => b.y - a.y)
-        .map(line => {
-            line.items.sort((a, b) => a.x - b.x);
-
-            return {
-                y: line.y,
-                text: line.items
-                    .map(item => item.text)
-                    .join(" "),
-                items: line.items
-            };
+        const lines = [];
+        positionedItems.forEach(item => {
+            let line = lines.find(candidate => Math.abs(candidate.y - item.y) <= 3);
+            if (!line) {
+                line = { y: item.y, items: [] };
+                lines.push(line);
+            }
+            line.items.push(item);
         });
 
-    const text = structuredLines
-        .map(line => line.text)
-        .join("\n");
-
-    return {
-        text,
-        lines: structuredLines,
-        items: positionedItems
-    };
-}
-
-    async function readProspectus() {
-        if (loadedProspectus) {
-            return loadedProspectus;
-        }
-
-        if (loadingPromise) {
-            return loadingPromise;
-        }
-
-        loadingPromise = (async () => {
-            try {
-                ensurePDFLibrary();
-
-                setStatus("Loading the Wits prospectus...");
-
-                const response = await fetch(CONFIG.pdfPath);
-
-                if (!response.ok) {
-                    throw new Error(
-                        `PDF could not be found. HTTP status ${response.status}.`
-                    );
-                }
-
-                const pdfBuffer = await response.arrayBuffer();
-
-                setStatus("Opening the prospectus...");
-
-                const pdf = await window.pdfjsLib.getDocument({
-                    data: pdfBuffer
-                }).promise;
-
-                const pages = [];
-                const allText = [];
-
-                for (
-                    let pageNumber = 1;
-                    pageNumber <= pdf.numPages;
-                    pageNumber++
-                ) {
-                    const page = await pdf.getPage(pageNumber);
-                    const textContent = await page.getTextContent();
-
-                  const pageContent = extractPageContent(textContent);
-
-pages.push({
-    pageNumber,
-    text: pageContent.text,
-    lines: pageContent.lines,
-    items: pageContent.items
-});
-
-allText.push(
-    `PAGE ${pageNumber}\n${pageContent.text}`
-);
-
-                    setStatus(
-                        `Extracting prospectus text: ${pageNumber}/${pdf.numPages} pages`
-                    );
-                }
-
-                const fullText = allText.join("\n\n");
-
-                if (!fullText.trim()) {
-                    throw new Error(
-                        "The PDF contains no extractable text. It may be a scanned document requiring OCR."
-                    );
-                }
-
-                loadedProspectus = {
-                    university: CONFIG.university,
-                    admissionYear: CONFIG.admissionYear,
-                    filename: CONFIG.pdfPath,
-                    pageCount: pdf.numPages,
-                    pages,
-                    fullText,
-                    extractedAt: new Date().toISOString()
+        const structuredLines = lines
+            .sort((a, b) => b.y - a.y)
+            .map(line => {
+                line.items.sort((a, b) => a.x - b.x);
+                return {
+                    y: line.y,
+                    text: line.items.map(item => item.text).join(" "),
+                    items: line.items
                 };
+            });
 
-                window.UniCompanionProspectus = loadedProspectus;
+        return {
+            text: structuredLines.map(line => line.text).join("\n"),
+            lines: structuredLines,
+            items: positionedItems
+        };
+    }
 
-                setStatus(
-                    `Wits ${CONFIG.admissionYear} prospectus loaded. ${pdf.numPages} pages extracted.`,
-                    "success"
-                );
+    async function readUniversity(config) {
+        if (!config) throw new Error("Prospectus configuration is missing.");
+        if (loaded.has(config.key)) return loaded.get(config.key);
+        if (promises.has(config.key)) return promises.get(config.key);
 
-                console.log("Prospectus extraction complete:", {
-                    university: loadedProspectus.university,
-                    year: loadedProspectus.admissionYear,
-                    pages: loadedProspectus.pageCount,
-                    characters: fullText.length
-                });
+        const promise = (async () => {
+            ensurePDFLibrary();
+            setStatus(`Loading ${config.name} prospectus...`);
 
-                return loadedProspectus;
-
-            } catch (error) {
-                console.error("Prospectus reader error:", error);
-
-                setStatus(
-                    `Prospectus loading failed: ${error.message}`,
-                    "error"
-                );
-
-                throw error;
-
-            } finally {
-                loadingPromise = null;
+            const response = await fetch(config.path);
+            if (!response.ok) {
+                throw new Error(`${config.name} PDF could not be found (HTTP ${response.status}).`);
             }
+
+            const pdf = await window.pdfjsLib.getDocument({
+                data: await response.arrayBuffer()
+            }).promise;
+
+            const pages = [];
+            const allText = [];
+            for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber++) {
+                const page = await pdf.getPage(pageNumber);
+                const content = extractPageContent(await page.getTextContent());
+                pages.push({
+                    pageNumber,
+                    text: content.text,
+                    lines: content.lines,
+                    items: content.items
+                });
+                allText.push(`PAGE ${pageNumber}\n${content.text}`);
+                setStatus(`Extracting ${config.shortName}: ${pageNumber}/${pdf.numPages} pages`);
+            }
+
+            const fullText = allText.join("\n\n");
+            if (!fullText.trim()) {
+                throw new Error(`${config.name} PDF contains no extractable text.`);
+            }
+
+            const prospectus = {
+                university: config.key,
+                universityName: config.name,
+                admissionYear: config.year,
+                filename: config.path,
+                pageCount: pdf.numPages,
+                pages,
+                fullText,
+                extractedAt: new Date().toISOString()
+            };
+
+            loaded.set(config.key, prospectus);
+            return prospectus;
         })();
 
-        return loadingPromise;
-    }
-
-    function searchProspectus(searchTerm) {
-        if (!loadedProspectus) {
-            console.warn("Load the prospectus before searching.");
-            return [];
+        promises.set(config.key, promise);
+        try {
+            return await promise;
+        } finally {
+            promises.delete(config.key);
         }
+    }
 
-        const term = String(searchTerm || "")
-            .trim()
-            .toLowerCase();
-
-        if (!term) {
-            return [];
+    async function readAll() {
+        const results = [];
+        for (const config of PROSPECTUSES) {
+            try {
+                results.push(await readUniversity(config));
+            } catch (error) {
+                console.error(`[Prospectus Reader] ${config.name}:`, error);
+                results.push({
+                    university: config.key,
+                    universityName: config.name,
+                    admissionYear: config.year,
+                    filename: config.path,
+                    pageCount: 0,
+                    pages: [],
+                    fullText: "",
+                    error: error.message
+                });
+            }
         }
-
-        return loadedProspectus.pages
-            .filter(page =>
-                page.text.toLowerCase().includes(term)
-            )
-            .map(page => ({
-                pageNumber: page.pageNumber,
-                text: page.text
-            }));
+        window.UniCompanionProspectuses = results;
+        return results;
     }
 
-    function getPage(pageNumber) {
-        if (!loadedProspectus) {
-            return null;
-        }
-
-        return loadedProspectus.pages.find(
-            page => page.pageNumber === Number(pageNumber)
-        ) || null;
+    async function readProspectus(key = "wits") {
+        const config = PROSPECTUSES.find(item => item.key === key);
+        if (!config) throw new Error(`Unknown university prospectus: ${key}`);
+        return readUniversity(config);
     }
 
-    function getFullText() {
-        return loadedProspectus
-            ? loadedProspectus.fullText
-            : "";
-    }
-
-    // Public API used by other UniCompanion scripts.
     window.UniCompanionPDF = {
         read: readProspectus,
-        search: searchProspectus,
-        getPage,
-        getFullText
+        readAll,
+        readUniversity,
+        getProspectuses: () => PROSPECTUSES.slice()
     };
-
-    // Start loading the prospectus when the page opens.
-    window.UniCompanionProspectusReady = readProspectus();
-
-    window.UniCompanionProspectusReady.then(prospectus => {
-    const page = prospectus.pages.find(p => p.pageNumber === 18);
-
-    console.log("WITS PAGE 18 — POSITIONED TEXT");
-
-    console.table(
-        page.items.map(item => ({
-            text: item.text,
-            x: Math.round(item.x),
-            y: Math.round(item.y),
-            width: Math.round(item.width)
-        }))
-    );
-});
-
 })();
