@@ -4,6 +4,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>
+        try {
+            const studentSession = JSON.parse(sessionStorage.getItem("unicomp:student-profile") || "null");
+            if (studentSession && studentSession.name && studentSession.age && studentSession.grade) document.documentElement.classList.add("has-student-session");
+        } catch (_) { /* The welcome flow remains available when session storage is blocked. */ }
+    </script>
 
     <meta name="description"
         content="UniCompanion helps South African students find universities, calculate APS and explore courses.">
@@ -22,12 +28,14 @@
     <link rel="stylesheet" href="css/navigation.css">
     <link rel="stylesheet" href="css/assistant.css">
     <link rel="stylesheet" href="css/motion.css">
+    <link rel="stylesheet" href="css/welcome-experience.css">
 
     <!-- JavaScript -->
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/ScrollTrigger.min.js" defer></script>
     <script src="js/motion.js" defer></script>
     <script src="js/navigation.js" defer></script>
+    <script src="js/welcome-experience.js" defer></script>
     <script src="js/university-catalog.js" defer></script>
     <script src="js/gemini-config.js" defer></script>
     <script src="js/gemini-service.js" defer></script>
@@ -37,6 +45,102 @@
 </head>
 
 <body>
+
+    <div class="welcome-experience" id="welcome-experience" role="dialog" aria-modal="true" aria-labelledby="welcome-cover-title" aria-describedby="welcome-intro-description">
+        <div class="welcome-backdrop" aria-hidden="true">
+            <span class="welcome-aurora welcome-aurora-one"></span>
+            <span class="welcome-aurora welcome-aurora-two"></span>
+            <span class="welcome-starfield"></span>
+            <span class="welcome-light-beams"></span>
+        </div>
+
+        <div class="welcome-topline">
+            <span class="welcome-brand-mark"><img src="assets/Navigation%20Icons/App%20Icon.png" alt="" aria-hidden="true"> UniCompanion</span>
+            <span class="welcome-edition">A new chapter starts here</span>
+        </div>
+
+        <div class="welcome-scene">
+            <div class="welcome-book-stage">
+                <div class="welcome-book-shadow" aria-hidden="true"></div>
+                <div class="welcome-book" id="welcome-book">
+                    <div class="welcome-book-pages" id="welcome-book-pages" aria-hidden="true" inert>
+                        <section class="welcome-page welcome-page-left">
+                            <span class="welcome-page-kicker">YOUR JOURNEY</span>
+                            <h2>Every great future starts with a first page.</h2>
+                            <p id="welcome-intro-description">Tell UniCompanion a little about yourself. We’ll tailor your study journey to your school stage.</p>
+                            <div class="welcome-page-illustration" aria-hidden="true">
+                                <span class="welcome-illustration-orbit"></span>
+                                <span class="welcome-illustration-star">✦</span>
+                                <span class="welcome-illustration-path"></span>
+                            </div>
+                            <span class="welcome-page-number">01</span>
+                        </section>
+
+                        <section class="welcome-page welcome-page-right">
+                            <span class="welcome-page-kicker">LET’S GET TO KNOW YOU</span>
+                            <h2 id="welcome-form-heading">Your study profile</h2>
+                            <p class="welcome-form-intro">Complete all three details to continue with your personalised UniCompanion experience.</p>
+                            <form class="welcome-form" id="student-welcome-form" autocomplete="on" hidden>
+                                <label for="student-name">What should we call you?</label>
+                                <input id="student-name" name="name" type="text" autocomplete="given-name" minlength="2" maxlength="48" placeholder="Your name" required>
+
+                                <label for="student-age">How old are you?</label>
+                                <input id="student-age" name="age" type="number" inputmode="numeric" min="10" max="120" step="1" placeholder="Your age" required>
+
+                                <label for="student-grade">What grade or stage are you in?</label>
+                                <select id="student-grade" name="grade" required>
+                                    <option value="">Choose your stage</option>
+                                    <option>Grade 8</option>
+                                    <option>Grade 9</option>
+                                    <option>Grade 10</option>
+                                    <option>Grade 11</option>
+                                    <option>Grade 12</option>
+                                    <option>Post-school / gap year</option>
+                                    <option>Tertiary student</option>
+                                    <option>Other</option>
+                                </select>
+
+                                <p class="welcome-form-error" id="welcome-form-error" role="alert" aria-live="assertive" hidden></p>
+                                <button class="welcome-submit" id="welcome-submit" type="submit" aria-busy="false">
+                                    Begin my journey <span aria-hidden="true">↗</span>
+                                </button>
+                                <small class="welcome-privacy-note">Your profile stays in this browser tab and is not sent to the AI.</small>
+                            </form>
+                            <span class="welcome-page-number">02</span>
+                        </section>
+                    </div>
+
+                    <div class="welcome-book-cover" id="welcome-book-cover">
+                        <div class="welcome-book-cover-face welcome-book-cover-front">
+                            <span class="welcome-cover-spine" aria-hidden="true"></span>
+                            <img class="welcome-cover-logo" src="assets/Navigation%20Icons/App%20Icon.png" alt="" aria-hidden="true">
+                            <span class="welcome-cover-brand">UNICOMPANION</span>
+                            <h1 id="welcome-cover-title">Your next chapter</h1>
+                            <p>South Africa’s university guide</p>
+                            <div class="welcome-cover-emblem" aria-hidden="true"><span>✦</span></div>
+                            <button class="welcome-start" id="welcome-start" type="button" aria-controls="student-welcome-form" aria-expanded="false">
+                                <span>Click to start</span><span class="welcome-start-arrow" aria-hidden="true">↓</span>
+                            </button>
+                            <span class="welcome-cover-hint">A world of possibilities is waiting</span>
+                        </div>
+                        <div class="welcome-book-cover-face welcome-book-cover-inside" aria-hidden="true">
+                            <span class="welcome-inside-mark">✦</span>
+                            <span>OPEN YOUR FUTURE</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <p class="welcome-scene-caption" id="welcome-scene-caption">A little light can reveal a whole new world.</p>
+        </div>
+
+        <div class="welcome-finale" id="welcome-finale" aria-live="polite" tabindex="-1" hidden>
+            <div class="welcome-finale-orbit" aria-hidden="true"></div>
+            <img src="assets/Navigation%20Icons/App%20Icon.png" alt="" aria-hidden="true">
+            <p>YOUR JOURNEY BEGINS</p>
+            <h2 id="welcome-finale-heading">Welcome to UniCompanion</h2>
+            <span id="welcome-finale-subtitle">Let’s find the next chapter that fits you.</span>
+        </div>
+    </div>
 
     <!-- LOADING SCREEN -->
 

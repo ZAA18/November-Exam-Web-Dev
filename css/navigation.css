@@ -60,6 +60,27 @@
     font-size: .68rem;
 }
 
+.logo-text small.student-session-active {
+    max-width: 12rem;
+    overflow: hidden;
+    color: #16806e;
+    font-weight: 700;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.logo-text small.student-session-active::before {
+    display: inline-block;
+    width: .42rem;
+    height: .42rem;
+    margin-right: .3rem;
+    border-radius: 50%;
+    background: #20a476;
+    box-shadow: 0 0 .45rem #20a47670;
+    content: "";
+    vertical-align: .02rem;
+}
+
 
 /* Navigation Links */
 
@@ -250,6 +271,10 @@
 
     .logo-text small {
         font-size: .6rem;
+    }
+
+    .logo-text small.student-session-active {
+        max-width: calc(100vw - 8rem);
     }
 
     .search-form {
