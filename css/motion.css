@@ -111,6 +111,68 @@
     font-size: clamp(.9rem, 1.6vw, 1.1rem);
 }
 
+.feature-transition-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 2100;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    color: #173b47;
+    background:
+        radial-gradient(circle at 50% 42%, #fffdf3 0 7rem, var(--feature-accent) 19rem, #c7e9e5 68%, #f5a12c 145%);
+    pointer-events: all;
+}
+
+.feature-transition-portal {
+    position: relative;
+    display: grid;
+    justify-items: center;
+    gap: .7rem;
+    width: min(90vw, 38rem);
+    padding: 3rem 1.5rem;
+    text-align: center;
+}
+
+.feature-transition-orbit {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: min(68vw, 30rem);
+    aspect-ratio: 1;
+    border: 1px solid #087d8b66;
+    border-radius: 50%;
+    box-shadow: 0 0 0 1.5rem #ffffff26, 0 0 0 4rem #ffffff1c, inset 0 0 4rem #ffffff80;
+    transform: translate(-50%, -50%);
+}
+
+.feature-transition-icon,
+.feature-transition-brand,
+.feature-transition-title {
+    position: relative;
+    z-index: 1;
+}
+
+.feature-transition-icon {
+    font-size: clamp(3.5rem, 11vw, 7rem);
+    line-height: 1;
+    filter: drop-shadow(0 .7rem 1.1rem #173b4730);
+}
+
+.feature-transition-brand {
+    color: #087d8b;
+    font-size: .76rem;
+    font-weight: 800;
+    letter-spacing: .22em;
+}
+
+.feature-transition-title {
+    max-width: 90vw;
+    font-size: clamp(1.7rem, 5vw, 3.5rem);
+    font-weight: 800;
+    letter-spacing: -.045em;
+}
+
 .gsap-motion .nav-link {
     position: relative;
 }

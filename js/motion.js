@@ -107,6 +107,83 @@
     }
 
     document.addEventListener("click", event => {
+        const featureLink = event.target instanceof Element ? event.target.closest("a.feature-card[href]") : null;
+        if (featureLink && !event.defaultPrevented && event.button === 0 && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey && !featureLink.target && !featureLink.hasAttribute("download") && motionEnabled) {
+            event.preventDefault();
+            const bounds = featureLink.getBoundingClientRect();
+            const originX = `${((bounds.left + bounds.width / 2) / window.innerWidth) * 100}%`;
+            const originY = `${((bounds.top + bounds.height / 2) / window.innerHeight) * 100}%`;
+            const title = featureLink.querySelector("h2")?.textContent.trim() || "UniCompanion";
+            const iconText = featureLink.querySelector(".feature-icon")?.textContent.trim() || "✦";
+            const accent = featureLink.classList.contains("aps-card") ? "#cfe9e9" : featureLink.classList.contains("explore-card") ? "#d9f1d3" : "#ead9ef";
+            const overlay = document.createElement("div");
+            overlay.className = "feature-transition-overlay";
+            overlay.setAttribute("aria-hidden", "true");
+            overlay.style.setProperty("--feature-accent", accent);
+
+            const portal = document.createElement("div");
+            portal.className = "feature-transition-portal";
+            const orbit = document.createElement("span");
+            orbit.className = "feature-transition-orbit";
+            const icon = document.createElement("span");
+            icon.className = "feature-transition-icon";
+            icon.textContent = iconText;
+            const brand = document.createElement("span");
+            brand.className = "feature-transition-brand";
+            brand.textContent = "UNICOMPANION";
+            const heading = document.createElement("span");
+            heading.className = "feature-transition-title";
+            heading.textContent = title;
+            portal.append(orbit, icon, brand, heading);
+            overlay.append(portal);
+            document.body.append(overlay);
+
+            gsap.set(overlay, { clipPath: `circle(0% at ${originX} ${originY})` });
+            gsap.timeline({ onComplete: () => { window.location.href = featureLink.href; } })
+                .to(overlay, { clipPath: `circle(150% at ${originX} ${originY})`, duration: 0.82, ease: "power4.inOut" })
+                .fromTo(orbit, { scale: 0.38, rotate: -48 }, { scale: 1, rotate: 0, duration: 0.72, ease: "power3.out" }, "-=0.5")
+                .fromTo(icon, { autoAlpha: 0, y: 30, scale: 0.45, rotate: -24 }, { autoAlpha: 1, y: 0, scale: 1, rotate: 0, duration: 0.55, ease: "back.out(2)" }, "-=0.44")
+                .fromTo([brand, heading], { autoAlpha: 0, y: 22 }, { autoAlpha: 1, y: 0, duration: 0.42, stagger: 0.09, ease: "power3.out" }, "-=0.28");
+            return;
+        }
+
+        const featureButton = event.target instanceof Element ? event.target.closest("button.feature-card") : null;
+        if (featureButton && motionEnabled) {
+            const bounds = featureButton.getBoundingClientRect();
+            const originX = `${((bounds.left + bounds.width / 2) / window.innerWidth) * 100}%`;
+            const originY = `${((bounds.top + bounds.height / 2) / window.innerHeight) * 100}%`;
+            const overlay = document.createElement("div");
+            overlay.className = "feature-transition-overlay";
+            overlay.setAttribute("aria-hidden", "true");
+            overlay.style.setProperty("--feature-accent", "#f5e5d0");
+
+            const portal = document.createElement("div");
+            portal.className = "feature-transition-portal";
+            const orbit = document.createElement("span");
+            orbit.className = "feature-transition-orbit";
+            const icon = document.createElement("span");
+            icon.className = "feature-transition-icon";
+            icon.textContent = featureButton.querySelector(".feature-icon")?.textContent.trim() || "✦";
+            const brand = document.createElement("span");
+            brand.className = "feature-transition-brand";
+            brand.textContent = "UNICOMPANION AI";
+            const heading = document.createElement("span");
+            heading.className = "feature-transition-title";
+            heading.textContent = "Your guide is ready";
+            portal.append(orbit, icon, brand, heading);
+            overlay.append(portal);
+            document.body.append(overlay);
+
+            gsap.set(overlay, { clipPath: `circle(0% at ${originX} ${originY})` });
+            gsap.timeline({ onComplete: () => overlay.remove() })
+                .to(overlay, { clipPath: `circle(150% at ${originX} ${originY})`, duration: 0.72, ease: "power4.inOut" })
+                .fromTo(orbit, { scale: 0.4, rotate: -45 }, { scale: 1, rotate: 0, duration: 0.58, ease: "power3.out" }, "-=0.42")
+                .fromTo(icon, { autoAlpha: 0, y: 24, scale: 0.5, rotate: -20 }, { autoAlpha: 1, y: 0, scale: 1, rotate: 0, duration: 0.46, ease: "back.out(2)" }, "-=0.35")
+                .fromTo([brand, heading], { autoAlpha: 0, y: 18 }, { autoAlpha: 1, y: 0, duration: 0.36, stagger: 0.08, ease: "power3.out" }, "-=0.22")
+                .to(overlay, { clipPath: `circle(0% at ${originX} ${originY})`, duration: 0.58, delay: 0.22, ease: "power4.inOut" });
+            return;
+        }
+
         const link = event.target instanceof Element ? event.target.closest("a[data-university-link]") : null;
         if (!link || event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
         if (!motionEnabled) return;
