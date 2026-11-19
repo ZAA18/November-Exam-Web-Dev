@@ -7,7 +7,7 @@
 (() => {
     "use strict";
 
-    function validateProgramme(programme) {
+    function validateProgramme(programme, universityId = "") {
         const issues = [];
         const warnings = [];
 
@@ -36,10 +36,12 @@
         }
 
         for (const item of programme.aps || []) {
+            const maximum = ["FPS", "WPS"].includes(String(item.type || "").toUpperCase()) || String(universityId).toLowerCase() === "uct"
+                ? 900 : 60;
             if (
                 !Number.isInteger(item.score) ||
                 item.score < 1 ||
-                item.score > 60
+                item.score > maximum
             ) {
                 issues.push(
                     `Suspicious APS score: ${item.score}.`
@@ -81,7 +83,9 @@
             throw new Error("No normalised programme data to validate.");
         }
 
-        const results = data.programmes.map(validateProgramme);
+        const results = data.programmes.map(programme =>
+            validateProgramme(programme, data.universityId || data.university)
+        );
 
         const validatedData = {
             ...data,

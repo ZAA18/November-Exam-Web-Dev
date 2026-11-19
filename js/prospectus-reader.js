@@ -7,19 +7,17 @@
 (() => {
     "use strict";
 
+    const DEFAULT_ID = "wits";
+    const CONFIGS = window.UniCompanionUniversities || {};
+    const loadedProspectuses = new Map();
+    const loadingPromises = new Map();
     const CONFIG = {
-        university: "wits",
-        admissionYear: 2027,
-
-        // This path is relative to aps-calculator.html.
-        pdfPath: "../prospectuses/wits/wits-2027.pdf",
-
-        pdfJsWorker:
-            "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js"
+        pdfJsWorker: new URL(
+            "../assets/vendor/pdfjs/pdf.worker.min.js",
+            document.baseURI
+        ).href
     };
-
-    let loadedProspectus = null;
-    let loadingPromise = null;
+    let activeProspectus = null;
 
     function setStatus(message, type = "info") {
         const element = document.getElementById("prospectus-status");
@@ -32,7 +30,10 @@
         console.log(`[Prospectus] ${message}`);
     }
 
-    function ensurePDFLibrary() {
+    async function ensurePDFLibrary() {
+        if (!window.pdfjsLib && window.UniCompanionPDFJSReady) {
+            await window.UniCompanionPDFJSReady;
+        }
         if (!window.pdfjsLib) {
             throw new Error(
                 "PDF.js was not loaded. Check your internet connection and HTML script imports."
@@ -114,22 +115,18 @@
     };
 }
 
-    async function readProspectus() {
-        if (loadedProspectus) {
-            return loadedProspectus;
-        }
-
-        if (loadingPromise) {
-            return loadingPromise;
-        }
-
-        loadingPromise = (async () => {
+    async function readProspectus(universityId = DEFAULT_ID) {
+        const institution = CONFIGS[universityId];
+        if (!institution?.prospectus) throw new Error(`No prospectus is configured for ${universityId}.`);
+        if (loadedProspectuses.has(universityId)) return loadedProspectuses.get(universityId);
+        if (loadingPromises.has(universityId)) return loadingPromises.get(universityId);
+        const loadingPromise = (async () => {
             try {
-                ensurePDFLibrary();
+                await ensurePDFLibrary();
 
-                setStatus("Loading the Wits prospectus...");
+                setStatus(`Loading ${institution.name} prospectus...`);
 
-                const response = await fetch(CONFIG.pdfPath);
+                const response = await fetch(institution.prospectus);
 
                 if (!response.ok) {
                     throw new Error(
@@ -182,20 +179,23 @@ allText.push(
                     );
                 }
 
-                loadedProspectus = {
-                    university: CONFIG.university,
-                    admissionYear: CONFIG.admissionYear,
-                    filename: CONFIG.pdfPath,
+                const loadedProspectus = {
+                    university: universityId,
+                    universityName: institution.name,
+                    admissionYear: institution.admissionYear,
+                    filename: institution.prospectus,
                     pageCount: pdf.numPages,
                     pages,
                     fullText,
                     extractedAt: new Date().toISOString()
                 };
 
+                loadedProspectuses.set(universityId, loadedProspectus);
+                activeProspectus = loadedProspectus;
                 window.UniCompanionProspectus = loadedProspectus;
 
                 setStatus(
-                    `Wits ${CONFIG.admissionYear} prospectus loaded. ${pdf.numPages} pages extracted.`,
+                    `${institution.name} ${institution.admissionYear || ""} prospectus loaded. ${pdf.numPages} pages extracted.`,
                     "success"
                 );
 
@@ -219,14 +219,16 @@ allText.push(
                 throw error;
 
             } finally {
-                loadingPromise = null;
+                loadingPromises.delete(universityId);
             }
         })();
 
+        loadingPromises.set(universityId, loadingPromise);
         return loadingPromise;
     }
 
     function searchProspectus(searchTerm) {
+        const loadedProspectus = activeProspectus;
         if (!loadedProspectus) {
             console.warn("Load the prospectus before searching.");
             return [];
@@ -251,6 +253,7 @@ allText.push(
     }
 
     function getPage(pageNumber) {
+        const loadedProspectus = activeProspectus;
         if (!loadedProspectus) {
             return null;
         }
@@ -261,35 +264,19 @@ allText.push(
     }
 
     function getFullText() {
-        return loadedProspectus
-            ? loadedProspectus.fullText
+        return activeProspectus
+            ? activeProspectus.fullText
             : "";
     }
 
     // Public API used by other UniCompanion scripts.
     window.UniCompanionPDF = {
         read: readProspectus,
+        get: id => loadedProspectuses.get(id) || null,
+        setActive: id => { activeProspectus = loadedProspectuses.get(id) || null; },
         search: searchProspectus,
         getPage,
         getFullText
     };
-
-    // Start loading the prospectus when the page opens.
-    window.UniCompanionProspectusReady = readProspectus();
-
-    window.UniCompanionProspectusReady.then(prospectus => {
-    const page = prospectus.pages.find(p => p.pageNumber === 18);
-
-    console.log("WITS PAGE 18 — POSITIONED TEXT");
-
-    console.table(
-        page.items.map(item => ({
-            text: item.text,
-            x: Math.round(item.x),
-            y: Math.round(item.y),
-            width: Math.round(item.width)
-        }))
-    );
-});
 
 })();

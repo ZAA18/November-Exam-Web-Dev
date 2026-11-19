@@ -12,13 +12,16 @@
             subject: subject.subject,
             minimumLevel: Number(subject.minimumLevel),
             sourcePage: Number(subject.sourcePage),
-            sourceText: subject.sourceText || ""
+            sourceText: subject.sourceText || "",
+            achievementPercent: Number.isFinite(Number(subject.achievementPercent))
+                ? Number(subject.achievementPercent) : null
         };
     }
 
     function normaliseAPS(item) {
         return {
             score: Number(item.value),
+            type: item.type || "APS",
             sourcePage: Number(item.sourcePage),
             sourceText: item.sourceText || ""
         };
@@ -29,6 +32,8 @@
             id: programme.programmeId,
             name: programme.programmeName,
             qualificationType: programme.qualificationType || "Unknown",
+            faculty: programme.faculty || null,
+            department: programme.department || null,
 
             aps: (programme.apsResults || []).map(normaliseAPS),
 
@@ -38,7 +43,8 @@
             selectionRequirements:
                 (programme.selectionRequirements || []).map(item => ({
                     description: item.description,
-                    sourcePage: Number(item.sourcePage)
+                    sourcePage: Number(item.sourcePage),
+                    sourceText: item.sourceText || item.description || ""
                 })),
 
             sourcePages: [
@@ -46,8 +52,9 @@
             ],
 
             sourceLocations: programme.sourceLocations || [],
-
-            confidence: null,
+            extractionStatus: programme.extractionStatus || "candidate",
+            confidence: Number.isFinite(Number(programme.confidence))
+                ? Number(programme.confidence) : null,
 
             // Extraction is not automatically labelled as needing review.
             reviewStatus: "ready"
@@ -61,7 +68,9 @@
 
         return {
             schemaVersion: "1.0",
+            universityId: String(data.universityId || data.university || "unknown").toLowerCase(),
             university: data.university || "Unknown",
+            prospectusSource: data.prospectusSource || null,
             admissionYear: Number(data.admissionYear) || null,
             extractedAt: data.extractedAt || new Date().toISOString(),
 

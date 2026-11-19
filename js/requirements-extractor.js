@@ -134,6 +134,7 @@
         const results = [];
 
         const patterns = [
+            /\b(?:APS|FPS|WPS)\b\s*(?:score|of|:|=)?\s*(?:is|of|:|=)?\s*(\d{1,3})\b/gi,
             /\bAPS\b\s*(?:score|of|:|=)?\s*(?:is|of|:|=)?\s*(\d{1,2})\b/gi,
             /\bAdmission\s+Points?\s+Score\b\s*(?:of|:|=)?\s*(\d{1,2})\b/gi,
             /\bminimum\s+APS\b\s*(?:of|:|=)?\s*(\d{1,2})\b/gi,
@@ -151,7 +152,7 @@
                         value: score,
                         sourcePage: pageNumber,
                         sourceText: clean(match[0]),
-                        type: "APS"
+                        type: /\bFPS\b/i.test(match[0]) ? "FPS" : /\bWPS\b/i.test(match[0]) ? "WPS" : "APS"
                     });
                 }
             }
@@ -237,6 +238,7 @@
             if (patterns.some(pattern => pattern.test(cleaned))) {
                 results.push({
                     description: cleaned,
+                    sourceText: cleaned,
                     sourcePage: pageNumber,
                     type: "selection"
                 });
@@ -290,6 +292,8 @@
             programmeId: programme.id,
             programmeName: programme.programmeName,
             qualificationType: programme.qualificationType,
+            faculty: programme.faculty || null,
+            department: programme.department || null,
 
             apsResults: uniqueBy(
                 aps,
@@ -322,7 +326,9 @@
 
         return {
             university: prospectus.university,
+            universityId: prospectus.university,
             admissionYear: prospectus.admissionYear,
+            prospectusSource: prospectus.filename,
 
             programmes: (detection.programmes || []).map(programme =>
                 extractProgrammeRequirements(

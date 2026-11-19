@@ -13,9 +13,26 @@
     <link rel="stylesheet" href="../css/aps.css">
     <link rel="stylesheet" href="../css/assistant.css">
 
-  <!-- PDF.js -->
-<!-- PDF.js -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <!-- PDF.js is bundled locally so prospectuses work without a CDN. -->
+<script>
+window.UniCompanionPDFJSReady = new Promise((resolve, reject) => {
+    const sources = [
+        "../assets/vendor/pdfjs/pdf.min.js",
+        "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js",
+        "https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"
+    ];
+    const load = index => {
+        if (window.pdfjsLib) return resolve(window.pdfjsLib);
+        if (index >= sources.length) return reject(new Error("PDF reading library is unavailable."));
+        const script = document.createElement("script");
+        script.src = sources[index];
+        script.onload = () => window.pdfjsLib ? resolve(window.pdfjsLib) : load(index + 1);
+        script.onerror = () => load(index + 1);
+        document.head.appendChild(script);
+    };
+    load(0);
+});
+</script>
 
 <!-- Gemini assistant services -->
 <script src="../js/gemini-config.js"></script>
@@ -23,6 +40,7 @@
 
 <!-- Website navigation -->
 <script src="../js/navigation.js"></script>
+<script src="../js/university-config.js"></script>
 
 <!-- Prospectus extraction engine -->
 <script src="../js/prospectus-reader.js"></script>
@@ -31,7 +49,8 @@
 <script src="../js/requirements-extractor.js"></script>
 <script src="../js/data-normaliser.js"></script>
 <script src="../js/validation-engine.js"></script>
-<script src="../js/prospectus-manager.js"></script>
+<script src="../js/eligibility-engine.js"></script>
+<script src="../js/Prospectus-manager.js"></script>
 
 <!-- APS calculator -->
 <script src="../js/aps.js"></script>
@@ -124,7 +143,7 @@
         role="status"
         aria-live="polite"
     >
-        Preparing Wits prospectus...
+Preparing available prospectus data...
     </p>
 </div>
 
@@ -200,6 +219,25 @@
                                step="1"
                                placeholder="Enter mark">
                     </div>
+
+                    <div class="mark-row"><label for="isizulu-home">isiZulu Home Language</label><input type="number" id="isizulu-home" data-subject="isiZuluHome" min="0" max="100" step="1" placeholder="Enter mark"></div>
+                    <div class="mark-row"><label for="isizulu-fal">isiZulu First Additional Language</label><input type="number" id="isizulu-fal" data-subject="isiZuluFAL" min="0" max="100" step="1" placeholder="Enter mark"></div>
+                    <div class="mark-row"><label for="isixhosa-home">isiXhosa Home Language</label><input type="number" id="isixhosa-home" data-subject="isiXhosaHome" min="0" max="100" step="1" placeholder="Enter mark"></div>
+                    <div class="mark-row"><label for="isixhosa-fal">isiXhosa First Additional Language</label><input type="number" id="isixhosa-fal" data-subject="isiXhosaFAL" min="0" max="100" step="1" placeholder="Enter mark"></div>
+                    <div class="mark-row"><label for="sesotho-home">Sesotho Home Language</label><input type="number" id="sesotho-home" data-subject="seSothoHome" min="0" max="100" step="1" placeholder="Enter mark"></div>
+                    <div class="mark-row"><label for="sesotho-fal">Sesotho First Additional Language</label><input type="number" id="sesotho-fal" data-subject="seSothoFAL" min="0" max="100" step="1" placeholder="Enter mark"></div>
+                    <div class="mark-row"><label for="setswana-home">Setswana Home Language</label><input type="number" id="setswana-home" data-subject="SetswanaHome" min="0" max="100" step="1" placeholder="Enter mark"></div>
+                    <div class="mark-row"><label for="setswana-fal">Setswana First Additional Language</label><input type="number" id="setswana-fal" data-subject="SetswanaFAL" min="0" max="100" step="1" placeholder="Enter mark"></div>
+                    <div class="mark-row"><label for="sepedi-home">Sepedi Home Language</label><input type="number" id="sepedi-home" data-subject="SepediHome" min="0" max="100" step="1" placeholder="Enter mark"></div>
+                    <div class="mark-row"><label for="sepedi-fal">Sepedi First Additional Language</label><input type="number" id="sepedi-fal" data-subject="SepediFAL" min="0" max="100" step="1" placeholder="Enter mark"></div>
+                    <div class="mark-row"><label for="siswati-home">siSwati Home Language</label><input type="number" id="siswati-home" data-subject="siSwatiHome" min="0" max="100" step="1" placeholder="Enter mark"></div>
+                    <div class="mark-row"><label for="siswati-fal">siSwati First Additional Language</label><input type="number" id="siswati-fal" data-subject="siSwatiFAL" min="0" max="100" step="1" placeholder="Enter mark"></div>
+                    <div class="mark-row"><label for="tshivenda-home">Tshivenda Home Language</label><input type="number" id="tshivenda-home" data-subject="TshivendaHome" min="0" max="100" step="1" placeholder="Enter mark"></div>
+                    <div class="mark-row"><label for="tshivenda-fal">Tshivenda First Additional Language</label><input type="number" id="tshivenda-fal" data-subject="TshivendaFAL" min="0" max="100" step="1" placeholder="Enter mark"></div>
+                    <div class="mark-row"><label for="isindebele-home">isiNdebele Home Language</label><input type="number" id="isindebele-home" data-subject="isiNdebeleHome" min="0" max="100" step="1" placeholder="Enter mark"></div>
+                    <div class="mark-row"><label for="isindebele-fal">isiNdebele First Additional Language</label><input type="number" id="isindebele-fal" data-subject="isiNdebeleFAL" min="0" max="100" step="1" placeholder="Enter mark"></div>
+                    <div class="mark-row"><label for="xitsonga-home">xiTsonga Home Language</label><input type="number" id="xitsonga-home" data-subject="xiTsongaHome" min="0" max="100" step="1" placeholder="Enter mark"></div>
+                    <div class="mark-row"><label for="xitsonga-fal">xiTsonga First Additional Language</label><input type="number" id="xitsonga-fal" data-subject="xiTsongaFAL" min="0" max="100" step="1" placeholder="Enter mark"></div>
 
 
                     <div class="mark-row">
@@ -445,7 +483,7 @@
                             <h3>Wits University</h3>
 
                             <div class="result-item">
-                                <span>Your Wits APS</span>
+                                <span>Wits admission score</span>
                                 <strong class="university-aps">--</strong>
                             </div>
 
@@ -457,7 +495,7 @@
                             <button class="view-university-courses"
                                     type="button"
                                     disabled
-                                    aria-controls="wits-programme-results">
+                                    aria-controls="university-programme-results">
                                 View Courses
                             </button>
 
@@ -485,7 +523,7 @@
                             <h3>University Of Cape Town</h3>
 
                             <div class="result-item">
-                                <span>Your UCT APS</span>
+                                <span>UCT admission score</span>
                                 <strong class="university-aps">--</strong>
                             </div>
 
@@ -523,7 +561,7 @@
                             <h3>University Of Pretoria</h3>
 
                             <div class="result-item">
-                                <span>Your UP APS</span>
+                                <span>UP admission score</span>
                                 <strong class="university-aps">--</strong>
                             </div>
 
@@ -561,7 +599,7 @@
                             <h3>University Of Johannesburg</h3>
 
                             <div class="result-item">
-                                <span>Your UJ APS</span>
+                                <span>UJ admission score</span>
                                 <strong class="university-aps">--</strong>
                             </div>
 
@@ -599,7 +637,7 @@
                             <h3>University Of Fort Hare</h3>
 
                             <div class="result-item">
-                                <span>Your UFH APS</span>
+                                <span>UFH admission score</span>
                                 <strong class="university-aps">--</strong>
                             </div>
 
@@ -637,7 +675,7 @@
                             <h3>Rhodes University</h3>
 
                             <div class="result-item">
-                                <span>Your Rhodes APS</span>
+                                <span>Rhodes admission score</span>
                                 <strong class="university-aps">--</strong>
                             </div>
 
@@ -675,7 +713,7 @@
                             <h3>Walter Sisulu University</h3>
 
                             <div class="result-item">
-                                <span>Your WSU APS</span>
+                                <span>WSU admission score</span>
                                 <strong class="university-aps">--</strong>
                             </div>
 
@@ -713,7 +751,7 @@
                             <h3>Stellenbosch University</h3>
 
                             <div class="result-item">
-                                <span>Your SU APS</span>
+                                <span>SU admission score</span>
                                 <strong class="university-aps">--</strong>
                             </div>
 
@@ -751,7 +789,7 @@
                             <h3>University Of The Free State</h3>
 
                             <div class="result-item">
-                                <span>Your UFS APS</span>
+                                <span>UFS admission score</span>
                                 <strong class="university-aps">--</strong>
                             </div>
 
@@ -803,27 +841,11 @@
 
 </section> -->
 
-        <section class="wits-programme-results"
-                 id="wits-programme-results"
-                 aria-labelledby="wits-programme-heading"
-                 hidden>
-            <h2 id="wits-programme-heading">Wits programme matches</h2>
-            <p class="wits-results-note">
-                These are estimates against Wits' published minimum NSC requirements, not admission offers.
-                Selection criteria and available places may affect admission. Health Sciences programmes
-                use a Composite Index and have no APS minimum listed here.
-            </p>
-            <p id="wits-results-summary" role="status" aria-live="polite"></p>
-            <ul id="wits-eligible-programmes"></ul>
-            <p class="wits-source">
-                School-leaver NSC thresholds are from the current official Wits programme pages
-                (which do not consistently state an admission year).                 the full 2027 guide could not
-                be independently cross-checked, and this list may not include every Wits programme.
-                Requirements can change. Wits' guide:
-                <a href="https://www.wits.ac.za/undergraduate/entry-requirements/admission-requirements-nsc/"
-                   target="_blank"
-                   rel="noopener noreferrer"><span id="wits-requirements-year"></span> admission requirements</a>.
-            </p>
+        <section class="wits-programme-results" id="university-programme-results" hidden aria-live="polite">
+            <h2 id="university-results-heading">University programmes</h2>
+            <p id="university-results-summary" class="wits-results-note" role="status"></p>
+            <div id="university-programmes"></div>
+            <p class="wits-source">Assessment indicates whether entered marks meet extracted minimums. It is not an admission offer. Confirm requirements with the university and prospectus source pages.</p>
         </section>
 
     </main>

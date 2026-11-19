@@ -140,12 +140,18 @@
         );
 
         const detected = [];
+        let currentFaculty = null;
+        let currentDepartment = null;
 
         for (const page of pagesToAnalyse) {
             const lines = getPageLines(page);
 
             lines.forEach((line, lineIndex) => {
                 const cleaned = cleanText(line);
+                const facultyMatch = cleaned.match(/\bfaculty\s+of\s+([^|;]{2,90})/i);
+                if (facultyMatch) currentFaculty = `Faculty of ${facultyMatch[1].trim()}`;
+                const departmentMatch = cleaned.match(/\bdepartment\s+of\s+([^|;]{2,90})/i);
+                if (departmentMatch) currentDepartment = `Department of ${departmentMatch[1].trim()}`;
 
                 if (!HEADING_PATTERN.test(cleaned)) return;
 
@@ -156,6 +162,8 @@
                 detected.push({
                     title,
                     type: getQualificationType(title),
+                    faculty: currentFaculty,
+                    department: currentDepartment,
                     pageNumber: page.pageNumber,
                     lineIndex,
                     confidence: 0.85
@@ -173,6 +181,8 @@
                 grouped.set(key, {
                     title: candidate.title,
                     type: candidate.type,
+                    faculty: candidate.faculty,
+                    department: candidate.department,
                     confidence: candidate.confidence,
                     sourceLocations: []
                 });
@@ -198,6 +208,8 @@
                     id: index + 1,
                     programmeName: programme.title,
                     qualificationType: programme.type,
+                    faculty: programme.faculty || null,
+                    department: programme.department || null,
                     sourceLocations: locations,
                     sourcePages: [
                         ...new Set(locations.map(item => item.pageNumber))

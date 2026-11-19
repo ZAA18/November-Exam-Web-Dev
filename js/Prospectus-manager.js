@@ -63,7 +63,7 @@
         }
     }
 
-    async function run() {
+    async function run(universityId = "wits") {
         if (running) {
             console.warn("Prospectus extraction is already running.");
             return lastResult;
@@ -75,7 +75,7 @@
             checkDependencies();
 
             setStatus("Step 1/6: Loading prospectus...");
-            const prospectus = await window.UniCompanionPDF.read();
+            const prospectus = await window.UniCompanionPDF.read(universityId);
 
             setStatus("Step 2/6: Analysing document...");
             const documentAnalysis =
@@ -154,6 +154,22 @@
         }
     }
 
+    async function runAll() {
+        const universities = Object.values(window.UniCompanionUniversities || {}).filter(item => item.prospectus);
+        const results = [];
+        for (const university of universities) {
+            try {
+                const result = await run(university.id);
+                results.push(result);
+                window.dispatchEvent(new CustomEvent("unicomp:prospectus-ready", { detail: result }));
+            } catch (error) {
+                results.push({ university: university.id, error: error.message });
+                window.dispatchEvent(new CustomEvent("unicomp:prospectus-error", { detail: { university: university.id, message: error.message } }));
+            }
+        }
+        return results;
+    }
+
     function getResults() {
         return lastResult;
     }
@@ -184,6 +200,7 @@
 
    window.UniCompanionProspectusManager = {
     run,
+    runAll,
     getResults,
     downloadJSON
 };
@@ -196,13 +213,7 @@ async function startAutomatically() {
     try {
         setStatus("Preparing automatic prospectus extraction...");
 
-        const result = await run();
-
-        window.dispatchEvent(
-            new CustomEvent("unicomp:prospectus-ready", {
-                detail: result
-            })
-        );
+        await runAll();
 
     } catch (error) {
         console.error(
