@@ -87,13 +87,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 </div>
 
-                <div class="chat-notice">
-
-                    Gemini AI connection will be configured
-                    in the next development stage.
-
-                </div>
-
             </div>
 
 
@@ -535,7 +528,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
 // Stores the conversation so the assistant
 // can understand follow-up questions.
-const conversationHistory = [];
+const conversationHistory = [{
+    role: "model",
+    parts: [{ text: "Hi! Welcome to UniCompanion. I'm here to help you with university applications, APS calculations and finding courses. What would you like to know?" }]
+}];
 
 function getAssistantResponseText(response) {
 
@@ -558,6 +554,36 @@ function getAssistantResponseText(response) {
     }
 
     throw new Error("Unexpected Gemini response.");
+}
+
+function formatAssistantResponse(text, isFollowUp) {
+    let formatted = String(text || "")
+        .replace(/\r\n?/g, "\n")
+        .replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, "$1 ($2)")
+        .split("\n")
+        .map(line => {
+            let clean = line
+                .replace(/^\s{0,3}#{1,6}\s*/, "")
+                .replace(/^\s*>\s?/, "")
+                .replace(/^\s*[*+-]\s+/, "\u2022 ")
+                .replace(/\*\*/g, "")
+                .replace(/__/g, "")
+                .replace(/`+/g, "")
+                .replace(/\*/g, "");
+            if (/^\s*[-_]{3,}\s*$/.test(clean)) return "";
+            return clean;
+        })
+        .join("\n")
+        .replace(/\n{3,}/g, "\n\n")
+        .trim();
+
+    // Avoid repeating a greeting when the initial welcome is already in the chat.
+    if (isFollowUp) {
+        formatted = formatted.replace(/^(?:hi|hello|hey)(?:\s+there)?\b[!,.:]?\s*/i, "");
+        formatted = formatted.replace(/^(?:good\s+(?:morning|afternoon|evening)|greetings|welcome\s+back)\b[!,.:]?\s*/i, "");
+        formatted = formatted.replace(/^welcome\s+to\s+unicomp\w*\b[!,.:]?\s*/i, "");
+    }
+    return formatted;
 }
 
 function addChatMessage(message, className) {
@@ -641,7 +667,10 @@ chatForm.addEventListener("submit", async event => {
             conversationHistory
         );
 
-        const answer = getAssistantResponseText(response);
+        const answer = formatAssistantResponse(
+            getAssistantResponseText(response),
+            conversationHistory.length > 0
+        );
 
         loadingMessage.classList.remove("typing-indicator");
         loadingMessage.textContent = answer;

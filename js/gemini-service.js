@@ -45,7 +45,12 @@
 
     async function chat(message, history = [], context = "") {
         const conversation = history.slice(-8)
-            .map(item => `${item.role}: ${item.text}`)
+            .map(item => {
+                const text = item.text || item.parts?.map(part => part.text || "").join(" ") || "";
+                const speaker = item.role === "model" || item.role === "assistant" ? "UniCompanion" : "Student";
+                return text ? `${speaker}: ${text}` : "";
+            })
+            .filter(Boolean)
             .join("\n");
         const prompt = `
 You are UniCompanion AI, a helpful South African university and study guidance assistant.
@@ -56,6 +61,9 @@ Your responsibilities:
 - Explain information available on the UniCompanion website.
 
 Rules:
+- This is an ongoing conversation. Greet the student only in your first reply; do not repeat greetings, introductions, or welcome messages in later replies.
+- Answer the latest question directly. Keep a natural, warm conversational tone without canned openings or sign-offs.
+- Write in plain text. Do not use Markdown headings, bold or italic markers, asterisks, decorative symbols, or Markdown formatting. Use short paragraphs and simple numbered steps only when useful.
 - Never invent university admission requirements or guarantee admission.
 - Distinguish minimum requirements from actual admission.
 - If verified information is unavailable, say so and direct the student to the official university source.
@@ -72,7 +80,7 @@ ${message}
 
 Give a helpful, clear answer in plain English.
 `;
-        return generate(prompt, { model: config.models.assistant, temperature: 0.5 });
+        return generate(prompt, { model: config.models.assistant, temperature: 0.35 });
     }
 
     window.UniCompanionGemini = { generate, chat };
