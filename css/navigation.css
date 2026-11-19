@@ -95,10 +95,8 @@
 }
 
 .nav-link {
-    position: relative;
     display: inline-flex;
     align-items: center;
-    transform-style: preserve-3d;
 
     gap: .4rem;
 
@@ -119,25 +117,11 @@
     height: 1.2rem;
     flex: 0 0 1.2rem;
     object-fit: contain;
-    filter: none;
-    transform-origin: center;
-    transition: transform .24s cubic-bezier(.2, .7, .2, 1);
-    will-change: transform;
 }
 
 .nav-link:hover,
 .nav-link.active {
     color: #008ca6;
-}
-
-.nav-link:hover,
-.nav-link:focus-visible {
-    z-index: 2;
-}
-
-.nav-link:hover .nav-icon,
-.nav-link:focus-visible .nav-icon {
-    transform: translateY(-2px) translateZ(10px) scale(1.2) rotateY(-8deg);
 }
 
 

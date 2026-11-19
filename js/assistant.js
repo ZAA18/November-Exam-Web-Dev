@@ -102,11 +102,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 </label>
 
-                <textarea rows="1"
+                <input type="text"
                     id="chat-message"
                     placeholder="Ask me anything..."
-                    autocomplete="off"
-                    enterkeyhint="send"></textarea>
+                    autocomplete="off">
 
                 <button type="submit"
                     aria-label="Send message">
@@ -149,20 +148,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const chatMessages = document.getElementById("chat-messages");
 
     const homepageOpenButton = document.getElementById("open-chat");
-
-    function resizeChatInput() {
-        chatInput.style.height = "auto";
-        const maxHeight = 104;
-        chatInput.style.height = `${Math.min(chatInput.scrollHeight, maxHeight)}px`;
-        chatInput.style.overflowY = chatInput.scrollHeight > maxHeight ? "auto" : "hidden";
-    }
-
-    chatInput.addEventListener("input", resizeChatInput);
-    chatInput.addEventListener("keydown", event => {
-        if (event.key !== "Enter" || event.shiftKey || event.isComposing) return;
-        event.preventDefault();
-        chatForm.requestSubmit();
-    });
 
 
     /* =====================================
@@ -262,7 +247,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
             positionChatPanel();
 
-            resizeChatInput();
             chatInput.focus();
 
         });
@@ -650,7 +634,6 @@ chatForm.addEventListener("submit", async event => {
 
     // Clear input.
     chatInput.value = "";
-    resizeChatInput();
 
     // Prevent duplicate requests.
     chatInput.disabled = true;
