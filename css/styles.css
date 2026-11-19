@@ -274,12 +274,11 @@ main {
 
     height: clamp(12rem, 22vw, 20rem);
 
-    object-fit: cover;
+    object-fit: contain;
     object-position: center;
 
-    border-radius: 1rem;
-
-    box-shadow: 0 1rem 2.5rem #1d485022;
+    border-radius: 0;
+    filter: drop-shadow(0 1rem 1.5rem #1d485022);
 }
 
 
@@ -566,9 +565,8 @@ main {
     border-radius: 50%;
 
     background: #ffffff99;
-
-    font-size: .8rem;
-    font-weight: 800;
+    object-fit: contain;
+    padding: .3rem;
 }
 
 .uj-logo {

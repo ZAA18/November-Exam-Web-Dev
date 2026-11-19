@@ -31,10 +31,11 @@ document.addEventListener("DOMContentLoaded", () => {
         card.id = `university-${university.id}`;
         card.style.setProperty("--crest-color", university.color);
 
-        const crest = document.createElement("span");
+        const crest = document.createElement("img");
         crest.className = "directory-crest";
+        crest.src = `../assets/University%20Icons/${encodeURIComponent(university.icon)}`;
+        crest.alt = "";
         crest.setAttribute("aria-hidden", "true");
-        crest.textContent = university.crest;
 
         const stats = document.createElement("div");
         stats.className = "directory-stats";

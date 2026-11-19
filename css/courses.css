@@ -46,12 +46,10 @@
     place-items: center;
     transform: translateX(-50%);
     border: 2px solid var(--crest-color);
-    border-radius: 50% 50% 45% 45%;
+    border-radius: 50%;
     background: #fffaf2;
-    color: var(--crest-color);
-    font-size: .62rem;
-    font-weight: 800;
-    line-height: 1;
+    object-fit: contain;
+    padding: .2rem;
 }
 
 .directory-stats {

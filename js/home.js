@@ -21,11 +21,11 @@ document.addEventListener("DOMContentLoaded", () => {
         card.dataset.universityId = university.id;
         card.setAttribute("aria-label", `Explore courses at ${university.name}`);
 
-        const logo = document.createElement("span");
+        const logo = document.createElement("img");
         logo.className = "university-logo";
-        logo.style.color = university.color;
+        logo.src = `assets/University%20Icons/${encodeURIComponent(university.icon)}`;
+        logo.alt = "";
         logo.setAttribute("aria-hidden", "true");
-        logo.textContent = university.crest;
 
         const name = document.createElement("h3");
         name.textContent = university.name;
