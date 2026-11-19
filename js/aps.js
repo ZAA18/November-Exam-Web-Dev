@@ -184,24 +184,26 @@ document.addEventListener("DOMContentLoaded", () => {
             }
             addFlipButton(back, "Back to programme", front.id);
 
+            let faceHandoffTimer;
             const setFlipped = flipped => {
                 const moveFocus = document.activeElement?.classList.contains("programme-flip-control")
                     && item.contains(document.activeElement);
+                window.clearTimeout(faceHandoffTimer);
                 item.classList.toggle("is-flipped", flipped);
-                front.setAttribute("aria-hidden", String(flipped));
-                front.inert = flipped;
-                back.setAttribute("aria-hidden", String(!flipped));
-                back.inert = !flipped;
                 item.querySelectorAll(".programme-flip-control").forEach(button => {
                     button.setAttribute("aria-expanded", String(flipped));
                 });
                 window.UniCompanionMotion?.flipCard(item, flipped);
-                if (moveFocus) {
-                    requestAnimationFrame(() => {
+                faceHandoffTimer = window.setTimeout(() => {
+                    front.setAttribute("aria-hidden", String(flipped));
+                    front.inert = flipped;
+                    back.setAttribute("aria-hidden", String(!flipped));
+                    back.inert = !flipped;
+                    if (moveFocus) {
                         (flipped ? back : front).querySelector(".programme-flip-control")
                             ?.focus({ preventScroll: true });
-                    });
-                }
+                    }
+                }, 310);
             };
             item.addEventListener("click", event => {
                 if (event.target.closest("a, summary")) return;
@@ -217,7 +219,9 @@ document.addEventListener("DOMContentLoaded", () => {
             item.append(inner);
             list.append(item);
         });
-        panel.scrollIntoView({behavior:"smooth",block:"start"});
+        requestAnimationFrame(() => {
+            panel.scrollIntoView({ behavior: "smooth", block: "start" });
+        });
     }
     let calculating = false;
     let calculationRefreshQueued = false;

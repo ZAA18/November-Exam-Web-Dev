@@ -397,7 +397,6 @@
 
 .programme-card-face > .programme-flip-control {
     position: relative;
-    z-index: 1;
 }
 
 /* Typing feedback is visible even when GSAP or JavaScript animations fail. */
