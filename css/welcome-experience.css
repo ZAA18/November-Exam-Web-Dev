@@ -142,6 +142,12 @@ body.welcome-active {
     overflow: hidden;
     perspective: 1800px;
     perspective-origin: 50% 48%;
+    transform: translateX(-25%);
+    transition: transform .95s cubic-bezier(.2, .7, .15, 1);
+}
+
+.welcome-experience.book-open .welcome-book-stage {
+    transform: translateX(0);
 }
 
 .welcome-book-shadow {
@@ -160,14 +166,14 @@ body.welcome-active {
 .welcome-book {
     position: absolute;
     inset: 0;
-    transform-style: preserve-3d;
+    transform-style: flat;
     transform: none;
 }
 
 .welcome-book-pages {
     position: absolute;
     inset: 1.5% 0 1.5%;
-    z-index: 6;
+    z-index: auto;
     display: grid;
     grid-template-columns: 1fr 1fr;
     overflow: hidden;
@@ -206,11 +212,13 @@ body.welcome-active {
 .welcome-page-left {
     display: flex;
     flex-direction: column;
+    z-index: 6;
     padding-right: clamp(2rem, 5vw, 4.3rem);
     background: transparent;
 }
 
 .welcome-page-right {
+    z-index: 1;
     padding-left: clamp(2rem, 5vw, 4.3rem);
     background: linear-gradient(250deg, #fff9e9, #f6efdd);
 }
@@ -374,12 +382,12 @@ body.welcome-active {
     position: absolute;
     top: 0;
     bottom: 0;
-    left: 25%;
+    left: 50%;
     z-index: 3;
     width: 50%;
     transform-style: preserve-3d;
     transform-origin: left center;
-    transition: left .95s cubic-bezier(.2, .7, .15, 1), width .95s cubic-bezier(.2, .7, .15, 1), transform .95s cubic-bezier(.2, .7, .15, 1);
+    transition: transform .95s cubic-bezier(.2, .7, .15, 1);
     cursor: pointer;
     pointer-events: auto;
 }
@@ -553,8 +561,6 @@ body.welcome-active {
 
 .welcome-experience.book-open .welcome-book-cover {
     z-index: 5;
-    left: 50%;
-    width: 50%;
     transform: rotateY(-180deg);
 }
 
@@ -671,6 +677,8 @@ body.welcome-active {
         height: auto;
         min-height: 29rem;
         padding: 1rem 0;
+        transform: none;
+        transition: none;
     }
 
     .welcome-book {

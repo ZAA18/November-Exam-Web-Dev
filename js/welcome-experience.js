@@ -37,6 +37,7 @@
         }
 
         const startButton = document.getElementById("welcome-start");
+        const book = document.getElementById("welcome-book");
         const cover = document.getElementById("welcome-book-cover");
         const pages = document.getElementById("welcome-book-pages");
         const formPanel = document.getElementById("student-welcome-form");
@@ -144,8 +145,8 @@
             submitButton.setAttribute("aria-busy", "true");
             formPanel.inert = true;
             pages.inert = true;
-            finaleHeading.textContent = `Welcome, ${profile.name}!`;
-            finaleSubtitle.textContent = `${profile.grade} · Your next chapter starts now.`;
+            finaleHeading.textContent = `Welcome to UniCompanion, ${profile.name}!`;
+            finaleSubtitle.textContent = "Good luck on your journey — the next chapter is yours to write.";
             finale.hidden = false;
             finale.focus({ preventScroll: true });
             experience.setAttribute("aria-labelledby", "welcome-finale-heading");
