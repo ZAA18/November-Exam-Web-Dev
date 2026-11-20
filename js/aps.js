@@ -54,7 +54,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const remove = document.createElement("button"); remove.type="button"; remove.className="remove-subject"; remove.textContent="Remove"; remove.addEventListener("click",()=>{row.remove();refreshPicker();reset();});
         row.append(remove); marksList.append(row); picker.value=""; refreshPicker(); input.addEventListener("input",reset); input.focus(); reset();
     });
-    function renderUniversity(id) {
+    function renderUniversity(id, scrollToResults = false) {
         const uni = all[id], result = studentResults?.[id]; if (!uni || !result) return;
         selected=id; cards.forEach(c=>c.querySelector("button").classList.toggle("is-active", c.dataset.university===id));
         panel.hidden=false; list.replaceChildren();
@@ -217,12 +217,18 @@ document.addEventListener("DOMContentLoaded", () => {
             item.append(inner);
             list.append(item);
         });
-        requestAnimationFrame(() => {
-            panel.scrollIntoView({
-                behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
-                block: "start"
-            });
-        });
+        if (scrollToResults) {
+            const resultsHeading = $("university-results-heading");
+            resultsHeading.tabIndex = -1;
+            requestAnimationFrame(() => requestAnimationFrame(() => {
+                const top = resultsHeading.getBoundingClientRect().top + window.scrollY - 20;
+                resultsHeading.focus({ preventScroll: true });
+                window.scrollTo({
+                    top: Math.max(0, top),
+                    behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth"
+                });
+            }));
+        }
     }
     let calculating = false;
     let calculationRefreshQueued = false;
@@ -289,7 +295,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
     }
-    cards.forEach(card=>card.querySelector("button").addEventListener("click",()=>renderUniversity(card.dataset.university)));
+    cards.forEach(card=>card.querySelector("button").addEventListener("click",()=>renderUniversity(card.dataset.university, true)));
     $("calculate-aps").addEventListener("click",calculate);
     averageButton.addEventListener("click",()=>{const marks=collect(); if(!marks){setApsMessage("Enter valid marks before calculating your average.", "error");return;} const values=Object.values(marks);setApsMessage(`Your average is ${(values.reduce((a,b)=>a+b,0)/values.length).toFixed(1)}%.`, "success");
     });
