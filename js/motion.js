@@ -130,6 +130,7 @@
         const featureLink = event.target instanceof Element ? event.target.closest("a.feature-card[href]") : null;
         if (featureLink && !event.defaultPrevented && event.button === 0 && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey && !featureLink.target && !featureLink.hasAttribute("download") && motionEnabled) {
             event.preventDefault();
+            const mobileTransition = window.matchMedia("(max-width: 680px)").matches;
             if (featureLink.classList.contains("explore-card")) {
                 const universities = window.UniCompanionUniversityCatalog || [];
                 if (universities.length) {
@@ -159,6 +160,15 @@
                     gsap.set(overlay, { clipPath: `circle(0% at ${originX} ${originY})` });
                     const cards = [...roster.children];
                     const entryFrom = index => {
+                        if (mobileTransition) {
+                            const mobileDirections = [
+                                { x: -62, y: -36, rotate: -4 },
+                                { x: 58, y: -42, rotate: 4 },
+                                { x: -42, y: 48, rotate: 3 },
+                                { x: 46, y: 42, rotate: -3 }
+                            ];
+                            return mobileDirections[index % mobileDirections.length];
+                        }
                         const directions = [
                             { x: -170, y: -70, rotate: -9 },
                             { x: 160, y: -90, rotate: 8 },
@@ -168,12 +178,12 @@
                         return directions[index % directions.length];
                     };
                     gsap.timeline({ onComplete: () => { window.location.href = featureLink.href; } })
-                        .to(overlay, { clipPath: `circle(150% at ${originX} ${originY})`, duration: .72, ease: "power4.inOut" })
-                        .fromTo(orbit, { scale: .55, rotate: -30 }, { scale: 1, rotate: 0, duration: .85, ease: "power3.out" }, "-=.35")
+                        .to(overlay, { clipPath: `circle(150% at ${originX} ${originY})`, duration: mobileTransition ? .5 : .72, ease: "power4.inOut" })
+                        .fromTo(orbit, { scale: .55, rotate: -30 }, { scale: 1, rotate: 0, duration: mobileTransition ? .52 : .85, ease: "power3.out" }, mobileTransition ? "-=.22" : "-=.35")
                         .fromTo([kicker, heading],
-                            { autoAlpha: 0, y: 26 },
-                            { autoAlpha: 1, y: 0, duration: .45, stagger: .08, ease: "power3.out" },
-                            "-=.28"
+                            { autoAlpha: 0, y: mobileTransition ? 14 : 26 },
+                            { autoAlpha: 1, y: 0, duration: mobileTransition ? .32 : .45, stagger: mobileTransition ? .045 : .08, ease: "power3.out" },
+                            mobileTransition ? "-=.22" : "-=.28"
                         )
                         .fromTo(cards,
                             {
@@ -183,8 +193,8 @@
                                 rotation: index => entryFrom(index).rotate,
                                 scale: .82
                             },
-                            { autoAlpha: 1, x: 0, y: 0, rotation: 0, scale: 1, duration: .58, stagger: { each: .065, from: "random" }, ease: "back.out(1.45)" },
-                            "-=.48"
+                            { autoAlpha: 1, x: 0, y: 0, rotation: 0, scale: 1, duration: mobileTransition ? .36 : .58, stagger: { each: mobileTransition ? .035 : .065, from: "random" }, ease: "back.out(1.35)" },
+                            mobileTransition ? "-=.32" : "-=.48"
                         );
                     return;
                 }
@@ -226,15 +236,15 @@
 
             gsap.set(overlay, { clipPath: `circle(0% at ${originX} ${originY})` });
             const transition = gsap.timeline({ onComplete: () => { window.location.href = featureLink.href; } })
-                .to(overlay, { clipPath: `circle(150% at ${originX} ${originY})`, duration: 0.82, ease: "power4.inOut" })
-                .fromTo(orbit, { scale: 0.38, rotate: -48 }, { scale: 1, rotate: 0, duration: 0.72, ease: "power3.out" }, "-=0.5")
-                .fromTo(icon, { autoAlpha: 0, y: 30, scale: 0.45, rotate: -24 }, { autoAlpha: 1, y: 0, scale: 1, rotate: 0, duration: 0.55, ease: "back.out(2)" }, "-=0.44")
-                .fromTo([brand, heading], { autoAlpha: 0, y: 22 }, { autoAlpha: 1, y: 0, duration: 0.42, stagger: 0.09, ease: "power3.out" }, "-=0.28");
+                .to(overlay, { clipPath: `circle(150% at ${originX} ${originY})`, duration: mobileTransition ? .48 : 0.82, ease: "power4.inOut" })
+                .fromTo(orbit, { scale: mobileTransition ? .72 : 0.38, rotate: -48 }, { scale: 1, rotate: 0, duration: mobileTransition ? .42 : 0.72, ease: "power3.out" }, mobileTransition ? "-=.25" : "-=0.5")
+                .fromTo(icon, { autoAlpha: 0, y: mobileTransition ? 16 : 30, scale: mobileTransition ? .7 : .45, rotate: -24 }, { autoAlpha: 1, y: 0, scale: 1, rotate: 0, duration: mobileTransition ? .34 : 0.55, ease: "back.out(2)" }, mobileTransition ? "-=.25" : "-=0.44")
+                .fromTo([brand, heading], { autoAlpha: 0, y: mobileTransition ? 12 : 22 }, { autoAlpha: 1, y: 0, duration: mobileTransition ? .3 : 0.42, stagger: mobileTransition ? .05 : 0.09, ease: "power3.out" }, mobileTransition ? "-=.18" : "-=0.28");
             if (universityRoster) {
                 transition.fromTo([...universityRoster.children],
-                    { autoAlpha: 0, x: index => index % 2 ? 72 : -72, y: 18, rotateY: index => index % 2 ? 10 : -10 },
-                    { autoAlpha: 1, x: 0, y: 0, rotateY: 0, duration: .42, stagger: { each: .045, from: "random" }, ease: "power3.out" },
-                    "-=.18"
+                    { autoAlpha: 0, x: index => index % 2 ? (mobileTransition ? 32 : 72) : (mobileTransition ? -32 : -72), y: mobileTransition ? 10 : 18, rotateY: index => index % 2 ? (mobileTransition ? 5 : 10) : (mobileTransition ? -5 : -10) },
+                    { autoAlpha: 1, x: 0, y: 0, rotateY: 0, duration: mobileTransition ? .28 : .42, stagger: { each: mobileTransition ? .025 : .045, from: "random" }, ease: "power3.out" },
+                    mobileTransition ? "-=.12" : "-=.18"
                 );
             }
             return;
@@ -286,6 +296,7 @@
             && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey
             && !allUniversitiesLink.target && !allUniversitiesLink.hasAttribute("download")) {
             event.preventDefault();
+            const mobileTransition = window.matchMedia("(max-width: 680px)").matches;
             try { sessionStorage.setItem("unicomp:university-transition", "1"); } catch (_) { /* Navigation still works without transition state. */ }
 
             const overlay = document.createElement("div");
@@ -330,19 +341,19 @@
             const originY = `${((bounds.top + bounds.height / 2) / window.innerHeight) * 100}%`;
             gsap.set(overlay, { clipPath: `circle(0% at ${originX} ${originY})` });
             gsap.timeline({ onComplete: () => { window.location.href = allUniversitiesLink.href; } })
-                .to(overlay, { clipPath: `circle(150% at ${originX} ${originY})`, duration: .72, ease: "power4.inOut" })
+                .to(overlay, { clipPath: `circle(150% at ${originX} ${originY})`, duration: mobileTransition ? .5 : .72, ease: "power4.inOut" })
                 .fromTo([kicker, heading],
-                    { autoAlpha: 0, y: 28 },
-                    { autoAlpha: 1, y: 0, duration: .42, stagger: .08, ease: "power3.out" },
-                    "-=.28"
+                    { autoAlpha: 0, y: mobileTransition ? 14 : 28 },
+                    { autoAlpha: 1, y: 0, duration: mobileTransition ? .3 : .42, stagger: mobileTransition ? .045 : .08, ease: "power3.out" },
+                    mobileTransition ? "-=.2" : "-=.28"
                 )
                 .fromTo([...grid.children],
-                    { autoAlpha: 0, x: index => index % 2 ? 90 : -90, y: 26, rotateY: index => index % 2 ? 12 : -12, scale: .84 },
-                    { autoAlpha: 1, x: 0, y: 0, rotateY: 0, scale: 1, duration: .5, stagger: { each: .075, from: "random" }, ease: "back.out(1.35)" },
-                    "-=.16"
+                    { autoAlpha: 0, x: index => index % 2 ? (mobileTransition ? 34 : 90) : (mobileTransition ? -34 : -90), y: mobileTransition ? 12 : 26, rotateY: index => index % 2 ? (mobileTransition ? 5 : 12) : (mobileTransition ? -5 : -12), scale: mobileTransition ? .94 : .84 },
+                    { autoAlpha: 1, x: 0, y: 0, rotateY: 0, scale: 1, duration: mobileTransition ? .32 : .5, stagger: { each: mobileTransition ? .03 : .075, from: "random" }, ease: "back.out(1.35)" },
+                    mobileTransition ? "-=.1" : "-=.16"
                 )
-                .fromTo(caption, { autoAlpha: 0, y: 12 }, { autoAlpha: 1, y: 0, duration: .3, ease: "power2.out" }, "-=.22")
-                .to(orbit, { rotate: 300, scale: 1.08, duration: 1.2, ease: "power2.inOut" }, 0);
+                .fromTo(caption, { autoAlpha: 0, y: mobileTransition ? 6 : 12 }, { autoAlpha: 1, y: 0, duration: mobileTransition ? .22 : .3, ease: "power2.out" }, mobileTransition ? "-=.12" : "-=.22")
+                .to(orbit, { rotate: mobileTransition ? 100 : 300, scale: mobileTransition ? 1.03 : 1.08, duration: mobileTransition ? .55 : 1.2, ease: "power2.inOut" }, 0);
             return;
         }
 
@@ -350,6 +361,7 @@
         if (!link || event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
         if (!motionEnabled) return;
         event.preventDefault();
+        const mobileTransition = window.matchMedia("(max-width: 680px)").matches;
         try { sessionStorage.setItem("unicomp:university-transition", "1"); } catch (_) { /* Continue with the same-page transition. */ }
         const overlay = makeTransitionOverlay();
         const mark = overlay.querySelector(".page-transition-mark");
@@ -360,14 +372,14 @@
         if (universityRoster) overlay.append(universityRoster);
         gsap.set(overlay, { clipPath: "circle(0% at 50% 50%)" });
         const transition = gsap.timeline({ onComplete: () => { window.location.href = link.href; } })
-            .to(overlay, { clipPath: "circle(150% at 50% 50%)", duration: 0.88, ease: "power4.inOut" })
-            .fromTo(mark, { autoAlpha: 0, y: 22, scale: 0.8 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.42, ease: "back.out(1.8)" }, "-=0.42")
-            .fromTo(overlay.querySelector(".page-transition-orbit"), { scale: 0.4, rotate: -35 }, { scale: 1, rotate: 0, duration: 0.7, ease: "power3.out" }, "<");
+            .to(overlay, { clipPath: "circle(150% at 50% 50%)", duration: mobileTransition ? .48 : 0.88, ease: "power4.inOut" })
+            .fromTo(mark, { autoAlpha: 0, y: mobileTransition ? 12 : 22, scale: mobileTransition ? .92 : .8 }, { autoAlpha: 1, y: 0, scale: 1, duration: mobileTransition ? .3 : 0.42, ease: "back.out(1.8)" }, mobileTransition ? "-=.25" : "-=0.42")
+            .fromTo(overlay.querySelector(".page-transition-orbit"), { scale: mobileTransition ? .72 : .4, rotate: -35 }, { scale: 1, rotate: 0, duration: mobileTransition ? .4 : .7, ease: "power3.out" }, "<");
         if (universityRoster) {
             transition.fromTo([...universityRoster.children],
-                { autoAlpha: 0, x: index => index % 2 ? 72 : -72, y: 18, rotateY: index => index % 2 ? 10 : -10 },
-                { autoAlpha: 1, x: 0, y: 0, rotateY: 0, duration: .42, stagger: { each: .045, from: "random" }, ease: "power3.out" },
-                "-=.2"
+                { autoAlpha: 0, x: index => index % 2 ? (mobileTransition ? 32 : 72) : (mobileTransition ? -32 : -72), y: mobileTransition ? 8 : 18, rotateY: index => index % 2 ? (mobileTransition ? 4 : 10) : (mobileTransition ? -4 : -10) },
+                { autoAlpha: 1, x: 0, y: 0, rotateY: 0, duration: mobileTransition ? .28 : .42, stagger: { each: mobileTransition ? .025 : .045, from: "random" }, ease: "power3.out" },
+                mobileTransition ? "-=.12" : "-=.2"
             );
         }
     });
