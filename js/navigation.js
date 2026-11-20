@@ -6,6 +6,22 @@
 
 document.addEventListener("DOMContentLoaded", () => {
 
+    const searchForm = document.getElementById("search-form");
+    const searchInput = document.getElementById("site-search");
+
+    // Home and View Courses have page-specific live filters. On the other
+    // pages, send the search to the university directory instead of allowing
+    // the browser to submit the form to the current page and refresh it.
+    if (searchForm && !document.getElementById("university-track") && !document.getElementById("university-directory")) {
+        searchForm.addEventListener("submit", event => {
+            event.preventDefault();
+            const destination = new URL("view-courses.html", window.location.href);
+            const query = searchInput?.value.trim() || "";
+            if (query) destination.searchParams.set("search", query);
+            window.location.assign(destination.href);
+        });
+    }
+
     const menuToggle = document.getElementById("menu-toggle");
 
     const navigation = document.getElementById("navigation");

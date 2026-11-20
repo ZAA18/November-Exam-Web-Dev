@@ -80,6 +80,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const cards = [...directory.querySelectorAll(".directory-card")];
     const searchForm = document.getElementById("search-form");
     const searchInput = document.getElementById("site-search");
+    const initialSearch = new URLSearchParams(window.location.search).get("search") || "";
+    if (searchInput) searchInput.value = initialSearch;
     const filterUniversities = query => {
         const normalized = query.trim().toLocaleLowerCase();
         let visible = 0;
@@ -103,7 +105,7 @@ document.addEventListener("DOMContentLoaded", () => {
         filterUniversities(searchInput?.value || "");
     });
     searchInput?.addEventListener("input", () => filterUniversities(searchInput.value));
-    filterUniversities("");
+    filterUniversities(initialSearch);
 
     // A university selected on the homepage gets brought into view and called out.
     const selectedCard = document.getElementById(decodeURIComponent(location.hash.slice(1)));
