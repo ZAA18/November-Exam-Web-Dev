@@ -60,10 +60,10 @@ document.addEventListener("DOMContentLoaded", () => {
         panel.hidden=false; list.replaceChildren();
         window.UniCompanionMotion?.revealResponse(panel);
         $("university-results-heading").textContent = `${uni.name} programmes`;
-        const assessed = result.assessments || [], counts = { eligible: 0, "not-eligible": 0, incomplete: 0 };
+        const assessed = result.assessments || [], counts = { eligible: 0, "not-eligible": 0, incomplete: 0, "meets-minimums": 0 };
         assessed.forEach(a=>counts[a.status]++);
         const scoreText=result.score.value!==null&&result.score.value!==undefined?`${result.score.value}${result.score.available?"":" (base score)"}`:"Add marks to calculate";
-        summary.textContent = `${uni.admissionYear ? `Prospectus ${uni.admissionYear}` : "Prospectus year unavailable"} · Admission score: ${scoreText}${result.score.unit?` ${result.score.unit}`:""} · ${counts.eligible} eligible · ${counts["not-eligible"]} below a confirmed minimum · ${counts.incomplete} with criteria still to assess. Meeting minimums does not guarantee admission.`;
+        summary.textContent = `${uni.admissionYear ? `Prospectus ${uni.admissionYear}` : "Prospectus year unavailable"} · Admission score: ${scoreText}${result.score.unit?` ${result.score.unit}`:""} · ${counts.eligible} fully assessed as eligible · ${counts["meets-minimums"]} meet the checks we could assess, with more criteria to check · ${counts["not-eligible"]} below a confirmed minimum · ${counts.incomplete} need more information. Meeting minimums does not guarantee admission.`;
         if (!assessed.length) {
             const empty=document.createElement("p");
             empty.className="results-empty";
@@ -129,7 +129,9 @@ document.addEventListener("DOMContentLoaded", () => {
             status.className = "programme-status-label";
             status.textContent = a.status === "incomplete"
                 ? "MORE REQUIREMENTS TO CHECK"
-                : a.status.replaceAll("-", " ").toUpperCase();
+                : a.status === "meets-minimums"
+                    ? "MEETS CHECKED MINIMUMS · MORE TO CHECK"
+                    : a.status.replaceAll("-", " ").toUpperCase();
             front.append(status);
             addFlipButton(front, "View Details", back.id);
 
@@ -261,12 +263,16 @@ document.addEventListener("DOMContentLoaded", () => {
                     const data=uni.programmes||[];
                     const assessments=data.map(programme=>window.UniCompanionEligibilityEngine.assess(uni,marks,programme,score));
                     const eligible=assessments.filter(a=>a.status==="eligible").length;
+                    const meetsMinimums=assessments.filter(a=>a.status==="meets-minimums").length;
+                    const needsReview=assessments.filter(a=>a.status==="incomplete").length;
                     card.classList.add("is-flipped");
                     card.querySelector(".university-aps").textContent=score.value!==null&&score.value!==undefined?String(score.value):"Add marks";
                     const scoreLabel=card.querySelector(".result-item span");
                     if(scoreLabel) scoreLabel.textContent=score.available?`${score.unit||"Admission score"}${id==="uct"?" (base)":""}`:`${uni.name} score`;
                     let hint=card.querySelector(".score-hint");if(!hint){hint=document.createElement("small");hint.className="score-hint";card.querySelector(".result-item").append(hint);}hint.textContent=score.available?score.details||"":score.reason||"Enter your marks to calculate this score.";
-                    card.querySelector(".eligible-count").textContent=data.length?`${eligible} eligible`:uni.extractionStatus==="error"?"Unavailable":(uni.prospectus?"Programmes loading":"No prospectus");
+                    card.querySelector(".eligible-count").textContent=data.length
+                        ? eligible ? `${eligible} eligible` : meetsMinimums ? `${meetsMinimums} pass known checks*` : `${needsReview} need review`
+                        : uni.extractionStatus==="error" ? "Unavailable" : (uni.prospectus ? "Programmes loading" : "No prospectus");
                     card.querySelector("button").disabled=!uni.prospectus;
                     window.UniCompanionMotion?.pulse(card, Object.keys(students).length * 0.045);
                     students[id]={score,assessments};

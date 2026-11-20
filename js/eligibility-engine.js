@@ -122,11 +122,21 @@
         const aps=Array.isArray(programme.aps)?programme.aps:[];
         const requirementsByType=new Map();
         for(const item of aps){const type=String(item.type||"APS").toUpperCase();const n=Number(item.score);if(Number.isFinite(n)){if(!requirementsByType.has(type))requirementsByType.set(type,[]);requirementsByType.get(type).push(n);}}
-        const scoreRequirements=[...new Set([...requirementsByType.values()].flat())];
+        const scoreType = String(programScore.unit || "APS").toUpperCase().split(/[ /]/)[0];
+        const compatibleType = scoreType === "AP" ? "APS" : scoreType;
+        const matchingThresholds = requirementsByType.get(compatibleType) || [];
         if(requirementsByType.has("WPS")) unknown.push("UCT Weighted Points Score depends on the applicant's disadvantage factor, which is not collected.");
-        else if(scoreRequirements.length===1&&programScore.available){
-            const met=programScore.value>=scoreRequirements[0]; reasons.push(`${programScore.unit||"Admission score"}: ${programScore.value}; minimum ${scoreRequirements[0]} (${met?"met":"not met"}).`); if(!met)reasons.push("Confirmed admission score requirement is not met.");
-        } else unknown.push("A unique programme admission-score threshold was not extracted reliably.");
+        else if(programScore.available && matchingThresholds.length){
+            const distinctThresholds = [...new Set(matchingThresholds)];
+            if(distinctThresholds.length===1){
+                const minimum=distinctThresholds[0];
+                const met=programScore.value>=minimum;
+                reasons.push(`${programScore.unit||compatibleType}: ${programScore.value}; minimum ${minimum} (${met?"met":"not met"}).`);
+                if(!met) reasons.push("Confirmed admission score requirement is not met.");
+            } else unknown.push(`More than one ${compatibleType} threshold was extracted; the programme rule needs checking.`);
+        } else if(programScore.available && requirementsByType.size){
+            unknown.push(`The prospectus score requirement (${[...requirementsByType.keys()].join(" / ")}) cannot be compared reliably with this calculated score (${programScore.unit||"score"}).`);
+        } else if(!requirementsByType.size) unknown.push("A unique programme admission-score threshold was not extracted reliably.");
         for(const req of programme.subjects||[]){
             if(/\bor\b|alternative pathway|either/i.test(req.sourceText||"")&&subjectKey(req.subject)!=="english"){unknown.push(`${req.subject||"Subject"} has an alternative pathway that needs more information.`);continue;}
             const found=findMark(req.subject,marks),min=Number(req.minimumLevel);
@@ -137,7 +147,18 @@
         if(programme.reviewStatus==="invalid")unknown.push("Some extracted programme fields could not be used in the assessment.");
         if(!(programme.aps||[]).length&&!(programme.subjects||[]).length)unknown.push("The prospectus did not yield enough admission requirements for this course.");
         if((programme.selectionRequirements||[]).length)unknown.push("Additional selection criteria apply and are listed below.");
-        const status=reasons.some(x=>x.startsWith("Confirmed"))?"not-eligible":unknown.length?"incomplete":"eligible";
+        const failedConfirmedRequirement = reasons.some(x => x.startsWith("Confirmed"));
+        const hasConfirmedRequirement = reasons.length > 0;
+        // Keep a separate state for programmes whose extracted minimums are
+        // met but whose prospectus still contains criteria we cannot assess.
+        // Calling these fully eligible would overstate what the extraction
+        // proves; folding them into "incomplete" made the university cards
+        // misleadingly report zero for every non-Wits institution.
+        const status = failedConfirmedRequirement
+            ? "not-eligible"
+            : unknown.length
+                ? hasConfirmedRequirement ? "meets-minimums" : "incomplete"
+                : "eligible";
         return {programme,status,reasons,unknown,score:programScore,universityScore:studentScore};
     }
     window.UniCompanionEligibilityEngine={score,scoreForProgramme,assess,getNSCLevel:level};
