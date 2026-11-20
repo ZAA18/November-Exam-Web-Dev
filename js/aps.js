@@ -311,9 +311,8 @@ document.addEventListener("DOMContentLoaded", () => {
         const data=event.detail, id=String(data?.university||"").toLowerCase();
         const uni=all[id]; if(!uni||!Array.isArray(data.programmes)) return;
         uni.programmes=data.programmes; uni.admissionYear=data.admissionYear||uni.admissionYear; uni.extractionStatus="processed";
-        const status=$("prospectus-status"); if(status) { status.textContent=`${uni.name} (${uni.admissionYear||"year unknown"}): loaded ${data.programmes.length} programme entries from its prospectus.`; status.dataset.status="success"; }
         if(window.UniCompanionStudentResults) { if(calculating) calculationRefreshQueued=true; else calculate(); }
     });
-    window.addEventListener("unicomp:prospectus-error",event=>{const id=event.detail?.university;if(id&&all[id])all[id].extractionStatus="error";const status=$("prospectus-status");if(status){status.textContent=`${event.detail?.university||"Prospectus"} could not be loaded. The other university cards remain available.`;status.dataset.status="error";}if(window.UniCompanionStudentResults){if(calculating)calculationRefreshQueued=true;else calculate();}});
+    window.addEventListener("unicomp:prospectus-error",event=>{const id=event.detail?.university;if(id&&all[id])all[id].extractionStatus="error";if(window.UniCompanionStudentResults){if(calculating)calculationRefreshQueued=true;else calculate();}});
     refreshPicker();
 });

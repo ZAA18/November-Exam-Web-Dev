@@ -31,13 +31,6 @@
     }
 
     function setStatus(message, type = "info") {
-        const element = document.getElementById("prospectus-status");
-
-        if (element) {
-            element.textContent = message;
-            element.dataset.status = type;
-        }
-
         console.log(`[Prospectus Manager] ${message}`);
     }
 
@@ -252,12 +245,9 @@ async function startAutomatically() {
     } finally {
         const failed = results.filter(result => result.error).length;
         const loaded = results.length - failed;
-        setStatus(
-            failed
-                ? `Preparation complete. ${loaded} prospectuses loaded; ${failed} could not be read.`
-                : `Preparation complete. ${loaded} prospectuses loaded.`,
-            failed ? "warning" : "success"
-        );
+        setStatus(failed
+            ? `Prospectus preparation finished with ${failed} read error(s).`
+            : "Prospectus preparation complete.", failed ? "warning" : "success");
         window.dispatchEvent(new CustomEvent("unicomp:prospectus-batch-complete", {
             detail: { loaded, failed }
         }));

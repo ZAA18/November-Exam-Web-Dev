@@ -20,13 +20,6 @@
     let activeProspectus = null;
 
     function setStatus(message, type = "info") {
-        const element = document.getElementById("prospectus-status");
-
-        if (element) {
-            element.textContent = message;
-            element.dataset.status = type;
-        }
-
         console.log(`[Prospectus] ${message}`);
     }
 
