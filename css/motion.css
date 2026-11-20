@@ -390,6 +390,14 @@
 }
 
 @media (max-width: 600px) {
+    .explore-university-transition {
+        padding: .75rem .5rem;
+    }
+
+    .explore-university-orbit {
+        width: 56vw;
+    }
+
     .explore-university-content {
         width: 96vw;
     }
@@ -421,6 +429,37 @@
     .page-transition-overlay .university-transition-roster,
     .feature-transition-portal.has-university-roster {
         width: 96vw;
+    }
+
+    .page-transition-overlay {
+        gap: .45rem;
+        padding: .75rem;
+    }
+
+    .page-transition-mark {
+        font-size: clamp(1.25rem, 6vw, 2rem);
+    }
+
+    .page-transition-label {
+        font-size: .8rem;
+    }
+
+    .feature-transition-portal {
+        width: min(94vw, 30rem);
+        gap: .45rem;
+        padding: 1.25rem .8rem;
+    }
+
+    .feature-transition-orbit {
+        width: 60vw;
+    }
+
+    .feature-transition-icon {
+        font-size: clamp(3rem, 16vw, 4.5rem);
+    }
+
+    .feature-transition-title {
+        font-size: clamp(1.4rem, 7vw, 2rem);
     }
 
     .feature-transition-portal.has-university-roster {
